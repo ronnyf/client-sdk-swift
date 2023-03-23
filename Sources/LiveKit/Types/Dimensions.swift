@@ -15,7 +15,8 @@
  */
 
 import Foundation
-import WebRTC
+import CoreMedia
+@_implementationOnly import WebRTC
 
 @objc
 public class Dimensions: NSObject {
