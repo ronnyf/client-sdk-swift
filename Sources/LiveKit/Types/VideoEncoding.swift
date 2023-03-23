@@ -15,16 +15,16 @@
  */
 
 import Foundation
-import WebRTC
+@_implementationOnly import WebRTC
 
 @objc
 public class VideoEncoding: NSObject, MediaEncoding {
 
     @objc
-    public var maxBitrate: Int
+    public let maxBitrate: Int
 
     @objc
-    public var maxFps: Int
+    public let maxFps: Int
 
     @objc
     public init(maxBitrate: Int, maxFps: Int) {

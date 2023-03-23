@@ -299,7 +299,7 @@ internal extension Engine {
             self.log("subscriberPrimary: \(joinResponse.subscriberPrimary)")
 
             // Make a copy, instead of modifying the user-supplied RTCConfiguration object.
-            let rtcConfiguration = RTCConfiguration(copy: self._state.connectOptions.rtcConfiguration)
+			let rtcConfiguration = RTCConfiguration(copy: self._state.connectOptions.configuration.rtcConfiguration)
 
             if rtcConfiguration.iceServers.isEmpty {
                 // Set iceServers provided by the server

@@ -15,7 +15,7 @@
  */
 
 import Foundation
-import WebRTC
+@_implementationOnly import WebRTC
 import Promises
 
 public typealias Sid = String
