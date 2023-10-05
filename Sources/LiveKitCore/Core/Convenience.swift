@@ -24,22 +24,6 @@ extension Publisher {
 				subscription.cancel()
 			}
 		}
-	}	
-	
-	public func stream(queue: DispatchQueue) -> AsyncStream<Output> where Failure == Never {
-		AsyncStream<Output> { continuation in
-			let subscription = self
-				.receive(on: queue)
-				.sink { completion in
-					continuation.finish()
-				} receiveValue: { value in
-					continuation.yield(value)
-				}
-			
-			continuation.onTermination = { @Sendable _ in
-				subscription.cancel()
-			}
-		}
 	}
 	
 	public func throwingStream() -> AsyncThrowingStream<Output, Error> {
