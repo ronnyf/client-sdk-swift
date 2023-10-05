@@ -52,31 +52,6 @@ public struct Publishing<Value> {
 	}
 }
 
-public struct ForwardingSubscription<Input>: Subscriber {
-	
-	public typealias Failure = Never
-	public let combineIdentifier = CombineIdentifier()
-	
-	let subject: any Subject<Input, Never>
-	
-	public init(_ subject: any Subject<Input, Failure>) {
-		self.subject = subject
-	}
-	
-	public func receive(subscription: Subscription) {
-		subject.send(subscription: subscription)
-	}
-	
-	public func receive(_ input: Input) -> Subscribers.Demand {
-		subject.send(input)
-		return .none
-	}
-	
-	public func receive(completion: Subscribers.Completion<Never>) {
-		//we certainly will not cancel the receiving subscriber when the source completes ...
-	}
-}
-
 extension Publisher where Failure == Never {
 	public func assign(to publishing: inout Publishing<Output>) {
 		let forward = ForwardingSubscription(publishing.subject)
