@@ -241,3 +241,28 @@ extension CurrentValueSubject where Output: RangeReplaceableCollection {
 		}
 	}
 }
+
+extension Sequence {
+	public func grouped<Key: Hashable>(by keyPath: KeyPath<Element, Key>) -> [Key: Element] {
+		reduce(into: [Key: Element]()) { result, value in
+			let key = value[keyPath: keyPath]
+			result[key] = value
+		}
+	}
+	
+	public func grouped<Key: Hashable, T>(by keyPath: KeyPath<T, Key>, transform: (Element) -> T) -> [Key: T] {
+		map(transform)
+			.reduce(into: [Key: T]()) { result, value in
+				let key = value[keyPath: keyPath]
+				result[key] = value
+			}
+	}
+	
+	public func grouping<Key: Hashable, T>(by keyPath: KeyPath<T, Key>, into result: inout [Key: T], transform: (Element) -> T) {
+		map(transform)
+			.forEach { transformedElement in
+				let key = transformedElement[keyPath: keyPath]
+				result[key] = transformedElement
+			}
+	}
+}

@@ -84,11 +84,11 @@ extension SignalHub {
 		
 		switch request.type {
 		case .video:
-			trackPublisher = videoTracks.compactMap { $0[request.cid] }.eraseToAnyPublisher()
+			trackPublisher = $videoTracks.publisher.compactMap { $0[request.cid] }.eraseToAnyPublisher()
 		case .audio:
-			trackPublisher = audioTracks.compactMap { $0[request.cid] }.eraseToAnyPublisher()
+			trackPublisher = $audioTracks.publisher.compactMap { $0[request.cid] }.eraseToAnyPublisher()
 		case .data:
-			trackPublisher = dataTracks.compactMap { $0[request.cid] }.eraseToAnyPublisher()
+			trackPublisher = $dataTracks.publisher.compactMap { $0[request.cid] }.eraseToAnyPublisher()
 		
 		case .UNRECOGNIZED(_):
 			trackPublisher = Empty<LiveKitTrack, Never>().eraseToAnyPublisher()

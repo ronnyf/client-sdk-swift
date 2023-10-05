@@ -50,11 +50,11 @@ extension MessageChannel {
 //				} else {
 //				}
 				
-				let rateLimitedValues = coordinator.openSocketsSubject.subject
+				let rateLimitedValues = coordinator.$openSocketsSubject.publisher
 					.dropFirst()
 					.filter({ $0 == nil})
 					.debounce(for: .seconds(rateLimit), scheduler: DispatchQueue.global(qos: .background))
-					.values
+					.stream()
 				
 				for await _ in rateLimitedValues {
 					try Task.checkCancellation()

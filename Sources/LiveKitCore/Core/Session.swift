@@ -53,23 +53,12 @@ open class LiveKitSession: @unchecked Sendable {
 	}
 #endif
 	
-	public var liveKitState: AnyPublisher<LiveKitState, Never> {
-		signalHub.connectedState.eraseToAnyPublisher()
+	public var localParticipantPublisher: some Publisher<LiveKitParticipant, Never> {
+		signalHub.$localParticipant.publisher.compactMap{ $0 }
 	}
 	
-	public func localParticipantPublisher() -> AnyPublisher<LiveKitParticipant, Never> {
-		signalHub.localParticipants.publisher.map { LiveKitParticipant(participantInfo: $0) }.eraseToAnyPublisher()
-	}
-	
-	public func participantUpdatesPublisher() async -> AnyPublisher<Set<LiveKitParticipant>, Never> {
-		signalHub.updatedParticipantsPublisher
-			.filter { $0.count > 0 }
-			.map {
-				$0.reduce(into: Set<LiveKitParticipant>(), { partialResult, participantInfo in
-					partialResult.insert(LiveKitParticipant(participantInfo: participantInfo))
-				})
-			}
-			.eraseToAnyPublisher()
+	public var remoteParticipants: some Publisher<[String: LiveKitParticipant], Never> {
+		signalHub.$remoteParticipants.publisher
 	}
 	
 	public var mediaStreams: AnyPublisher<Array<LiveKitStream>, Never> {
@@ -77,15 +66,15 @@ open class LiveKitSession: @unchecked Sendable {
 	}
 	
 	public var dataTracks: AnyPublisher<Dictionary<String, LiveKitTrack>, Never> {
-		signalHub.dataTracks.eraseToAnyPublisher()
+		signalHub.$dataTracks.publisher.eraseToAnyPublisher()
 	}
 	
 	public var audioTracks: AnyPublisher<Dictionary<String, LiveKitTrack>, Never> {
-		signalHub.audioTracks.eraseToAnyPublisher()
+		signalHub.$audioTracks.publisher.eraseToAnyPublisher()
 	}
 	
 	public var videoTracks: AnyPublisher<Dictionary<String, LiveKitTrack>, Never> {
-		signalHub.videoTracks.eraseToAnyPublisher()
+		signalHub.$videoTracks.publisher.eraseToAnyPublisher()
 	}
 	
 	//sorry for the type ... once Swift can do something like `any AsyncSequence<Data>` this wouldn't be necessary
@@ -174,16 +163,6 @@ open class LiveKitSession: @unchecked Sendable {
 		//                }
 		//            }
 		//        }
-	}
-	
-	// MARK: - output rendering (Viewer Experience)
-	
-	public func renderVideoStream<ViewType>(streamId: String, into view: ViewType) throws {
-		if let renderer = view as? RTCVideoRenderer {
-			try signalHub.peerConnectionFactory.subscribingPeerConnection.renderMediaStream(streamId: streamId, into: renderer)
-		} else {
-			fatalError()
-		}
 	}
 }
 
