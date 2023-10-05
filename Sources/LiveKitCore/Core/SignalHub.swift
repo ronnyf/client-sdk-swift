@@ -49,25 +49,15 @@ open class SignalHub: @unchecked Sendable {
 	
 	//MARK: - State Publishers
 	//OK
-	let joinResponse = _Publishing<Livekit_JoinResponse, Never>()
-	let localParticipants = _Publishing<Livekit_ParticipantInfo, Never>()
-	var connectedState: AnyPublisher<LiveKitState, Never> {
-		peerConnectionFactory.publishingPeerConnection.connectionState.map {
-			LiveKitState($0)
-		}.eraseToAnyPublisher()
-	}
-	
-	//OK
-	let updatedParticipantsSubject = PassthroughSubject<[Livekit_ParticipantInfo], Never>()
-	var updatedParticipantsPublisher: AnyPublisher<[Livekit_ParticipantInfo], Never> {
-		updatedParticipantsSubject.filter { $0.isEmpty == false }.eraseToAnyPublisher()
-	}
+	@Publishing var joinResponse: Livekit_JoinResponse? = nil
+	@Publishing public var localParticipant: LiveKitParticipant? = nil
+	@Publishing public var remoteParticipants: [String: LiveKitParticipant] = [:]
 	
 	//OK
 	//published tracks ... used for addTrackRequest <> Response during publishing
-	let audioTracks = CurrentValueSubject<[String: LiveKitTrack], Never>([:])
-	let videoTracks = CurrentValueSubject<[String: LiveKitTrack], Never>([:])
-	let dataTracks = CurrentValueSubject<[String: LiveKitTrack], Never>([:])
+	@Publishing var audioTracks: [String: LiveKitTrack] = [:]
+	@Publishing var videoTracks: [String: LiveKitTrack] = [:]
+	@Publishing var dataTracks: [String: LiveKitTrack] = [:]
 	
 	@Publishing public var mediaStreams: [LiveKitStream] = []
 	
@@ -76,11 +66,11 @@ open class SignalHub: @unchecked Sendable {
 	
 	//MARK: - quality updates
 	//TODO
-	let subscriptionQualityUpdates = _Publishing<Livekit_SubscribedQualityUpdate, Never>()
+	@Publishing var subscriptionQualityUpdates: Livekit_SubscribedQualityUpdate? = nil
 	
 	//MARK: - speaker updates
 	//TODO
-	let speakerChangedUpdates = _Publishing<Livekit_SpeakersChanged, Never>()
+	@Publishing var speakerChangedUpdates: Livekit_SpeakersChanged? = nil
 	
 	//MARK: - data channels
 	let incomingDataPackets = PassthroughSubject<Livekit_DataPacket, Never>()
@@ -109,24 +99,22 @@ open class SignalHub: @unchecked Sendable {
 		//0: housekeeping
 		incomingDataPackets.send(completion: .finished)
 		outgoingDataPackets.send(completion: .finished)
-		
-		//1: other subjects/publishers
-		speakerChangedUpdates.finish()
-		subscriptionQualityUpdates.finish()
-		tokenUpdatesSubject.send(completion: .finished)
-		
-		joinResponse.finish()
-		localParticipants.finish()
-		
-		dataTracks.send(completion: .finished)
-		audioTracks.send(completion: .finished)
-		videoTracks.send(completion: .finished)
-		
-		_mediaStreams.finish()
 		outgoingDataRequestsChannel.finish()
 		outgoingDataRequests.send(completion: .finished)
-
-		localParticipants.finish()
+		
+		//1: other subjects/publishers
+		_speakerChangedUpdates.finish()
+		_subscriptionQualityUpdates.finish()
+		tokenUpdatesSubject.send(completion: .finished)
+		
+		_joinResponse.finish()
+		
+		_dataTracks.finish()
+		_audioTracks.finish()
+		_videoTracks.finish()
+		_mediaStreams.finish()
+		_localParticipant.finish()
+		_remoteParticipants.finish()
 		
 		await withTaskGroup(of: Void.self) { group in
 			for pc in [peerConnectionFactory.publishingPeerConnection, peerConnectionFactory.subscribingPeerConnection] {
@@ -139,21 +127,6 @@ open class SignalHub: @unchecked Sendable {
 		}
 		
 		Logger.log(oslog: signalHubLog, message: "signalHub did teardown")
-	}
-	
-	func handleParticipantsUpdate(_ update: Livekit_ParticipantUpdate) {
-		var allParticipants = update.participants
-		
-		if let currentLocalParticipant = localParticipants.value {
-			
-			// This is so not efficient ... if only we had Sets instead of arrays *sigh*
-			if let currentLocalParticipantIndex = allParticipants.firstIndex(where: { $0.sid == currentLocalParticipant.sid }) {
-				let updatedLocalParticipant = allParticipants.remove(at: currentLocalParticipantIndex)
-				localParticipants.update(updatedLocalParticipant)
-			}
-		}
-		
-		updatedParticipantsSubject.send(allParticipants)
 	}
 	
 	public func tokenUpdates() -> AnyPublisher<String, Never> {

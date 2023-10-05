@@ -51,10 +51,8 @@ actor PeerConnection {
 	}
 	
 	//MARK: - local/remote descriptions
-	
-	//	@Publishing var remoteSessionDescription: Livekit_SessionDescription? = nil
-	let remoteSessionDescription = _Publishing<Livekit_SessionDescription, Never>()
-	let localSessionDescription = _Publishing<Livekit_SessionDescription, Never>()
+	@Publishing var remoteSessionDescription: Livekit_SessionDescription? = nil
+	@Publishing var localSessionDescription: Livekit_SessionDescription? = nil
 	private var remoteDescription: Livekit_SessionDescription?
 	private var localDescription: Livekit_SessionDescription?
 	
@@ -220,12 +218,12 @@ actor PeerConnection {
 	
 	func update(remoteDescription: Livekit_SessionDescription?) {
 		self.remoteDescription = remoteDescription
-		self.remoteSessionDescription.update(remoteDescription)
+		self.remoteSessionDescription = remoteDescription
 	}
 	
 	func update(localDescription: Livekit_SessionDescription?) {
 		self.localDescription = localDescription
-		self.localSessionDescription.update(localDescription)
+		self.localSessionDescription = localDescription
 	}
 	
 	nonisolated func withMediaTrack<T>(trackId: String, type: T.Type, perform: @escaping @Sendable (T) -> Void) {
@@ -272,8 +270,8 @@ actor PeerConnection {
 		_offerTask?.cancel()
 		_offerTask = nil
 		
-		remoteSessionDescription.finish()
-		localSessionDescription.finish()
+		_remoteSessionDescription.finish()
+		_localSessionDescription.finish()
 		subscriptions.send(completion: .finished)
 		
 		coordinator.teardown()
