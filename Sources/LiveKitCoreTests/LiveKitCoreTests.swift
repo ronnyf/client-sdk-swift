@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import Combine
 @testable import LiveKitCore
 
 final class LiveKitCoreTests: XCTestCase {
@@ -17,4 +18,57 @@ final class LiveKitCoreTests: XCTestCase {
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
+	
+	func test_convenience_streams() async throws {
+		let x = Int.random(in: (100..<1000))
+		let numbers = (x..<(x+10)).map { $0 }
+		
+		var asyncNums: [Int] = []
+		for await num in numbers.publisher.stream() {
+			asyncNums.append(num)
+		}
+		
+		XCTAssertEqual(numbers, asyncNums)
+	}
+	
+	func test_convenience_streams_throwing() async throws {
+		struct SomeError: Error {}
+		let pub = Fail(outputType: Int.self, failure: SomeError())
+	
+		do {
+			for try await _ in pub.throwingStream() {}
+		} catch _ as SomeError {
+			//success
+		} catch {
+			XCTFail("wrong error type: \(error)")
+		}
+	}
+	
+	func test_convenience_publisher_firstValue() async throws {
+		let values = [1,2]
+		let result = try await values.publisher.firstValue()
+		XCTAssertEqual(result, values.first)
+	}
+
+	func test_convenience_publisher_firstValue_timeout() async throws {
+		let publisher = PassthroughSubject<Int, Never>()
+		let timeout: TimeInterval = TimeInterval.random(in: (1..<3))
+		let start = CFAbsoluteTimeGetCurrent()
+		do {
+			let _ = try await publisher.firstValue(timeout: timeout)
+		} catch _ as TimeoutError {
+			//success
+			let end = CFAbsoluteTimeGetCurrent()
+			let delta = abs(timeout - abs(end - start))
+			XCTAssertTrue(delta < timeout * 0.1) //10% gets us at least into the ball park of ok, maybe?
+		} catch {
+			XCTFail("wrong error type: \(error)")
+		}
+	}
+	
+	// MARK: - message chennel
+	
+	func test_messageChannel_1() {
+		
+	}
 }
