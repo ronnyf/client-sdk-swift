@@ -25,8 +25,8 @@ extension PeerConnection {
 		
 		let offerTask = Task {
 			let signalingStates = signalingState.stream()
-			let localDescriptions = localSessionDescription.subject.stream()
-			let remoteDescriptions = remoteSessionDescription.subject.stream()
+			let localDescriptions = $localSessionDescription.publisher.stream()
+			let remoteDescriptions = $remoteSessionDescription.publisher.stream()
 			
 			//clear the local description, we're going to set a new one anyways...
 			var firstOfferSent = false

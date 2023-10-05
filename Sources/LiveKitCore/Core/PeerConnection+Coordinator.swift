@@ -13,15 +13,14 @@ import OSLog
 extension PeerConnection {
 	
 	final class Coordinator: NSObject, RTCPeerConnectionDelegate, @unchecked Sendable {
-		let peerConnection = _Publishing<RTCPeerConnection, Never>()
+		@Publishing var peerConnection: RTCPeerConnection? = nil
 		var rtcPeerConnection: some Publisher<RTCPeerConnection, Never> {
-			peerConnection.publisher.receive(on: webRTCQueue)
+			$peerConnection.publisher.compactMap { $0 }.receive(on: webRTCQueue)
 		}
 		
-		let peerConnectionState = _Publishing<RTCPeerConnectionState, Never>()
-		let signalingState = _Publishing<RTCSignalingState, Never>()
+		@Publishing var peerConnectionState: RTCPeerConnectionState? = nil
+		@Publishing var signalingState: RTCSignalingState? = nil
 		@Publishing var iceConnectionState: RTCIceConnectionState? = nil
-		//let's try this ----v
 		@Publishing var iceGatheringState: RTCIceGatheringState? = nil
 		
 		@Publishing var rtcDataChannelReliable: RTCDataChannel? = nil
@@ -61,8 +60,8 @@ extension PeerConnection {
 						throw PeerConnection.Errors.noPeerConnection
 					}
 					
-					self.peerConnectionState.update(pc.connectionState)
-					self.signalingState.update(pc.signalingState)
+					self.peerConnectionState = pc.connectionState
+					self.signalingState = pc.signalingState
 					self.iceConnectionState = pc.iceConnectionState
 					self.iceGatheringState = pc.iceGatheringState
 					
@@ -71,20 +70,21 @@ extension PeerConnection {
 			// TODO: at this point we don't know that there was an error - maybe this needs some more drastic informing ?
 				.first()
 				.replaceError(with: nil)
-				.assign(to: \.value, on: peerConnection.subject)
+				.assign(to: \.value, on: _peerConnection.subject)
 				.store(in: &cancellables.value)
 		}
 		
 		func teardown() {
 			cancellables.send(completion: .finished)
 			
-			if let rtcPc = peerConnection.value {
+			if let rtcPc = peerConnection {
 				rtcPc.close()
 				rtcPc.delegate = nil
 			}
-			peerConnection.finish()
-			peerConnectionState.finish()
-			signalingState.finish()
+			
+			_peerConnection.finish()
+			_peerConnectionState.finish()
+			_signalingState.finish()
 			_iceConnectionState.finish()
 			
 			_iceGatheringState.finish()
@@ -102,12 +102,12 @@ extension PeerConnection {
 extension PeerConnection.Coordinator {
 	
 	func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCPeerConnectionState) {
-		peerConnectionState.update(newState)
+		peerConnectionState = newState
 		Logger.log(oslog: peerConnectionLog, message: "connection state: \(newState.debugDescription)")
 	}
 	
 	func peerConnection(_ peerConnection: RTCPeerConnection, didChange stateChanged: RTCSignalingState) {
-		signalingState.update(stateChanged)
+		signalingState = stateChanged
 		Logger.log(oslog: peerConnectionLog, message: "signalingState: \(stateChanged.debugDescription)")
 	}
 	

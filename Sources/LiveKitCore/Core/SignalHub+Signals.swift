@@ -18,26 +18,28 @@ extension SignalHub {
 		// handling (some cases of) response messages that arrive via livekit socket
 		switch responseMessage {
 		case .update(let update):
-			//TODO: make sure this doesn't become a bottleneck...
-			handleParticipantsUpdate(update)
+			Logger.log(oslog: signalHubLog, message: "participant update: \(update)")
+			// duplicates will be eliminated here ------v (which should be ok)
+			update.participants.grouping(by: \.id, into: &remoteParticipants) { LiveKitParticipant($0) }
+			// if this statement ------^ needs to change, then please adjust PeerConnection+Signals.swift:~line:68
 			return true
 			
 		case .trackPublished(let update) where update.track.type == .audio :
-			audioTracks.value[update.cid] = LiveKitTrack(update)
+			audioTracks[update.cid] = LiveKitTrack(update)
 			return true
 			
 		case .trackPublished(let update) where update.track.type == .video :
-			videoTracks.value[update.cid] = LiveKitTrack(update)
+			videoTracks[update.cid] = LiveKitTrack(update)
 			return true
 			
 		case .trackPublished(let update) where update.track.type == .data :
-			dataTracks.value[update.cid] = LiveKitTrack(update)
+			dataTracks[update.cid] = LiveKitTrack(update)
 			return true
 			
 		case .trackUnpublished(let update):
-			audioTracks.value.removeValue(forKey: update.trackSid)
-			videoTracks.value.removeValue(forKey: update.trackSid)
-			dataTracks.value.removeValue(forKey: update.trackSid)
+			audioTracks.removeValue(forKey: update.trackSid)
+			videoTracks.removeValue(forKey: update.trackSid)
+			dataTracks.removeValue(forKey: update.trackSid)
 			return true
 			
 		case .leave(let request):

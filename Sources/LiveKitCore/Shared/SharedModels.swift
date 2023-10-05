@@ -183,18 +183,40 @@ public struct LiveKitParticipant: Sendable {
 	public var canPublishData: Bool
 	public var region: String
 	
-	init(participantInfo: Livekit_ParticipantInfo) {
-		self.id = participantInfo.sid
-		self.name = participantInfo.identity
-		self.state = State(participantInfoState: participantInfo.state)
-		self.joinedSince = Date(timeIntervalSince1970: TimeInterval(participantInfo.joinedAt))
-		self.canPublish = participantInfo.permission.canPublish
-		self.canSubscribe = participantInfo.permission.canSubscribe
-		self.canPublishData = participantInfo.permission.canPublishData
-		self.region = participantInfo.region
+	public static var nobody: LiveKitParticipant {
+		LiveKitParticipant(
+			id: "",
+			name: "",
+			state: .disconnected,
+			joinedSince: Date.distantPast,
+			canPublish: false,
+			canSubscribe: false,
+			canPublishData: false,
+			region: ""
+		)
 	}
 	
-	mutating func update(with participantInfo: Livekit_ParticipantInfo) {
+	public init(
+		id: String,
+		name: String,
+		state: State,
+		joinedSince: Date,
+		canPublish: Bool,
+		canSubscribe: Bool,
+		canPublishData: Bool,
+		region: String
+	) {
+		self.id = id
+		self.name = name
+		self.state = state
+		self.joinedSince = joinedSince
+		self.canPublish = canPublish
+		self.canSubscribe = canSubscribe
+		self.canPublishData = canPublishData
+		self.region = region
+	}
+	
+	init(_ participantInfo: Livekit_ParticipantInfo) {
 		self.id = participantInfo.sid
 		self.name = participantInfo.identity
 		self.state = State(participantInfoState: participantInfo.state)
@@ -241,6 +263,61 @@ extension LiveKitParticipant: Hashable {
 		hasher.combine(id)
 	}
 }
+
+extension LiveKitParticipant: Identifiable {}
+
+//MARK: - quality
+
+public struct LiveKitConnectionQuality: Sendable {
+	public let participantId: String
+	public let quality: LiveKitQuality
+	public let score: Float
+}
+
+extension LiveKitConnectionQuality: Identifiable {
+	public var id: String { participantId }
+}
+
+public enum LiveKitQuality : Sendable{
+	case poor
+	case good
+	case excellent
+	case value(Int)
+}
+
+extension LiveKitQuality: CustomStringConvertible {
+	public var description: String {
+		switch self {
+		case .poor:
+			return "QUALITY_POOR"
+		case .good:
+			return "QUALITY_GOOD"
+		case .excellent:
+			return "QUALITY_EXCELLENT"
+		case .value(let value):
+			return "\(value)"
+		}
+	}
+}
+
+extension LiveKitQuality {
+	init(_ livekit_ConnectionQuality: Livekit_ConnectionQuality) {
+		switch livekit_ConnectionQuality {
+		case .poor:
+			self = .poor
+			
+		case .good:
+			self = .good
+			
+		case .excellent:
+			self = .excellent
+		
+		case .UNRECOGNIZED(let value):
+			self = .value(value)
+		}
+	}
+}
+
 
 //MARK: - subscription quality update
 
