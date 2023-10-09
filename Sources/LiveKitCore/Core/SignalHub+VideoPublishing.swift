@@ -48,7 +48,7 @@ struct Publication: Sendable {
 		return dimensions.videoLayers(for: encodings)
 	}
 	
-	static func videoPublication(dimensions: CMVideoDimensions = CMVideoDimensions(width: 0, height: 0), options: VideoPublishOptions? = nil) -> Publication {
+	static func videoPublication(dimensions: CMVideoDimensions, options: VideoPublishOptions? = nil) -> Publication {
 		Publication(
 			name: .video,
 			type: .video,
