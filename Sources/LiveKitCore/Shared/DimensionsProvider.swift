@@ -12,7 +12,8 @@ import CoreMedia
 extension CMVideoDimensions {
 	func videoLayers(for encodings: [RTCRtpEncodingParameters]) -> [Livekit_VideoLayer] {
 		encodings.filter { $0.isActive }.map { encoding in
-			let scaleDownBy = encoding.scaleResolutionDownBy?.doubleValue ?? 1.0
+			let scaleDownBy = Double(exactly: encoding.scaleResolutionDownBy ?? 1) ?? 1
+			assert(scaleDownBy != 0)
 			return Livekit_VideoLayer.with {
 				$0.width = UInt32((Double(self.width) / scaleDownBy).rounded(.up))
 				$0.height = UInt32((Double(self.height) / scaleDownBy).rounded(.up))
