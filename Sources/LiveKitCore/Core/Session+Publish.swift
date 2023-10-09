@@ -8,16 +8,15 @@
 import Foundation
 import Combine
 import CoreMedia
+import AVFoundation
 @_implementationOnly import WebRTC
 
 extension LiveKitSession {
 	
-	//MARK: - video pub
-	
-	public func startMediaStream(_ videoSource: some Publisher<CMSampleBuffer, Never>, audioEnabled: Bool = true) async throws {
+	public func startMediaStream(_ videoSource: some Publisher<CMSampleBuffer, Never>, videoDimensions: CMVideoDimensions, videoRotation: some Publisher<CGFloat, Never>, audioEnabled: Bool = true) async throws {
 		Logger.log(oslog: sessionLog, message: "publishVideo: >>>")
 		
-		let videoPublication = Publication.videoPublication()
+		let videoPublication = Publication.videoPublication(dimensions: videoDimensions)
 		let audioPublication = Publication.audioPublication()
 		
 		//wait for transceiver to be created...
@@ -27,6 +26,7 @@ extension LiveKitSession {
 		let addVideoTrackRequest = signalHub.makeAddTrackRequest(publication: videoPublication)
 		let addAudioTrackRequest = signalHub.makeAddTrackRequest(publication: audioPublication)
 		
+		//TODO: let's think about how to make those not just fake sendable but actually sendable
 		async let videoTrackInfoResult = signalHub.sendAddTrackRequest(addVideoTrackRequest)
 		async let audioTrackInfoResult = signalHub.sendAddTrackRequest(addAudioTrackRequest)
 		
@@ -34,7 +34,7 @@ extension LiveKitSession {
 		
 		await signalHub.negotiate()
 		let connectionState = signalHub.peerConnectionFactory.publishingPeerConnection.connectionState
-		_ = try await connectionState.firstValue(timeout: 10, condition: { $0 == .connected })
+		_ = try await connectionState.firstValue(timeout: 15, condition: { $0 == .connected })
 		
 		let videoTrackSids = [videoTrackInfo.trackSid]
 		try signalHub.sendTrackStats(
@@ -46,7 +46,8 @@ extension LiveKitSession {
 		
 		try signalHub.sendMuteTrack(trackSid: audioTrackInfo.trackSid, muted: audioEnabled == false)
 		
-		let videoFrames = videoSource.compactMap { sampleBuffer -> RTCVideoFrame? in
+		let videoOrientationPublisher = videoRotation.removeDuplicates().map { RTCVideoRotation($0) }
+		let videoFrames = Publishers.CombineLatest(videoSource, videoOrientationPublisher).compactMap { sampleBuffer, rotation -> RTCVideoFrame? in
 			guard let imageBuffer = sampleBuffer.imageBuffer else { return nil }
 			
 			let seconds = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
@@ -54,7 +55,7 @@ extension LiveKitSession {
 			
 			let pixelBuffer = RTCCVPixelBuffer(pixelBuffer: imageBuffer)
 			//TODO: check rotation parameter here
-			let frame = RTCVideoFrame(buffer: pixelBuffer, rotation: RTCVideoRotation._0, timeStampNs: timeStampNs)
+			let frame = RTCVideoFrame(buffer: pixelBuffer, rotation: rotation ?? ._0, timeStampNs: timeStampNs)
 			
 			let sourceDimensions = CMVideoDimensions(width: Int32(CVPixelBufferGetWidth(imageBuffer)), height: Int32(CVPixelBufferGetHeight(imageBuffer)))
 			guard sourceDimensions.isEncodeSafe else { return nil }
