@@ -5,12 +5,13 @@
 //  Created by Falk, Ronny on 4/24/23.
 //
 
-import Foundation
 import Combine
 import OSLog
+import AVFoundation
 @_implementationOnly import WebRTC
 
 //MARK: - WebRTC Types
+
 extension RTCIceServer {
 	
 	convenience init(_ livekit_ICEServer: Livekit_ICEServer) {
@@ -397,5 +398,13 @@ extension Livekit_TrackPermission {
 		self.allTracks = trackPermission.allAllowed
 		self.trackSids = trackPermission.allowedTrackSids
 		self.participantIdentity = trackPermission.participantIdentity
+	}
+}
+
+extension Livekit_ConnectionQualityUpdate {
+	var livekitQualities: [String: LiveKitConnectionQuality] {
+		updates.grouped(by: \.participantId) {
+			LiveKitConnectionQuality(participantId: $0.participantSid, quality: LiveKitQuality($0.quality), score: $0.score)
+		}
 	}
 }

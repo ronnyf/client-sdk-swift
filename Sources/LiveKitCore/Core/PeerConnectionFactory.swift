@@ -183,10 +183,7 @@ actor PeerConnectionFactory {
 						.map {
 							let transceiverInit = RTCRtpTransceiverInit(encodingParameters: videoPublication.encodings)
 							let transceiver = $0.addTransceiver(with: track, init: transceiverInit)
-							#if DEBUG
 							assert(transceiver != nil)
-							assert(transceiver!.sender.track!.isEqual(track))
-							#endif
 							return VideoPublishItems(transceiver: transceiver, track: track, source: source)
 						}
 				}

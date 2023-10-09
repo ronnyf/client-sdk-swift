@@ -15,11 +15,11 @@ class MessageChannel: @unchecked Sendable {
 	let coordinator: WebsocketTaskCoordinator
 	
 	var currentWebSocketTask: some Publisher<URLSessionWebSocketTask, Never> {
-		coordinator.$openSocketsSubject.publisher.compactMap { $0 }
+		coordinator.$webSocketTask.publisher.compactMap { $0 }
 	}
 	
 	var currentWebSocketStream: AsyncStream<URLSessionWebSocketTask> {
-		coordinator.$openSocketsSubject.publisher.compactMap { $0 }.stream()
+		currentWebSocketTask.stream()
 	}
 	
 	var bufferedMessages: AsyncThrowingFlatMapSequence<AsyncStream<URLSessionWebSocketTask>, AsyncBufferSequence<URLSessionWebSocketTaskReceiver>> {
@@ -47,7 +47,7 @@ class MessageChannel: @unchecked Sendable {
 		Logger.log(oslog: coordinator.messageChannelLog, message: "teardown")
 		
 		urlSession.invalidateAndCancel()
-		coordinator.closeSocket()
+		coordinator.teardown()
 	}
 	
 	func send(data: Data, timeout: TimeInterval) async throws {
@@ -66,16 +66,16 @@ class MessageChannel: @unchecked Sendable {
 
 extension MessageChannel {
 	final class WebsocketTaskCoordinator: NSObject, URLSessionWebSocketDelegate, URLSessionDelegate, @unchecked Sendable {
-		@Publishing var openSocketsSubject: URLSessionWebSocketTask? = nil
+		
+		@Publishing var webSocketTask: URLSessionWebSocketTask? = nil
 		let messageChannelLog = OSLog(subsystem: "MessageChannel", category: "LiveKitCore")
+		
 		#if DEBUG
 		override init() {
 			super.init()
 			Logger.log(oslog: messageChannelLog, message: "coordinator init")
 		}
-		#endif
 		
-		#if DEBUG
 		deinit {
 			Logger.log(oslog: messageChannelLog, message: "coordinator deinit")
 		}
@@ -86,13 +86,13 @@ extension MessageChannel {
 		}
 		
 		///Close the current (open) socket and wait for it to go through the system (openSocketSubject is nil)
-		func closeSocket() {
-			_openSocketsSubject.finish()
+		func teardown() {
+			_webSocketTask.finish()
 		}
 		
 		//Indicates that the WebSocket handshake was successful and the connection has been upgraded to webSockets.
 		func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
-			openSocketsSubject = webSocketTask
+			self.webSocketTask = webSocketTask
 			Logger.log(oslog: messageChannelLog, message: "socket opened \(webSocketTask)")
 		}
 		
@@ -110,7 +110,7 @@ extension MessageChannel {
 				Logger.log(level: .error, oslog: messageChannelLog, message: "\(error)")
 			}
 			#endif
-			openSocketsSubject = nil
+			webSocketTask = nil
 		}
 		
 		#if DEBUG
@@ -145,6 +145,7 @@ extension URLSessionWebSocketTask {
 	}
 }
 
+// TODO: should this be a class so the wst can be retained until we let it go?
 struct URLSessionWebSocketTaskReceiver: AsyncSequence, AsyncIteratorProtocol {
 	typealias AsyncIterator = URLSessionWebSocketTaskReceiver
 	typealias Element = URLSessionWebSocketTask.Message
@@ -159,6 +160,7 @@ struct URLSessionWebSocketTaskReceiver: AsyncSequence, AsyncIteratorProtocol {
 	}
 	
 	func next() async -> Element? {
-		try? await webSocketTask.receive()
+		guard Task.isCancelled == false else { return nil }
+		return try? await webSocketTask.receive()
 	}
 }

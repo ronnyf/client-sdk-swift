@@ -14,7 +14,7 @@ extension MessageChannel {
 		rateLimit: Int = 30,
 		outgoingDataStream: AsyncStream<Data>
 	) async throws {
-		let openWebSocketTasks = coordinator.openSocketsSubject.publisher.stream()
+		let openWebSocketTasks = coordinator.$webSocketTask.publisher.compactMap{ $0 }.stream()
 		let outgoingMessages = outgoingDataStream.map { URLSessionWebSocketTask.Message.data($0) }
 		let bufferedOutgoingMessages = AsyncBufferSequence(base: outgoingMessages, policy: .bounded(20))
 		// this should create sufficient demand on the publisher --------^
@@ -23,16 +23,16 @@ extension MessageChannel {
 			group.addTask {
 				for await (webSocketTask, message) in combineLatest(openWebSocketTasks, bufferedOutgoingMessages) {
 					try await webSocketTask.send(message)
-					#if DEBUG
-					switch message {
-					case .data(let data):
-						if let lkRequest = try? Livekit_SignalRequest(contiguousBytes: data) {
-							Logger.log(oslog: coordinator.messageChannelLog, message: "did send: \(lkRequest)")
-						}
-					default:
-						break
-					}
-					#endif
+//					#if DEBUG
+//					switch message {
+//					case .data(let data):
+//						if let lkRequest = try? Livekit_SignalRequest(contiguousBytes: data) {
+//							Logger.log(oslog: coordinator.messageChannelLog, message: "did send: \(lkRequest)")
+//						}
+//					default:
+//						break
+//					}
+//					#endif
 				}
 			}
 			
@@ -50,7 +50,7 @@ extension MessageChannel {
 //				} else {
 //				}
 				
-				let rateLimitedValues = coordinator.$openSocketsSubject.publisher
+				let rateLimitedValues = coordinator.$webSocketTask.publisher
 					.dropFirst()
 					.filter({ $0 == nil})
 					.debounce(for: .seconds(rateLimit), scheduler: DispatchQueue.global(qos: .background))
