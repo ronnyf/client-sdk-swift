@@ -149,7 +149,7 @@ extension PeerConnection {
 	//MARK: - peer connection accessors
 	
 	func add(_ candidateInit: String) async throws {
-		try await self._withPublisher(coordinator.rtcPeerConnection) {
+		try await self._withPublisher(coordinator.rtcPeerConnectionPublisher) {
 			$0.candidateInit(candidateInit)
 		}
 	}
@@ -178,7 +178,7 @@ extension PeerConnection {
 	
 	@discardableResult
 	func setLocalDescription(_ sdp: Livekit_SessionDescription) async throws -> Livekit_SessionDescription {
-		let result = try await _withPublisher(coordinator.rtcPeerConnection) { rtcPeerConnection in
+		let result = try await _withPublisher(coordinator.rtcPeerConnectionPublisher) { rtcPeerConnection in
 			rtcPeerConnection.localDescription(sdp)
 		}
 		update(localDescription: result)
@@ -186,7 +186,7 @@ extension PeerConnection {
 	}
 	
 	func setLocalDescription(_ rtcSdp: RTCSessionDescription) async throws -> Livekit_SessionDescription {
-		let result = try await _withPublisher(coordinator.rtcPeerConnection) { rtcPeerConnection in
+		let result = try await _withPublisher(coordinator.rtcPeerConnectionPublisher) { rtcPeerConnection in
 			rtcPeerConnection.localDescription(rtcSdp)
 		}
 		update(localDescription: result)
@@ -195,7 +195,7 @@ extension PeerConnection {
 	
 	@discardableResult
 	func setRemoteDescription(_ sdp: Livekit_SessionDescription) async throws -> Livekit_SessionDescription {
-		let result = try await _withPublisher(coordinator.rtcPeerConnection) { rtcPeerConnection in
+		let result = try await _withPublisher(coordinator.rtcPeerConnectionPublisher) { rtcPeerConnection in
 			rtcPeerConnection.remoteDescription(sdp)
 		}
 		update(remoteDescription: result)
@@ -217,19 +217,19 @@ extension PeerConnection {
 	}
 	
 	func offer(for constraints: RTCMediaConstraints) async throws -> RTCSessionDescription {
-		return try await _withPublisher(coordinator.rtcPeerConnection) { rtcPeerConnection in
+		return try await _withPublisher(coordinator.rtcPeerConnectionPublisher) { rtcPeerConnection in
 			rtcPeerConnection.offerDescription(with: constraints)
 		}
 	}
 	
 	func answer(for constraints: RTCMediaConstraints) async throws -> RTCSessionDescription {
-		return try await _withPublisher(coordinator.rtcPeerConnection) { rtcPeerConnection in
+		return try await _withPublisher(coordinator.rtcPeerConnectionPublisher) { rtcPeerConnection in
 			rtcPeerConnection.answerDescription(with: constraints)
 		}
 	}
 	
 	func addTransceiver(with track: RTCMediaStreamTrack, transceiverInit: RTCRtpTransceiverInit) async throws -> RTCRtpTransceiver {
-		return try await _withPublisher(coordinator.rtcPeerConnection) { rtcPeerConnection in
+		return try await _withPublisher(coordinator.rtcPeerConnectionPublisher) { rtcPeerConnection in
 			rtcPeerConnection.transceiver(with: track, transceiverInit: transceiverInit)
 		}
 	}

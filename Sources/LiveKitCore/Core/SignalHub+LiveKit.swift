@@ -94,9 +94,14 @@ extension SignalHub {
 			trackPublisher = Empty<LiveKitTrack, Never>().eraseToAnyPublisher()
 		}
 		
-		let response = try await trackPublisher.firstValue(timeout: timeout)
-		Logger.log(oslog: signalHubLog, message: "received track published response: \(response)")
-		return response
+		do {
+			let response = try await trackPublisher.firstValue(timeout: timeout)
+			Logger.log(oslog: signalHubLog, message: "received track published response: \(response)")
+			return response
+		} catch {
+			print("STOP!")
+			fatalError()
+		}
 	}
 	
 	func makeSubscriptionPermissionRequest(allParticipants: Bool, trackPermissions: [Livekit_TrackPermission]) -> Livekit_SignalRequest {

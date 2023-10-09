@@ -13,7 +13,6 @@ extension LiveKitSession {
 	public func connect(
 		urlString: String,
 		token: String,
-//		options: ConnectOptions? = nil,
 		urlSessionConfiguration: URLSessionConfiguration = .liveKitDefault
 	) async throws {
 		guard let url = Utils.buildUrl(urlString, token, adaptiveStream: true) else {
@@ -49,7 +48,6 @@ extension LiveKitSession {
 			messageChannelGroup.addTask { [signalHub] in
 				// setup incoming (from livekit) signals sequence
 				for try await message in messages  {
-//					msglogger.debug("received from livekit-socket: \(String(describing: message))")
 					try await signalHub.handle(responseMessage: message)
 				}
 			}
