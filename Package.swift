@@ -38,7 +38,7 @@ let package = Package(
 			name: "LiveKit",
 			dependencies: [
 				.target(name: "CHeaders"),
-				"LKWebRTC",
+				.target(name: "LKWebRTC"),
 				.product(name: "SwiftProtobuf", package: "swift-protobuf"),
 				.product(name: "Promises", package: "Promises"),
 				.product(name: "FBLPromises", package: "Promises"),
@@ -63,9 +63,9 @@ let package = Package(
 			dependencies: [
 				.target(name: "FakePromises"),
 				.target(name: "FakeFBLPromises"),
+				.target(name: "LKWebRTC"),
 				.product(name: "SwiftProtobuf", package: "swift-protobuf"),
 				.product(name: "AsyncAlgorithms", package: "swift-async-algorithms"),
-				"LKWebRTC"
 			],
 			path: "Sources/LiveKitCore",
 			sources: [

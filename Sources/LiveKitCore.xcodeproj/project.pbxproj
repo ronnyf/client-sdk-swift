@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		600BAA0C2AD740E90000DE98 /* PeerConnection+RTC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 609100E22ABDEF7B002546B9 /* PeerConnection+RTC.swift */; };
 		600CC3512A097C430033FF99 /* PeerConnection+RTCdelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600CC3502A097C430033FF99 /* PeerConnection+RTCdelegate.swift */; };
 		601BCA7F2AA80F7700F9AE30 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 601BCA7E2AA80F7700F9AE30 /* AsyncAlgorithms */; };
 		601BCA822AA80FA900F9AE30 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = 601BCA812AA80FA900F9AE30 /* SwiftProtobuf */; };
@@ -659,6 +660,7 @@
 				60A0DF1C2A92978B0038C808 /* CaptureOptions.swift in Sources */,
 				60E39AFF2A61A9FD00FBE675 /* PeerConnection+RTCdelegate.swift in Sources */,
 				60A0DF3A2A9298250038C808 /* SessionDescription.swift in Sources */,
+				600BAA0C2AD740E90000DE98 /* PeerConnection+RTC.swift in Sources */,
 				60E39B012A61A9FD00FBE675 /* ConnectivityListener-Core.swift in Sources */,
 				60BFB45D2ACDE0010081807F /* VideoView.swift in Sources */,
 				603F704A2AA9448B004C8D99 /* Logging.swift in Sources */,

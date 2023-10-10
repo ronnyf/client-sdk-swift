@@ -17,23 +17,37 @@ extension SignalHub {
 		
 		// handling (some cases of) response messages that arrive via livekit socket
 		switch responseMessage {
-		case .update(let update):
-			Logger.log(oslog: signalHubLog, message: "participant update: \(update)")
-			// duplicates will be eliminated here ------v (which should be ok)
-			update.participants.grouping(by: \.id, into: &remoteParticipants) { LiveKitParticipant($0) }
-			// if this statement ------^ needs to change, then please adjust PeerConnection+Signals.swift:~line:68
+		/// sent when participants in the room has changed
+		case .update(let participantUpdate):
+			Logger.log(oslog: signalHubLog, message: "participant update: \(participantUpdate)")
+			
+			let groupedParticipants = Dictionary(grouping: participantUpdate.participants) { $0.state }
+			
+			for (status, participants) in groupedParticipants {
+				switch status {
+				case .active:
+					// merge all active participants (with or without tracks) into our dictionary of remote participants
+					participants.mergingGrouped(by: \.id, into: &remoteParticipants) { LiveKitParticipant($0) }
+					
+				default:
+					// remove all partipants that were updated to non-active state from our dictionary of remote participants
+					for participant in participants {
+						remoteParticipants.removeValue(forKey: participant.sid)
+					}
+				}
+			}
 			return true
 			
 		case .trackPublished(let update) where update.track.type == .audio :
-			audioTracks[update.cid] = LiveKitTrack(update)
+			audioTracks[update.cid] = LiveKitTrackInfo(update)
 			return true
 			
 		case .trackPublished(let update) where update.track.type == .video :
-			videoTracks[update.cid] = LiveKitTrack(update)
+			videoTracks[update.cid] = LiveKitTrackInfo(update)
 			return true
 			
 		case .trackPublished(let update) where update.track.type == .data :
-			dataTracks[update.cid] = LiveKitTrack(update)
+			dataTracks[update.cid] = LiveKitTrackInfo(update)
 			return true
 			
 		case .trackUnpublished(let update):
@@ -66,6 +80,12 @@ extension SignalHub {
 			
 		case .streamStateUpdate(let update):
 			Logger.log(oslog: signalHubLog, message: "stream state update: \(update)")
+			
+			let streamStateInfos = update.streamStates
+			for streamStateInfo in streamStateInfos {
+				//TODO:
+			}
+			
 			return true
 			
 		case .subscriptionPermissionUpdate(let update):
@@ -78,6 +98,7 @@ extension SignalHub {
 			
 		case .roomUpdate(let update):
 			Logger.log(oslog: signalHubLog, message: "roomUpdate update: \(update)")
+			// TODO: participants and max participants can be found here
 			return true
 			
 		default:

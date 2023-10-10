@@ -79,8 +79,8 @@ extension LiveKitSession {
 		try signalHub.sendMuteTrack(trackSid: videoTrackInfo.trackSid, muted: true)
 		try signalHub.sendMuteTrack(trackSid: audioTrackInfo.trackSid, muted: true)
 		
-		await signalHub.setMediaTrack(videoPublishing.track, enabled: false)
-		await signalHub.setMediaTrack(audioPublishing.track, enabled: false)
+		signalHub.setMediaTrack(videoPublishing.track, enabled: false)
+		signalHub.setMediaTrack(audioPublishing.track, enabled: false)
 		
 		try await signalHub.removeTrack(videoPublishing.track.trackId)
 		try await signalHub.removeTrack(audioPublishing.track.trackId)

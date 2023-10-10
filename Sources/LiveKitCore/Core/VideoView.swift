@@ -10,26 +10,17 @@ import Combine
 @_implementationOnly import WebRTC
 
 // This View is part of the LiveKitCore module because it needs to have knowledge of WebRTC...
-
-#if os(iOS)
-public typealias ViewRepresentable = UIViewRepresentable
-public typealias ViewType = UIView
-#elseif os(macOS)
-public typealias ViewRepresentable = NSViewRepresentable
-public typealias ViewType = NSView
-#endif
-
 public struct LiveKitVideoView: View {
 	
-	var mediaTrack: () -> MediaTrack
+	let mediaTrack: MediaStreamTrack
 	@State private var isVisible: Bool = false
 	
-	public init(_ mediatrack: @autoclosure @escaping () -> MediaTrack) {
-		self.mediaTrack = mediatrack
+	public init(mediatrack: @autoclosure () -> MediaStreamTrack) {
+		self.mediaTrack = mediatrack()
 	}
 	
 	public var body: some View {
-		RTCMTLVideoViewWrapper(isVisible: $isVisible, mediaTrack: mediaTrack())
+		RTCMTLVideoViewWrapper(isVisible: $isVisible, mediaTrack: mediaTrack.rtcMediaStreamTrack)
 			.onAppear {
 				isVisible = true
 			}
@@ -39,64 +30,33 @@ public struct LiveKitVideoView: View {
 	}
 }
 
-struct RTCMTLVideoViewWrapper: ViewRepresentable {
+// The RTCMediaStreamTrack type is internal only, we don't want to expose this to the outside world.
+struct RTCMTLVideoViewWrapper: UIViewRepresentable {
+	
+	typealias UIViewType = RTCMTLVideoView
 	
 	@Binding var isVisible: Bool
-	var mediaTrack: () -> MediaTrack
+	let mediaTrack: RTCMediaStreamTrack
 	
-	init(isVisible: Binding<Bool>, mediaTrack: @escaping @autoclosure () -> MediaTrack) {
+	init(isVisible: Binding<Bool>, mediaTrack: @autoclosure () -> RTCMediaStreamTrack) {
 		self._isVisible = isVisible
-		self.mediaTrack = mediaTrack
+		self.mediaTrack = mediaTrack()
 	}
-	
-	func makeCoordinator() -> Coordinator {
-		Coordinator()
-	}
-
-#if os(iOS)
-	typealias UIViewType = ViewType
 	
 	func makeUIView(context: Context) -> UIViewType {
-		makeView(context: context)
+		let view = UIViewType()
+		view.videoContentMode = .scaleAspectFit
+		return view
 	}
 	
 	func updateUIView(_ uiView: UIViewType, context: Context) {
-		updateView(uiView, context: context)
-	}
-	
-#elseif os(macOS)
-	typealias NSViewType = ViewType
-	
-	func makeNSView(context: Context) -> NSViewType {
-		makeView(context: context)
-	}
-	
-	func updateNSView(_ nsView: NSViewType, context: Context) {
-		updateView(nsView, context: context)
-	}
-#endif
-	
-	func makeView(context: Context) -> RTCMTLVideoView {
-		context.coordinator.view
-	}
-	
-	func updateView(_ view: ViewType, context: Context) {
-		//the rtcMediaStreamTrack is internal only, we don't want to expose this to the outside world.
-		guard let videoTrack = mediaTrack().rtcMediaStreamTrack as? RTCVideoTrack else {
-			fatalError() // or just bail?
+		if let videoTrack = mediaTrack as? RTCVideoTrack {
+			if isVisible == true {
+				videoTrack.add(uiView)
+			} else {
+				videoTrack.remove(uiView)
+			}
 		}
-		
-		let renderer = context.coordinator.view
-		
-		if isVisible == true {
-			videoTrack.add(renderer)
-		} else {
-			videoTrack.remove(renderer)
-		}
-	}
-	
-	class Coordinator {
-		lazy var view = RTCMTLVideoView()
 	}
 }
 
