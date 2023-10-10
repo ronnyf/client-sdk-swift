@@ -53,6 +53,7 @@ extension SignalHub {
 			
 		case .connectionQuality(let update):
 			Logger.log(oslog: signalHubLog, message: "connection quality update: \(update)")
+			connectionQuality = update.livekitQualities
 			return true
 			
 		case .subscribedQualityUpdate(let update):

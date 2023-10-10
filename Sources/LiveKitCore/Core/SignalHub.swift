@@ -60,6 +60,7 @@ open class SignalHub: @unchecked Sendable {
 	@Publishing var dataTracks: [String: LiveKitTrack] = [:]
 	
 	//OK
+	@Publishing public var connectionQuality: [String: LiveKitConnectionQuality] = [:]
 	@Publishing public var mediaStreams: [LiveKitStream] = []
 	
 	//MARK: - tokens
