@@ -9,42 +9,26 @@ import Foundation
 import Combine
 import OSLog
 @_implementationOnly import WebRTC
-import AsyncAlgorithms
 
 extension SignalHub {
 	// publisherPeerConnection negotiation
 	
 	func negotiate() async {
-		let peerConnection = peerConnectionFactory.publishingPeerConnection
-		await peerConnection.offeringMachine(signalHub: self)
+		await peerConnectionFactory.publishingPeerConnection.offeringMachine(signalHub: self)
 	}
 	
 	func waitForConnectedState(_ timeout: TimeInterval = 10) async throws {
-		let peerConnection = peerConnectionFactory.publishingPeerConnection
-		_ = try await peerConnection.connectionState.firstValue(timeout: timeout) { $0 == .connected }
+		_ = try await peerConnectionFactory.publishingPeerConnection.connectionState.firstValue(timeout: timeout) { $0 == .connected }
 	}
 	
 	//MARK: - handling of incoming/outgoing messages/requests
 	
 	func removeTrack(_ trackId: String) async throws {
-		// accessing RTCPeerConnection via CurrentSubject > receive(on: WebRTC-Q (serial), that should make it pretty much sendable...
-		try await peerConnectionFactory.publishingPeerConnection.withPeerConnection {
-			let senders = $0.transceivers
-				.map { transceiver in
-					transceiver.sender
-				}
-				.filter { $0.senderId == trackId }
-			for sender in senders {
-				$0.removeTrack(sender)
-			}
-		}
+		try await peerConnectionFactory.publishingPeerConnection.removeTrack(trackId: trackId)
 	}
 	
 	func removeTransceiver(_ transceiver: RTCRtpTransceiver) async throws {
-		guard let trackId = transceiver.sender.track?.trackId else { return }
-		try await peerConnectionFactory.publishingPeerConnection.withPeerConnection {
-			$0.removeSender(trackId: trackId)
-		}
+		try await peerConnectionFactory.publishingPeerConnection.removeTransceiver(transceiver)
 	}
 	
 	//MARK: - transceiver updates (subscriber only)
@@ -76,21 +60,18 @@ extension SignalHub {
 }
 
 extension SignalHub {
-	func createVideoTransceiver(videoPublication: Publication) async throws -> PeerConnectionFactory.VideoPublishItems {
-		try await peerConnectionFactory.videoTransceiver(videoPublication: videoPublication, enabled: true)
+	
+	func createVideoTransceiver(videoPublication: Publication) async throws -> PeerConnection.VideoPublishItems {
+		try await peerConnectionFactory.publishingPeerConnection.videoTransceiver(videoPublication: videoPublication, enabled: true)
 	}
 
-	func createAudioTransceiver(audioPublication: Publication, enabled: Bool = false) async throws -> PeerConnectionFactory.AudioPublishItems {
-		try await peerConnectionFactory.audioTransceiver(audioPublication: audioPublication, enabled: enabled)
+	func createAudioTransceiver(audioPublication: Publication, enabled: Bool = false) async throws -> PeerConnection.AudioPublishItems {
+		try await peerConnectionFactory.publishingPeerConnection.audioTransceiver(audioPublication: audioPublication, enabled: enabled)
 	}
 	
-	func setMediaTrack(_ track: RTCMediaStreamTrack, enabled: Bool) async {
-		let queue = await peerConnectionFactory.publishingPeerConnection.webRTCQueue
-		await withCheckedContinuation { continuation in
-			queue.sync {
-				track.isEnabled = enabled
-			}
-			continuation.resume(returning: ())
+	func setMediaTrack(_ track: RTCMediaStreamTrack, enabled: Bool) {
+		peerConnectionFactory.publishingPeerConnection.dispatchQueue.async {
+			track.isEnabled = enabled
 		}
 	}
 }

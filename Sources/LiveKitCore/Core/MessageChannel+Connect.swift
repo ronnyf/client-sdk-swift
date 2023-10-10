@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 import AsyncAlgorithms
 
 extension MessageChannel {
@@ -23,16 +24,6 @@ extension MessageChannel {
 			group.addTask {
 				for await (webSocketTask, message) in combineLatest(openWebSocketTasks, bufferedOutgoingMessages) {
 					try await webSocketTask.send(message)
-//					#if DEBUG
-//					switch message {
-//					case .data(let data):
-//						if let lkRequest = try? Livekit_SignalRequest(contiguousBytes: data) {
-//							Logger.log(oslog: coordinator.messageChannelLog, message: "did send: \(lkRequest)")
-//						}
-//					default:
-//						break
-//					}
-//					#endif
 				}
 			}
 			
@@ -40,15 +31,6 @@ extension MessageChannel {
 				// we skip the ratelimit for the first one...
 				var webSocketTask: URLSessionWebSocketTask = self.createWebSocketTask(urlRequest: urlRequest)
 				webSocketTask.resume()
-
-//				if #available(iOS 16.0, *) {
-//					let rateLimitedNilSequence = coordinator
-//						.openSocketsSubject
-//						.values
-//						.filter({ $0 == nil })
-//						.debounce(for: .seconds(rateLimit))
-//				} else {
-//				}
 				
 				let rateLimitedValues = coordinator.$webSocketTask.publisher
 					.dropFirst()
@@ -62,10 +44,11 @@ extension MessageChannel {
 					webSocketTask = self.createWebSocketTask(urlRequest: urlRequest)
 					webSocketTask.resume()
 				}
-				Logger.log(oslog: coordinator.messageChannelLog, message: "WebSocketTask factory is down!")
 			}
 		
 			try await group.cancelOnFirstCompletion()
+			Logger.log(oslog: coordinator.messageChannelLog, message: "WebSocketTask factory is down!")
 		}
+		teardown()
 	}
 }

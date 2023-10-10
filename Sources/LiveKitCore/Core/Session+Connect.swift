@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import Combine
 import AsyncAlgorithms
+import Combine
 
 extension LiveKitSession {
 	public func connect(
@@ -41,20 +41,23 @@ extension LiveKitSession {
 				}
 			}
 			
-			let messages = messageChannel.bufferedMessages.compactMap {
+			let messages = messageChannel.messages.compactMap {
 				try? Livekit_SignalResponse.OneOf_Message(message: $0)
 			}
 			
+			let bufferedMessages = AsyncBufferSequence(base: messages, policy: .bufferingLatest(10))
+			
 			messageChannelGroup.addTask { [signalHub] in
 				// setup incoming (from livekit) signals sequence
-				for try await message in messages  {
+				for try await message in bufferedMessages  {
 					try await signalHub.handle(responseMessage: message)
 				}
 			}
 			
 			try await messageChannelGroup.cancelOnFirstCompletion()
-			Logger.log(oslog: sessionLog, message: "session is disconnecting")
-			try await signalHub.teardown()
+			print("DEBUG: STOP!")
 		}
+		Logger.log(oslog: sessionLog, message: "session is disconnecting")
+		try await signalHub.teardown()
 	}
 }

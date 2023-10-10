@@ -13,11 +13,6 @@ import OSLog
 extension PeerConnection {
 	
 	final class Coordinator: NSObject, RTCPeerConnectionDelegate, @unchecked Sendable {
-		@Publishing var rtcPeerConnection: RTCPeerConnection? = nil
-		var rtcPeerConnectionPublisher: some Publisher<RTCPeerConnection, Never> {
-			$rtcPeerConnection.publisher.compactMap { $0 }.receive(on: webRTCQueue)
-		}
-		
 		@Publishing var peerConnectionState: RTCPeerConnectionState? = nil
 		@Publishing var signalingState: RTCSignalingState? = nil
 		@Publishing var iceConnectionState: RTCIceConnectionState? = nil
@@ -31,55 +26,15 @@ extension PeerConnection {
 			_rtcSignals
 		}
 		
-		let webRTCQueue: DispatchQueue
-		let cancellables = CurrentValueSubject<Set<AnyCancellable>, Never>([])
-		
 		let peerConnectionLog = OSLog(subsystem: "PeerConnection", category: "LiveKitCore")
-		
-		init(queue: DispatchQueue = DispatchQueue(label: "PeerConnection")) {
-			self.webRTCQueue = queue
-			super.init()
-		}
-		
+				
 		deinit {
 #if DEBUG
 			Logger.log(oslog: peerConnectionLog, message: "coordinator deinit")
 #endif
 		}
 		
-		func configure(
-			_ configuration: RTCConfiguration,
-			constraints: RTCMediaConstraints,
-			peerConnectionIsPublisher: Bool,
-			factory: AnyPublisher<RTCPeerConnectionFactory, Never>
-		) {
-			Logger.log(oslog: peerConnectionLog, message: "coordinator configure, as publisher: \(peerConnectionIsPublisher)")
-			factory
-				.tryMap { peerConnectionFactory in
-					guard let pc = peerConnectionFactory.peerConnection(with: configuration, constraints: constraints, delegate: self) else {
-						throw PeerConnection.Errors.noPeerConnection
-					}
-					
-					self.peerConnectionState = pc.connectionState
-					self.signalingState = pc.signalingState
-					self.iceConnectionState = pc.iceConnectionState
-					self.iceGatheringState = pc.iceGatheringState
-					
-					return pc
-				}
-				// TODO: at this point we don't know that there was an error - maybe this needs some more drastic informing ?
-				.first()
-				.replaceError(with: nil)
-				.assign(to: &_rtcPeerConnection)
-		}
-		
-		func teardown() {			
-			if let rtcPc = rtcPeerConnection {
-				rtcPc.close()
-				rtcPc.delegate = nil
-			}
-			
-			_rtcPeerConnection.finish()
+		func teardown() {
 			_peerConnectionState.finish()
 			_signalingState.finish()
 			_iceConnectionState.finish()
@@ -89,7 +44,6 @@ extension PeerConnection {
 			_rtcDataChannelLossy.finish()
 			_rtcSignals.send(completion: .finished)
 			
-			cancellables.send(completion: .finished)
 			Logger.log(oslog: peerConnectionLog, message: "coordinator did teardown")
 		}
 	}
@@ -133,22 +87,20 @@ extension PeerConnection.Coordinator {
 	}
 	
 	func peerConnection(_ peerConnection: RTCPeerConnection, didOpen dataChannel: RTCDataChannel) {
-		webRTCQueue.sync { [peerConnectionLog] in
-			//Engine.swift: 745
-			//store reliable/lossy channels in DataChannelPair (and potentially subscribe to their delegate updates)
-			let label = PeerConnection.DataChannelLabel(rawValue: dataChannel.label)
-			switch label {
-			case .reliable:
-				dataChannel.delegate = self
-				rtcDataChannelReliable = dataChannel
-				
-			case .lossy:
-				dataChannel.delegate = self
-				rtcDataChannelLossy = dataChannel
-				
-			case .undefined(let value):
-				Logger.log(level: .error, oslog: peerConnectionLog, message: "data channel opened with undefined label: \(value)")
-			}
+		//Engine.swift: 745
+		//store reliable/lossy channels in DataChannelPair (and potentially subscribe to their delegate updates)
+		let label = PeerConnection.DataChannelLabel(rawValue: dataChannel.label)
+		switch label {
+		case .reliable:
+			dataChannel.delegate = self
+			self.rtcDataChannelReliable = dataChannel
+			
+		case .lossy:
+			dataChannel.delegate = self
+			self.rtcDataChannelLossy = dataChannel
+			
+		case .undefined(let value):
+			Logger.log(level: .error, oslog: peerConnectionLog, message: "data channel opened with undefined label: \(value)")
 		}
 		Logger.log(oslog: peerConnectionLog, message: "did open data channel: \(dataChannel.label)")
 	}
@@ -157,12 +109,12 @@ extension PeerConnection.Coordinator {
 	
 	func peerConnection(_ peerConnection: RTCPeerConnection, didAdd stream: RTCMediaStream) {
 		_rtcSignals.send(.didAddMediaStream(stream))
-		Logger.log(oslog: peerConnectionLog, message: "did add stream: \(stream.streamId)")
+		Logger.log(oslog: peerConnectionLog, message: ">>> did add stream: \(stream.streamId)")
 	}
 	
 	func peerConnection(_ peerConnection: RTCPeerConnection, didRemove stream: RTCMediaStream) {
 		_rtcSignals.send(.didRemoveMediaStream(stream))
-		Logger.log(oslog: peerConnectionLog, message: "did remove stream: \(stream.streamId)")
+		Logger.log(oslog: peerConnectionLog, message: "<<< did remove stream: \(stream.streamId)")
 	}
 	
 	/** Called when negotiation is needed, for example ICE has restarted. */

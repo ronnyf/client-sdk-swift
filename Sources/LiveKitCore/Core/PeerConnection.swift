@@ -11,10 +11,15 @@ import OSLog
 import AsyncAlgorithms
 @_implementationOnly import WebRTC
 
+// WebRTC's C++ types often times work with mutexes and locks to syncronize access
+// to shared mutable state. This feels like it could be an issue when trying to solve
+// this with Swift concurrency. So here we go. Serial Executors.
 actor PeerConnection {
 	enum Errors: Error {
 		case disconnected
+		case createPeerConnection
 		case noPeerConnection
+		case noPeerConnectionFactory
 		case timeoutError
 		case createTransceiver
 		case removeTransceiver
@@ -24,11 +29,15 @@ actor PeerConnection {
 		case makeOffer
 		case noDataChannel
 		case incomingResponseMessages
+		case findMediaStreams
 	}
+
+	#if swift(<5.9)
+	typealias DispatchSerialQueue = DispatchQueue
+	#endif
 	
-	nonisolated var rtcPeerConnection: some Publisher<RTCPeerConnection, Never> {
-		coordinator.rtcPeerConnectionPublisher
-	}
+	let dispatchQueue: DispatchSerialQueue
+	nonisolated var unownedExecutor: UnownedSerialExecutor { dispatchQueue.asUnownedSerialExecutor() }
 	
 	nonisolated var signalingState: some Publisher<RTCSignalingState, Never> {
 		coordinator.$signalingState.publisher.compactMap { $0 }
@@ -51,40 +60,38 @@ actor PeerConnection {
 	}
 	
 	//MARK: - local/remote descriptions
-	@Publishing var remoteSessionDescription: Livekit_SessionDescription? = nil
-	@Publishing var localSessionDescription: Livekit_SessionDescription? = nil
-	private var remoteDescription: Livekit_SessionDescription?
-	private var localDescription: Livekit_SessionDescription?
+	@Publishing var rtcPeerConnection: RTCPeerConnection? = nil
 	
-	private var subscriptions = CurrentValueSubject<Set<AnyCancellable>, Never>([])
-	
-	private var _pendingCandidates = [String]()
-	private var _offerInProgress: Bool = false
-	private var _offerTask: Task<Void, Error>?
+	private(set) var _pendingCandidates = [String]()
+	private(set) var _offerInProgress: Bool = false
+	private(set) var _offerTask: Task<Void, Error>?
 	
 	let peerConnectionIsPublisher: Bool
-	let rtcConfiguration: RTCConfiguration
-	let rtcMediaConstraints: RTCMediaConstraints
 	let coordinator: PeerConnection.Coordinator
-	
-	nonisolated let factoryPublisher: AnyPublisher<RTCPeerConnectionFactory, Never>
+	let factory: () -> RTCPeerConnectionFactory
+	let configuration: () -> RTCConfiguration
+	let mediaConstraints: () -> RTCMediaConstraints
 	
 	init(
+		dispatchQueue: DispatchSerialQueue = DispatchSerialQueue(label: "PeerConnection"),
 		coordinator: PeerConnection.Coordinator = Coordinator(),
-		rtcConfiguration: RTCConfiguration,
-		rtcMediaConstraints: RTCMediaConstraints,
 		isPublisher: Bool,
-		factory: some Publisher<RTCPeerConnectionFactory, Never>
+		factory: @autoclosure @escaping () -> RTCPeerConnectionFactory,
+		configuration: @autoclosure @escaping () -> RTCConfiguration,
+		mediaConstraints: @autoclosure @escaping () -> RTCMediaConstraints
 	) {
+		self.dispatchQueue = dispatchQueue
 		self.coordinator = coordinator
-		self.rtcConfiguration = RTCConfiguration(copy: rtcConfiguration)
-		self.rtcMediaConstraints = rtcMediaConstraints
 		self.peerConnectionIsPublisher = isPublisher
-		self.factoryPublisher = factory.eraseToAnyPublisher()
+		self.factory = factory
+		self.configuration = configuration
+		self.mediaConstraints = mediaConstraints
 	}
 	
 	func configure(with joinResponse: Livekit_JoinResponse) async throws {
-		let rtcConfiguration = RTCConfiguration(copy: self.rtcConfiguration)
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		
+		let rtcConfiguration = RTCConfiguration(copy: configuration())
 		if rtcConfiguration.iceServers.isEmpty {
 			// Set iceServers provided by the server
 			rtcConfiguration.iceServers = joinResponse.iceServers.map { RTCIceServer($0) }
@@ -94,106 +101,88 @@ actor PeerConnection {
 			rtcConfiguration.iceTransportPolicy = .relay
 		}
 		
-		coordinator.configure(
-			rtcConfiguration,
-			constraints: rtcMediaConstraints,
-			peerConnectionIsPublisher: peerConnectionIsPublisher,
-			factory: factoryPublisher
-		)
+		Logger.log(oslog: coordinator.peerConnectionLog, message: "coordinator configure, as publisher: \(peerConnectionIsPublisher)")
+		
+		guard let rtcPeerConnection = factory().peerConnection(with: configuration(), constraints: mediaConstraints(), delegate: coordinator) else { throw Errors.createPeerConnection }
+		coordinator.peerConnectionState = rtcPeerConnection.connectionState
+		coordinator.signalingState = rtcPeerConnection.signalingState
+		coordinator.iceConnectionState = rtcPeerConnection.iceConnectionState
+		coordinator.iceGatheringState = rtcPeerConnection.iceGatheringState
+		self.rtcPeerConnection = rtcPeerConnection
 	}
 	
 	func configureDataChannels() async throws {
-		guard peerConnectionIsPublisher == true else { return }
+		guard peerConnectionIsPublisher == true, let rtcPeerConnection else { return }
 		
-		_ = try await withPeerConnection { [coordinator] rtcPeerConnection in
-			let reliableChannel = rtcPeerConnection.dataChannel(
-				forLabel: PeerConnection.DataChannelLabel.reliable.rawValue,
-				configuration: RTCDataChannelConfiguration.createDataChannelConfiguration(maxRetransmits: -1)
-			)
-			coordinator.rtcDataChannelReliable = reliableChannel
+		coordinator.rtcDataChannelReliable = rtcPeerConnection.dataChannel(
+			forLabel: PeerConnection.DataChannelLabel.reliable.rawValue,
+			configuration: RTCDataChannelConfiguration.createDataChannelConfiguration(maxRetransmits: -1)
+		)
 			
-			let lossyChannel = rtcPeerConnection.dataChannel(
-				forLabel: PeerConnection.DataChannelLabel.lossy.rawValue,
-				configuration: RTCDataChannelConfiguration.createDataChannelConfiguration(maxRetransmits: 0)
-			)
-			coordinator.rtcDataChannelLossy = lossyChannel
-		}
+		coordinator.rtcDataChannelLossy = rtcPeerConnection.dataChannel(
+			forLabel: PeerConnection.DataChannelLabel.lossy.rawValue,
+			configuration: RTCDataChannelConfiguration.createDataChannelConfiguration(maxRetransmits: 0)
+		)
 	}
 	
-	@discardableResult
-	func withPeerConnection<Result>(perform: @escaping (@Sendable(RTCPeerConnection) throws -> Result)) async throws -> Result {
-		return try await withCheckedThrowingContinuation { continuation in
-			rtcPeerConnection
-				.first()
-				.sink(receiveCompletion: { completion in
-					switch completion {
-					case .finished:
-						break // continuations can fire only once... so we bail here since we already resumed
-						
-					case .failure(let failure):
-						continuation.resume(throwing: failure)
-					}
-				}, receiveValue: {
-					do {
-						let result = try perform($0)
-						continuation.resume(returning: result)
-					} catch {
-						continuation.resume(throwing: error)
-					}
-				})
-				.store(in: &subscriptions.value)
-		}
+	struct VideoPublishItems {
+		var transceiver: RTCRtpTransceiver?
+		let track: RTCVideoTrack
+		let source: RTCVideoSource
+	}
+
+	struct AudioPublishItems {
+		var transceiver: RTCRtpTransceiver?
+		let track: RTCAudioTrack
+		let source: RTCAudioSource
 	}
 	
-	@discardableResult
-	func _withPeerConnection<P: Publisher, Result>(
-		transform: @escaping (RTCPeerConnection) -> P,
-		perform: @escaping (P.Output) throws -> Result
-	) async throws -> Result {
-		return try await withCheckedThrowingContinuation { continuation in
-			rtcPeerConnection
-				.first()
-				.flatMap {
-					transform($0).mapError{ $0 as Error }
-				}
-				.sink(receiveCompletion: { completion in
-					switch completion {
-					case .finished:
-						break
-						
-					case .failure(let error):
-						continuation.resume(throwing: error)
-					}
-				}, receiveValue: { input in
-					do {
-						let result = try perform(input)
-						continuation.resume(returning: result)
-					} catch {
-						continuation.resume(throwing: error)
-					}
-				})
-				.store(in: &subscriptions.value)
-		}
-	}
-	
-	//MARK: - rtc peer connection
-	
-	//WebRTC's c++ types often times work with mutexes and locks to syncronize access
-	//to shared mutable state. This feels like it could be an issue when trying to solve
-	//this with Swift concurrency. So here we go.
-	var webRTCQueue: DispatchQueue {
-		coordinator.webRTCQueue
-	}
-	
-	func addIceCandidate(_ candidateInit: String) async throws {
-//		Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) will add ice candidate \(candidateInit)")
+	func audioTrack(audioPublication: Publication, enabled: Bool = false) -> (RTCAudioTrack, RTCAudioSource) {
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		let options = audioPublication.audioCaptureOptions ?? AudioCaptureOptions()
+		let constraints: [String: String] = [
+			"googEchoCancellation": options.echoCancellation.toString(),
+			"googAutoGainControl": options.autoGainControl.toString(),
+			"googNoiseSuppression": options.noiseSuppression.toString(),
+			"googTypingNoiseDetection": options.typingNoiseDetection.toString(),
+			"googHighpassFilter": options.highpassFilter.toString(),
+			"googNoiseSuppression2": options.experimentalNoiseSuppression.toString(),
+			"googAutoGainControl2": options.experimentalAutoGainControl.toString()
+		]
 		
-		guard let _ = remoteDescription else {
-			_pendingCandidates.append(candidateInit)
-			return
-		}
+		let audioConstraints = RTCMediaConstraints(mandatoryConstraints: nil, optionalConstraints: constraints)
+		let source = factory().audioSource(with: audioConstraints)
+		let audioTrack = factory().audioTrack(with: source, trackId: audioPublication.cid)
+		audioTrack.isEnabled = true
+		return (audioTrack, source)
+	}
+	
+	func audioTransceiver(audioPublication: Publication, enabled: Bool = false) async throws -> AudioPublishItems {
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+
+		guard let rtcPeerConnection = rtcPeerConnection else { throw PeerConnection.Errors.noPeerConnection }
 		
-		try await add(candidateInit)
+		let (rtcAudioTrack, rtcAudioSource) = audioTrack(audioPublication: audioPublication, enabled: enabled)
+				
+		let transceiverInit = RTCRtpTransceiverInit(encodingParameters: audioPublication.encodings)
+		let transceiver = rtcPeerConnection.addTransceiver(with: rtcAudioTrack, init: transceiverInit)
+		return AudioPublishItems(transceiver: transceiver, track: rtcAudioTrack, source: rtcAudioSource)
+	}
+	
+	func videoTransceiver(videoPublication: Publication, enabled: Bool = true) async throws -> VideoPublishItems {
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		
+		guard let rtcPeerConnection = rtcPeerConnection else { throw PeerConnection.Errors.noPeerConnection }
+		
+		let transceiverInit = RTCRtpTransceiverInit(encodingParameters: videoPublication.encodings)
+		
+		let rtcVideoSource = factory().videoSource()
+		let rtcVideoTrack = factory().videoTrack(with: rtcVideoSource, trackId: videoPublication.cid)
+		rtcVideoTrack.isEnabled = enabled
+		
+		let transceiver = rtcPeerConnection.addTransceiver(with: rtcVideoTrack, init: transceiverInit)
+		assert(transceiver != nil)
+		return VideoPublishItems(transceiver: transceiver, track: rtcVideoTrack, source: rtcVideoSource)
 	}
 	
 	func offerInProgress() -> Bool {
@@ -216,52 +205,8 @@ actor PeerConnection {
 		_pendingCandidates = pendingCandidates
 	}
 	
-	func update(remoteDescription: Livekit_SessionDescription?) {
-		self.remoteDescription = remoteDescription
-		self.remoteSessionDescription = remoteDescription
-	}
-	
-	func update(localDescription: Livekit_SessionDescription?) {
-		self.localDescription = localDescription
-		self.localSessionDescription = localDescription
-	}
-	
-	nonisolated func withMediaTrack<T>(trackId: String, type: T.Type, perform: @escaping @Sendable (T) -> Void) {
-		coordinator.rtcPeerConnectionPublisher
-			.flatMap {
-				$0.receivers.publisher
-			}
-			.filter {
-				$0.receiverId == trackId
-			}
-			.first()
-			.compactMap({ $0.track as? T })
-			.print("DEBUG: withMediaTrack")
-			.sink { track in
-				perform(track)
-			}
-			.store(in: &coordinator.cancellables.value)
-	}
-	
-	nonisolated func renderMediaStream<Renderer: RTCVideoRenderer>(streamId: String, into renderer: Renderer) throws {
-		coordinator.rtcPeerConnectionPublisher
-			.flatMap {
-				$0.receivers.publisher
-			}
-			.filter {
-				$0.receiverId == streamId
-			}
-			.first()
-			.compactMap {
-				$0.track as? RTCVideoTrack
-			}
-			.receive(on: DispatchQueue.main)
-			.print("DEBUG: renderMediaStream")
-			.sink { track in
-				track.add(renderer)
-				print("DEBUG: did add renderer: \(renderer) to track: \(track) with id: \(track.trackId), enabled: \(track.isEnabled)")
-			}
-			.store(in: &coordinator.cancellables.value)
+	func update(pendingCandidate: String) {
+		_pendingCandidates.append(pendingCandidate)
 	}
 	
 	func teardown() async {
@@ -270,12 +215,13 @@ actor PeerConnection {
 		_offerTask?.cancel()
 		_offerTask = nil
 		
-		_remoteSessionDescription.finish()
-		_localSessionDescription.finish()
-		subscriptions.send(completion: .finished)
-		
 		coordinator.teardown()
+		if let rtcPeerConnection {
+			rtcPeerConnection.close()
+		}		
 	}
+	
+	// MARK: - retrieve receiver(s) from peer connection
 }
 
 extension PeerConnection {
@@ -325,30 +271,6 @@ extension PeerConnection {
 		case .undefined:
 			throw Errors.noDataChannel
 		}
-	}
-}
-
-struct BufferedQueue<Element> {
-	let channel: AsyncChannel<Element>
-	let bufferedSequence: AsyncBufferSequence<AsyncChannel<Element>>
-	
-	init(channel: AsyncChannel<Element> = AsyncChannel(), policy: AsyncBufferSequencePolicy) {
-		self.channel = channel
-		self.bufferedSequence = AsyncBufferSequence(base: channel, policy: policy)
-	}
-	
-	func send(_ element: Element) async {
-		await channel.send(element)
-	}
-	
-	func send(_ element: Element) {
-		Task { 
-			await channel.send(element)
-		}
-	}
-	
-	func values() -> AsyncBufferSequence<AsyncChannel<Element>> {
-		bufferedSequence
 	}
 }
 
