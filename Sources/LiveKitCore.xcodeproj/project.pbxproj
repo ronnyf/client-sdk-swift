@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		600BAA0C2AD740E90000DE98 /* PeerConnection+RTC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 609100E22ABDEF7B002546B9 /* PeerConnection+RTC.swift */; };
 		600CC3512A097C430033FF99 /* PeerConnection+RTCdelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600CC3502A097C430033FF99 /* PeerConnection+RTCdelegate.swift */; };
 		601BCA7F2AA80F7700F9AE30 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 601BCA7E2AA80F7700F9AE30 /* AsyncAlgorithms */; };
 		601BCA822AA80FA900F9AE30 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = 601BCA812AA80FA900F9AE30 /* SwiftProtobuf */; };
@@ -24,15 +25,14 @@
 		605246B32ACD11B000ECA167 /* PeerConnection+Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605246B12ACD11B000ECA167 /* PeerConnection+Coordinator.swift */; };
 		605246B52ACD120F00ECA167 /* PeerConnection+Negotiation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605246B42ACD120F00ECA167 /* PeerConnection+Negotiation.swift */; };
 		605246B62ACD120F00ECA167 /* PeerConnection+Negotiation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605246B42ACD120F00ECA167 /* PeerConnection+Negotiation.swift */; };
-		605246B82ACD151100ECA167 /* PeerConnection+Signals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605246B72ACD151100ECA167 /* PeerConnection+Signals.swift */; };
-		605246B92ACD151100ECA167 /* PeerConnection+Signals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605246B72ACD151100ECA167 /* PeerConnection+Signals.swift */; };
+		605246B82ACD151100ECA167 /* LiveKit+Signals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605246B72ACD151100ECA167 /* LiveKit+Signals.swift */; };
+		605246B92ACD151100ECA167 /* LiveKit+Signals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605246B72ACD151100ECA167 /* LiveKit+Signals.swift */; };
 		60594CC32AA8E6B800349D51 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 60594CC22AA8E6B800349D51 /* AsyncAlgorithms */; };
 		60594CC52AA8E6BD00349D51 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = 60594CC42AA8E6BD00349D51 /* SwiftProtobuf */; };
 		605DC9882AAA2C7700583DB8 /* PeerConnectionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605DC9872AAA2C7700583DB8 /* PeerConnectionFactory.swift */; };
 		605DC9892AAA2C7900583DB8 /* PeerConnectionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605DC9872AAA2C7700583DB8 /* PeerConnectionFactory.swift */; };
 		6069A17F2A05490500842647 /* SignalHub+LiveKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6069A17E2A05490500842647 /* SignalHub+LiveKit.swift */; };
 		6069A1832A05C20700842647 /* SignalHub+RTC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6069A1822A05C20700842647 /* SignalHub+RTC.swift */; };
-		6069A1852A05CC8E00842647 /* SignalHub+Signals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6069A1842A05CC8E00842647 /* SignalHub+Signals.swift */; };
 		60888F5829F97E9F00AE5111 /* LiveKitCore.docc in Sources */ = {isa = PBXBuildFile; fileRef = 60888F5729F97E9F00AE5111 /* LiveKitCore.docc */; };
 		60888F6329F97E9F00AE5111 /* LiveKitCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F6229F97E9F00AE5111 /* LiveKitCoreTests.swift */; };
 		60888F7929F97EC900AE5111 /* Publishing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F6E29F97EC900AE5111 /* Publishing.swift */; };
@@ -120,7 +120,6 @@
 		60E39AF62A61A9FD00FBE675 /* Publishing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F6E29F97EC900AE5111 /* Publishing.swift */; };
 		60E39AF72A61A9FD00FBE675 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F6F29F97EC900AE5111 /* Session.swift */; };
 		60E39AF82A61A9FD00FBE675 /* SignalHub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F7529F97EC900AE5111 /* SignalHub.swift */; };
-		60E39AF92A61A9FD00FBE675 /* SignalHub+Signals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6069A1842A05CC8E00842647 /* SignalHub+Signals.swift */; };
 		60E39AFB2A61A9FD00FBE675 /* SignalHub+LiveKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6069A17E2A05490500842647 /* SignalHub+LiveKit.swift */; };
 		60E39AFC2A61A9FD00FBE675 /* SignalHub+RTC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6069A1822A05C20700842647 /* SignalHub+RTC.swift */; };
 		60E39AFD2A61A9FD00FBE675 /* SignalHub+VideoPublishing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F7829F97EC900AE5111 /* SignalHub+VideoPublishing.swift */; };
@@ -155,11 +154,10 @@
 		605246AE2ACD103600ECA167 /* MessageChannel+Connect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MessageChannel+Connect.swift"; sourceTree = "<group>"; };
 		605246B12ACD11B000ECA167 /* PeerConnection+Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PeerConnection+Coordinator.swift"; sourceTree = "<group>"; };
 		605246B42ACD120F00ECA167 /* PeerConnection+Negotiation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PeerConnection+Negotiation.swift"; sourceTree = "<group>"; };
-		605246B72ACD151100ECA167 /* PeerConnection+Signals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PeerConnection+Signals.swift"; sourceTree = "<group>"; };
+		605246B72ACD151100ECA167 /* LiveKit+Signals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LiveKit+Signals.swift"; sourceTree = "<group>"; };
 		605DC9872AAA2C7700583DB8 /* PeerConnectionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerConnectionFactory.swift; sourceTree = "<group>"; };
 		6069A17E2A05490500842647 /* SignalHub+LiveKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalHub+LiveKit.swift"; sourceTree = "<group>"; };
 		6069A1822A05C20700842647 /* SignalHub+RTC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalHub+RTC.swift"; sourceTree = "<group>"; };
-		6069A1842A05CC8E00842647 /* SignalHub+Signals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalHub+Signals.swift"; sourceTree = "<group>"; };
 		60888F5329F97E9F00AE5111 /* LiveKitCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LiveKitCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		60888F5729F97E9F00AE5111 /* LiveKitCore.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = LiveKitCore.docc; sourceTree = "<group>"; };
 		60888F5D29F97E9F00AE5111 /* LiveKitCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LiveKitCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -298,6 +296,7 @@
 			isa = PBXGroup;
 			children = (
 				60888F7729F97EC900AE5111 /* Convenience.swift */,
+				605246B72ACD151100ECA167 /* LiveKit+Signals.swift */,
 				603F70482AA9448B004C8D99 /* Logging.swift */,
 				60888F7629F97EC900AE5111 /* MessageChannel.swift */,
 				605246AE2ACD103600ECA167 /* MessageChannel+Connect.swift */,
@@ -307,7 +306,6 @@
 				605246B42ACD120F00ECA167 /* PeerConnection+Negotiation.swift */,
 				609100E22ABDEF7B002546B9 /* PeerConnection+RTC.swift */,
 				600CC3502A097C430033FF99 /* PeerConnection+RTCdelegate.swift */,
-				605246B72ACD151100ECA167 /* PeerConnection+Signals.swift */,
 				605DC9872AAA2C7700583DB8 /* PeerConnectionFactory.swift */,
 				60888F6E29F97EC900AE5111 /* Publishing.swift */,
 				60888F6F29F97EC900AE5111 /* Session.swift */,
@@ -316,7 +314,6 @@
 				60888F7529F97EC900AE5111 /* SignalHub.swift */,
 				6069A17E2A05490500842647 /* SignalHub+LiveKit.swift */,
 				6069A1822A05C20700842647 /* SignalHub+RTC.swift */,
-				6069A1842A05CC8E00842647 /* SignalHub+Signals.swift */,
 				60888F7829F97EC900AE5111 /* SignalHub+VideoPublishing.swift */,
 				60BFB45B2ACDE0010081807F /* VideoView.swift */,
 			);
@@ -602,14 +599,13 @@
 				60A0DF512A9298840038C808 /* Engine+WebRTC.swift in Sources */,
 				60A0DF332A9297FF0038C808 /* ProtocolVersion.swift in Sources */,
 				605246B22ACD11B000ECA167 /* PeerConnection+Coordinator.swift in Sources */,
-				605246B82ACD151100ECA167 /* PeerConnection+Signals.swift in Sources */,
+				605246B82ACD151100ECA167 /* LiveKit+Signals.swift in Sources */,
 				605246B52ACD120F00ECA167 /* PeerConnection+Negotiation.swift in Sources */,
 				6025C3312A147C1800DC21DF /* SharedModels.swift in Sources */,
 				60A0DF242A9297BB0038C808 /* Dimensions.swift in Sources */,
 				60A0DF002A9296ED0038C808 /* ConnectivityListener.swift in Sources */,
 				60A0DF2D2A9297E80038C808 /* IceCandidate.swift in Sources */,
 				60A0DF032A9296FF0038C808 /* Utils.swift in Sources */,
-				6069A1852A05CC8E00842647 /* SignalHub+Signals.swift in Sources */,
 				60A0DF122A9297690038C808 /* AudioCaptureOptions.swift in Sources */,
 				60A0DF4B2A9298640038C808 /* VideoQuality.swift in Sources */,
 				60D4198E2AC72CDD006DE490 /* Session+Publish.swift in Sources */,
@@ -646,19 +642,19 @@
 				605246B02ACD103600ECA167 /* MessageChannel+Connect.swift in Sources */,
 				605246B62ACD120F00ECA167 /* PeerConnection+Negotiation.swift in Sources */,
 				60A0DF522A9298840038C808 /* Engine+WebRTC.swift in Sources */,
-				60E39AF92A61A9FD00FBE675 /* SignalHub+Signals.swift in Sources */,
 				60E39AFB2A61A9FD00FBE675 /* SignalHub+LiveKit.swift in Sources */,
 				60E39AFC2A61A9FD00FBE675 /* SignalHub+RTC.swift in Sources */,
 				60A0DF5D2A9298B90038C808 /* TimeInterval.swift in Sources */,
 				605DC9892AAA2C7900583DB8 /* PeerConnectionFactory.swift in Sources */,
 				60E39AFD2A61A9FD00FBE675 /* SignalHub+VideoPublishing.swift in Sources */,
 				60A0DF432A92983D0038C808 /* VideoEncoding.swift in Sources */,
-				605246B92ACD151100ECA167 /* PeerConnection+Signals.swift in Sources */,
+				605246B92ACD151100ECA167 /* LiveKit+Signals.swift in Sources */,
 				60E39AFE2A61A9FD00FBE675 /* PeerConnection.swift in Sources */,
 				60A0DF092A92972E0038C808 /* livekit_models.pb.swift in Sources */,
 				60A0DF1C2A92978B0038C808 /* CaptureOptions.swift in Sources */,
 				60E39AFF2A61A9FD00FBE675 /* PeerConnection+RTCdelegate.swift in Sources */,
 				60A0DF3A2A9298250038C808 /* SessionDescription.swift in Sources */,
+				600BAA0C2AD740E90000DE98 /* PeerConnection+RTC.swift in Sources */,
 				60E39B012A61A9FD00FBE675 /* ConnectivityListener-Core.swift in Sources */,
 				60BFB45D2ACDE0010081807F /* VideoView.swift in Sources */,
 				603F704A2AA9448B004C8D99 /* Logging.swift in Sources */,

@@ -38,7 +38,7 @@ let package = Package(
 			name: "LiveKit",
 			dependencies: [
 				.target(name: "CHeaders"),
-				"LKWebRTC",
+				.target(name: "LKWebRTC"),
 				.product(name: "SwiftProtobuf", package: "swift-protobuf"),
 				.product(name: "Promises", package: "Promises"),
 				.product(name: "FBLPromises", package: "Promises"),
@@ -63,13 +63,14 @@ let package = Package(
 			dependencies: [
 				.target(name: "FakePromises"),
 				.target(name: "FakeFBLPromises"),
+				.target(name: "LKWebRTC"),
 				.product(name: "SwiftProtobuf", package: "swift-protobuf"),
 				.product(name: "AsyncAlgorithms", package: "swift-async-algorithms"),
-				"LKWebRTC"
 			],
 			path: "Sources/LiveKitCore",
 			sources: [
 				"Core/Convenience.swift",
+				"Core/LiveKit+Signals.swift",
 				"Core/Logging.swift",
 				"Core/MessageChannel.swift",
 				"Core/MessageChannel+Connect.swift",
@@ -79,7 +80,6 @@ let package = Package(
 				"Core/PeerConnection+Negotiation.swift",
 				"Core/PeerConnection+RTC.swift",
 				"Core/PeerConnection+RTCdelegate.swift",
-				"Core/PeerConnection+Signals.swift",
 				"Core/PeerConnectionFactory.swift",
 				"Core/Publishing.swift",
 				"Core/Session.swift",

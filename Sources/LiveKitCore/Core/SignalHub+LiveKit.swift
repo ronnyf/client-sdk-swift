@@ -71,7 +71,7 @@ extension SignalHub {
 		}
 	}
 	
-	func sendAddTrackRequest(_ request: Livekit_AddTrackRequest, timeout: TimeInterval = 10) async throws -> LiveKitTrack {
+	func sendAddTrackRequest(_ request: Livekit_AddTrackRequest, timeout: TimeInterval = 10) async throws -> LiveKitTrackInfo {
 		let signalRequest = Livekit_SignalRequest.with {
 			$0.addTrack = request
 		}
@@ -80,7 +80,7 @@ extension SignalHub {
 		//TODO: validate timeout in seconds
 		Logger.log(oslog: signalHubLog, message: "waiting for track published response for: \(request)")
 		
-		let trackPublisher: AnyPublisher<LiveKitTrack, Never>
+		let trackPublisher: AnyPublisher<LiveKitTrackInfo, Never>
 		
 		switch request.type {
 		case .video:
@@ -91,7 +91,7 @@ extension SignalHub {
 			trackPublisher = $dataTracks.publisher.compactMap { $0[request.cid] }.eraseToAnyPublisher()
 		
 		case .UNRECOGNIZED(_):
-			trackPublisher = Empty<LiveKitTrack, Never>().eraseToAnyPublisher()
+			trackPublisher = Empty<LiveKitTrackInfo, Never>().eraseToAnyPublisher()
 		}
 		
 		do {
@@ -120,7 +120,7 @@ extension SignalHub {
 	
 	// MARK: - room permissions
 	
-	func makeSubscriptionPermissionsRequest(allowAll: Bool, trackPermissions: [LiveKitTrack.Permission] = []) -> Livekit_SignalRequest {
+	func makeSubscriptionPermissionsRequest(allowAll: Bool, trackPermissions: [LiveKitTrackInfo.Permission] = []) -> Livekit_SignalRequest {
 		Livekit_SignalRequest.with {
 			$0.subscriptionPermission = Livekit_SubscriptionPermission.with {
 				$0.allParticipants = allowAll
@@ -129,7 +129,7 @@ extension SignalHub {
 		}
 	}
 	
-	func sendUpdateSubscriptionPermissions(allowAll: Bool, trackPermissions: [LiveKitTrack.Permission] = []) throws {
+	func sendUpdateSubscriptionPermissions(allowAll: Bool, trackPermissions: [LiveKitTrackInfo.Permission] = []) throws {
 		let request = makeSubscriptionPermissionsRequest(allowAll: allowAll, trackPermissions: trackPermissions)
 		try enqueue(request: request)
 	}

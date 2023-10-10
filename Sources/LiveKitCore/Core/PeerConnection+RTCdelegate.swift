@@ -8,7 +8,6 @@
 import Foundation
 import Combine
 import OSLog
-import AsyncAlgorithms
 @_implementationOnly @preconcurrency import WebRTC
 
 extension PeerConnection {

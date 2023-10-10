@@ -24,7 +24,7 @@ class MessageChannel: @unchecked Sendable {
 	
 	var bufferedMessages: AsyncThrowingFlatMapSequence<AsyncStream<URLSessionWebSocketTask>, AsyncBufferSequence<URLSessionWebSocketTaskReceiver>> {
 		currentWebSocketStream.flatMap {
-			$0.bufferedMessages(policy: .bufferingLatest(10))
+			$0.bufferedMessages(policy: .bufferingLatest(20))
 		}
 	}
 	
@@ -39,12 +39,12 @@ class MessageChannel: @unchecked Sendable {
 	
 	#if DEBUG
 	deinit {
-		Logger.log(oslog: coordinator.messageChannelLog, message: "deinit")
+		Logger.log(oslog: coordinator.messageChannelLog, message: "deinit MessageChannel")
 	}
 	#endif
 	
 	func teardown() {
-		Logger.log(oslog: coordinator.messageChannelLog, message: "teardown")
+		Logger.log(oslog: coordinator.messageChannelLog, message: "teardown MessageChannel")
 		
 		urlSession.invalidateAndCancel()
 		coordinator.teardown()
@@ -73,11 +73,11 @@ extension MessageChannel {
 		#if DEBUG
 		override init() {
 			super.init()
-			Logger.log(oslog: messageChannelLog, message: "coordinator init")
+			Logger.log(oslog: messageChannelLog, message: "WebsocketTaskCoordinator init")
 		}
 		
 		deinit {
-			Logger.log(oslog: messageChannelLog, message: "coordinator deinit")
+			Logger.log(oslog: messageChannelLog, message: "WebsocketTaskCoordinator deinit")
 		}
 		#endif
 		
@@ -87,6 +87,7 @@ extension MessageChannel {
 		
 		///Close the current (open) socket and wait for it to go through the system (openSocketSubject is nil)
 		func teardown() {
+			Logger.log(oslog: messageChannelLog, message: "tearddown WebsocketTaskCoordinator")
 			_webSocketTask.finish()
 		}
 		

@@ -9,228 +9,173 @@ import Foundation
 import Combine
 @_implementationOnly import WebRTC
 
-extension RTCPeerConnection {
-	func candidateInit(_ value: String) -> some Publisher<Void, Error> {
-		Future { promise in
-			do {
-				let candidate = try RTCIceCandidate(fromJsonString: value)
-				assert(self.remoteDescription != nil)
-				self.add(candidate) { error in
-					if let error {
-						promise(.failure(error))
-					} else {
-						promise(.success(()))
-					}
-				}
-			} catch {
-				promise(.failure(error))
-			}
-		}
-	}
-	
-	func localDescription(_ rtcSdp: RTCSessionDescription) -> some Publisher<Livekit_SessionDescription, Error> {
-		Future { promise in
-			self.setLocalDescription(rtcSdp) { error in
-				if let error {
-					promise(.failure(error))
-				} else {
-					promise(.success(Livekit_SessionDescription(rtcSdp)))
-				}
-			}
-		}
-	}	
-	
-	func localDescription(_ liveKit_Sdp: Livekit_SessionDescription) -> some Publisher<Livekit_SessionDescription, Error> {
-		Future { promise in
-			let rtcSdp = RTCSessionDescription(liveKit_Sdp)
-			self.setLocalDescription(rtcSdp) { error in
-				if let error {
-					promise(.failure(error))
-				} else {
-					promise(.success(liveKit_Sdp))
-				}
-			}
-		}
-	}	
-	
-	func remoteDescription(_ rtcSdp: RTCSessionDescription) -> some Publisher<Livekit_SessionDescription, Error> {
-		Future { promise in
-			self.setRemoteDescription(rtcSdp) { error in
-				if let error {
-					promise(.failure(error))
-				} else {
-					promise(.success(Livekit_SessionDescription(rtcSdp)))
-				}
-			}
-		}
-	}
-	
-	func remoteDescription(_ liveKit_Sdp: Livekit_SessionDescription) -> some Publisher<Livekit_SessionDescription, Error> {
-		Future { promise in
-			let rtcSdp = RTCSessionDescription(liveKit_Sdp)
-			self.setRemoteDescription(rtcSdp) { error in
-				if let error {
-					promise(.failure(error))
-				} else {
-					promise(.success(liveKit_Sdp))
-				}
-			}
-		}
-	}	
-	
-	func iceCandidate(_ candidate: IceCandidate) -> some Publisher<Void, Error> {
-		Future { promise in
-			let rtcCandidate = RTCIceCandidate(candidate)
-			self.add(rtcCandidate) { error in
-				if let error {
-					promise(.failure(error))
-				} else {
-					promise(.success(()))
-				}
-			}
-		}
-	}
-	
-	func transceiver(with track: RTCMediaStreamTrack, transceiverInit: RTCRtpTransceiverInit) -> some Publisher<RTCRtpTransceiver, Error> {
-		Future { promise in
-			if let transceiver = self.addTransceiver(with: track, init: transceiverInit) {
-				promise(.success(transceiver))
-			} else {
-				promise(.failure(PeerConnection.Errors.createTransceiver))
-			}
-		}
-	}
-	
-	func offerDescription(with constraints: RTCMediaConstraints) -> some Publisher<RTCSessionDescription, Error> {
-		Future { promise in
-			self.offer(for: constraints) { sd, error in
-				if let error {
-					promise(.failure(error))
-				} else {
-					if let sd {
-						promise(.success(sd))
-					} else {
-						promise(.failure(NoValueError()))
-					}
-				}
-			}
-		}
-	}
-	
-	func answerDescription(with constraints: RTCMediaConstraints) -> some Publisher<RTCSessionDescription, Error> {
-		Future { promise in
-			self.answer(for: constraints) { sd, error in
-				if let error {
-					promise(.failure(error))
-				} else {
-					if let sd {
-						promise(.success(sd))
-					} else {
-						promise(.failure(NoValueError()))
-					}
-				}
-			}
-		}
-	}
-}
-
-extension CheckedContinuation {
-	func complete(value: T, subscriberCompletion: Subscribers.Completion<E>) {
-		switch subscriberCompletion {
-		case .finished:
-			resume(returning: value)
-		case .failure(let error):
-			resume(throwing: error)
-		}
-	}
-}
-
 extension PeerConnection {
-	//MARK: - peer connection accessors
-	
-	func add(_ candidateInit: String) async throws {
-		try await self._withPublisher(coordinator.rtcPeerConnectionPublisher) {
-			$0.candidateInit(candidateInit)
+	func removeTrack(trackId: String) throws {
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		guard let rtcPeerConnection else { throw Errors.noPeerConnection }
+		
+		rtcPeerConnection.transceivers.map { transceiver in
+			transceiver.sender
+		}.filter {
+			$0.senderId == trackId
+		}
+		.forEach { sender in
+			rtcPeerConnection.removeTrack(sender)
 		}
 	}
 	
-	func _withPublisher<Input, Output, Failure>(_ publisher: some Publisher<Input, Never>, transform: @escaping (@Sendable (Input) -> some Publisher<Output, Failure>)) async throws -> Output {
-		try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Output, Error>) in
-			let subscriptions = CurrentValueSubject<Set<AnyCancellable>, Never>([])
-			publisher
-				.flatMap(transform)
-				.first()
-				.sink { completion in
-					switch completion {
-					case .finished:
-						break
-						
-					case .failure(let error):
-						continuation.resume(throwing: error)
-					}
-					subscriptions.send(completion: .finished)
-				} receiveValue: {
-					continuation.resume(returning: $0)
-				}
-				.store(in: &subscriptions.value)
-		}
+	func removeTransceiver(_ transceiver: RTCRtpTransceiver) throws {
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		guard let rtcPeerConnection else { throw Errors.noPeerConnection }
+		
+		try rtcPeerConnection.senders
+			.compactMap{ sender in
+				sender.track?.trackId
+			}
+			.forEach {
+				try removeTrack(trackId: $0)
+			}
 	}
 	
-	@discardableResult
-	func setLocalDescription(_ sdp: Livekit_SessionDescription) async throws -> Livekit_SessionDescription {
-		let result = try await _withPublisher(coordinator.rtcPeerConnectionPublisher) { rtcPeerConnection in
-			rtcPeerConnection.localDescription(sdp)
-		}
-		update(localDescription: result)
-		return result
+	func candidateInit(_ value: String) async throws {
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		guard let rtcPeerConnection else { throw Errors.noPeerConnection }
+		
+		let candidate = try RTCIceCandidate(fromJsonString: value)
+		assert(rtcPeerConnection.remoteDescription != nil)
+		try await rtcPeerConnection.add(candidate)  // looks dangerous ... but shouldn't be since this actor has a serial executor defined
 	}
 	
-	func setLocalDescription(_ rtcSdp: RTCSessionDescription) async throws -> Livekit_SessionDescription {
-		let result = try await _withPublisher(coordinator.rtcPeerConnectionPublisher) { rtcPeerConnection in
-			rtcPeerConnection.localDescription(rtcSdp)
-		}
-		update(localDescription: result)
-		return result
+	func update(localDescription rtcSdp: RTCSessionDescription) async throws -> Livekit_SessionDescription {
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		guard let rtcPeerConnection else { throw Errors.noPeerConnection }
+		
+		try await rtcPeerConnection.setLocalDescription(rtcSdp)
+		return Livekit_SessionDescription(rtcSdp)
 	}
 	
-	@discardableResult
-	func setRemoteDescription(_ sdp: Livekit_SessionDescription) async throws -> Livekit_SessionDescription {
-		let result = try await _withPublisher(coordinator.rtcPeerConnectionPublisher) { rtcPeerConnection in
-			rtcPeerConnection.remoteDescription(sdp)
-		}
-		update(remoteDescription: result)
+	func update(localDescription lkSdp: Livekit_SessionDescription) async throws -> Livekit_SessionDescription {
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		return try await update(localDescription: RTCSessionDescription(lkSdp))
+	}
+	
+	func update(remoteDescription rtcSdp: RTCSessionDescription) async throws -> Livekit_SessionDescription {
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		guard let rtcPeerConnection else { throw Errors.noPeerConnection }
+		
+		try await rtcPeerConnection.setRemoteDescription(rtcSdp)
+		
 		let pendingCandidates = pendingIceCandidates()
 		if pendingCandidates.count > 0 {
 			try await withThrowingTaskGroup(of: Void.self) { group in
 				for pendingCandidate in pendingCandidates {
 					group.addTask {
-						try await self.add(pendingCandidate)
+						try await self.add(candidateInit: pendingCandidate)
 					}
 				}
-				
 				try await group.waitForAll()
 			}
 			update(pendingCandidates: [])
 		}
 		
-		return result
+		return Livekit_SessionDescription(rtcSdp)
 	}
 	
-	func offer(for constraints: RTCMediaConstraints) async throws -> RTCSessionDescription {
-		return try await _withPublisher(coordinator.rtcPeerConnectionPublisher) { rtcPeerConnection in
-			rtcPeerConnection.offerDescription(with: constraints)
+	@discardableResult
+	func update(remoteDescription lkSdp: Livekit_SessionDescription) async throws -> Livekit_SessionDescription {
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		return try await update(remoteDescription: RTCSessionDescription(lkSdp))
+	}
+	
+	func add(candidateInit: String) async throws {
+		//		Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) will add ice candidate \(candidateInit)")
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		guard let rtcPeerConnection else { throw Errors.noPeerConnection }
+		
+		guard let _ = rtcPeerConnection.remoteDescription else {
+			update(pendingCandidate: candidateInit)
+			return
 		}
+		
+		try await add(iceCandidate: RTCIceCandidate(fromJsonString: candidateInit))
 	}
 	
-	func answer(for constraints: RTCMediaConstraints) async throws -> RTCSessionDescription {
-		return try await _withPublisher(coordinator.rtcPeerConnectionPublisher) { rtcPeerConnection in
-			rtcPeerConnection.answerDescription(with: constraints)
+	func add(iceCandidate candidate: IceCandidate) async throws {
+		try await add(iceCandidate: RTCIceCandidate(candidate))
+	}
+	
+	func add(iceCandidate candidate: RTCIceCandidate) async throws {
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		guard let rtcPeerConnection else { throw Errors.noPeerConnection }
+		
+		assert(rtcPeerConnection.remoteDescription != nil)
+		try await rtcPeerConnection.add(candidate)
+	}
+	
+	func transceiver(with track: RTCMediaStreamTrack, transceiverInit: RTCRtpTransceiverInit) async throws -> RTCRtpTransceiver {
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		guard let rtcPeerConnection else { throw Errors.noPeerConnection }
+		
+		guard let transceiver = rtcPeerConnection.addTransceiver(with: track, init: transceiverInit) else {
+			throw Errors.createTransceiver
 		}
+		return transceiver
 	}
 	
-	func addTransceiver(with track: RTCMediaStreamTrack, transceiverInit: RTCRtpTransceiverInit) async throws -> RTCRtpTransceiver {
-		return try await _withPublisher(coordinator.rtcPeerConnectionPublisher) { rtcPeerConnection in
-			rtcPeerConnection.transceiver(with: track, transceiverInit: transceiverInit)
+	func offerDescription(with constraints: RTCMediaConstraints) async throws -> RTCSessionDescription {
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		guard let rtcPeerConnection else { throw Errors.noPeerConnection }
+		
+		return try await rtcPeerConnection.offer(for: constraints)
+	}
+	
+	func answerDescription(with constraints: RTCMediaConstraints = RTCMediaConstraints(mandatoryConstraints: nil, optionalConstraints: nil)) async throws -> RTCSessionDescription {
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		guard let rtcPeerConnection else { throw Errors.noPeerConnection }
+		
+		return try await rtcPeerConnection.answer(for: constraints)
+	}
+	
+	//MARK: - utilities
+	
+	func findMediaStreams(joinResponse: Livekit_JoinResponse) async throws -> [LiveKitStream] {
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		guard peerConnectionIsPublisher == false else { return [] }
+		guard let rtcPeerConnection else { throw Errors.noPeerConnection }
+		
+		let mediaTracks = rtcPeerConnection.transceivers
+			.compactMap { $0.receiver.track }
+			.grouped(by: \RTCMediaStreamTrack.trackId)
+		
+		guard mediaTracks.count > 0 else { return [] }
+		
+		return joinResponse.otherParticipants.map {
+			
+			// streamId ------v
+			// PA_dQDLmN3aFt92|TR_VCcdbkczVxyutm
+			// participantId-^ ^---------trackId
+			
+			let participantId = $0.sid
+			
+			let allTracks = $0.tracks.lazy
+			let videoTracks = allTracks.filter { $0.type == .video }
+			let audioTracks = allTracks.filter { $0.type == .audio }
+			
+			let foundVideoTracks = videoTracks.compactMap { videoTrack -> MediaTrack? in
+				guard let mediaStreamTrack = mediaTracks[videoTrack.sid] else { return nil }
+				return MediaTrack(mediaStreamTrack)
+			}
+			
+			let foundAudioTracks = audioTracks.compactMap { audioTrack -> MediaTrack? in
+				guard let mediaStreamTrack = mediaTracks[audioTrack.sid] else { return nil }
+				return MediaTrack(mediaStreamTrack)
+			}
+			
+			return LiveKitStream(
+				participantId: participantId,
+				videoTracks: foundVideoTracks,
+				audioTracks: foundAudioTracks
+			)
 		}
 	}
 }

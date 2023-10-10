@@ -71,4 +71,69 @@ final class LiveKitCoreTests: XCTestCase {
 	func test_messageChannel_1() {
 		
 	}
+	
+	func test_SerialExecutor() async throws {
+		let q = DispatchSerialQueue(label: "TestQ")
+		let a = TestActor(dispatchQueue: q)
+		await withTaskGroup(of: Void.self) { group in
+			for _ in (0..<100) {
+				group.addTask {
+					await a.test()
+				}
+				group.addTask {
+					await a.test2()
+				}
+				
+				group.addTask {
+					await a.test3()
+				}
+			}
+		}
+		
+		Task.detached {
+			await a.test()
+			await a.test2()
+			await a.test3()
+		}
+		
+		print("DONE")
+	}
+	
+	func testBinarySearch() {
+		var values: [Int] = []
+		
+		let range = (0..<100)
+		let valueRange = (0..<1000)
+		range.forEach { _ in
+			let value = Int.random(in: valueRange)
+			values.insert(value, at: values.binarySearch(value))
+		}
+		XCTAssertEqual(values, values.sorted())
+	}
+}
+
+actor TestActor {
+	let dispatchQueue: DispatchSerialQueue
+	nonisolated var unownedExecutor: UnownedSerialExecutor {
+		dispatchQueue.asUnownedSerialExecutor()
+	}
+	
+	init(dispatchQueue: DispatchSerialQueue) {
+		self.dispatchQueue = dispatchQueue
+	}
+	
+	func test() {
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		print("on queue: \(dispatchQueue)")
+	}
+	
+	func test2() {
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		print("on queue: \(dispatchQueue)")
+	}	
+	
+	func test3() {
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		print("on queue: \(dispatchQueue)")
+	}
 }
