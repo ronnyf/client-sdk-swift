@@ -44,8 +44,7 @@ extension SignalHub {
 			
 		case .leave(let request):
 			Logger.log(oslog: signalHubLog, message: "leave request: \(request)")
-			await peerConnectionFactory.publishingPeerConnection.teardown()
-			await peerConnectionFactory.subscribingPeerConnection.teardown()
+			//TODO: reconnect?
 			return true
 			
 		case .refreshToken(let token):

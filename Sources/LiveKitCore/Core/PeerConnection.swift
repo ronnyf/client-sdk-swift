@@ -27,19 +27,19 @@ actor PeerConnection {
 	}
 	
 	nonisolated var rtcPeerConnection: some Publisher<RTCPeerConnection, Never> {
-		coordinator.rtcPeerConnection
+		coordinator.rtcPeerConnectionPublisher
 	}
 	
 	nonisolated var signalingState: some Publisher<RTCSignalingState, Never> {
-		coordinator.signalingState.publisher
+		coordinator.$signalingState.publisher.compactMap { $0 }
 	}
 	
 	nonisolated var connectionState: some Publisher<RTCPeerConnectionState, Never> {
-		coordinator.peerConnectionState.publisher
+		coordinator.$peerConnectionState.publisher.compactMap { $0 }
 	}
 	
 	nonisolated var iceConnectionState: some Publisher<RTCIceConnectionState, Never> {
-		coordinator.iceConnectionState.publisher
+		coordinator.$iceConnectionState.publisher.compactMap { $0 }
 	}
 	
 	nonisolated var signals: some Publisher<PeerConnection.RTCSignal, Never> {
@@ -186,7 +186,7 @@ actor PeerConnection {
 	}
 	
 	func addIceCandidate(_ candidateInit: String) async throws {
-		Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) will add ice candidate \(candidateInit)")
+//		Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) will add ice candidate \(candidateInit)")
 		
 		guard let _ = remoteDescription else {
 			_pendingCandidates.append(candidateInit)
@@ -227,7 +227,7 @@ actor PeerConnection {
 	}
 	
 	nonisolated func withMediaTrack<T>(trackId: String, type: T.Type, perform: @escaping @Sendable (T) -> Void) {
-		coordinator.rtcPeerConnection
+		coordinator.rtcPeerConnectionPublisher
 			.flatMap {
 				$0.receivers.publisher
 			}
@@ -244,7 +244,7 @@ actor PeerConnection {
 	}
 	
 	nonisolated func renderMediaStream<Renderer: RTCVideoRenderer>(streamId: String, into renderer: Renderer) throws {
-		coordinator.rtcPeerConnection
+		coordinator.rtcPeerConnectionPublisher
 			.flatMap {
 				$0.receivers.publisher
 			}

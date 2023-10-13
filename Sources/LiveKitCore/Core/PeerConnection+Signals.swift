@@ -53,14 +53,24 @@ extension PeerConnection {
 		switch message {
 			// this arrives first, and we update the peer connection and everything, suspending
 			// the incomming messages channel (back-pressure) until the peer connections are configured
-		case .join(let joinResponse):
+		case .join(let joinResponse) where peerConnectionIsPublisher == true:
+			signalHub.joinResponse = joinResponse // TODO: shall we remove this one?
+			
 			try await configure(with: joinResponse)
 			try await configureDataChannels()
 			
 			if joinResponse.subscriberPrimary == false {
 				offeringMachine(signalHub: signalHub)
 			}
-			return peerConnectionIsPublisher == false
+			
+			signalHub.localParticipant = LiveKitParticipant(joinResponse.participant)
+			// ---v this should use same grouping as in SignalHub+Signals.swift:~line:23, though we map first
+			signalHub.remoteParticipants = joinResponse.otherParticipants.grouped(by: \.id) { LiveKitParticipant($0) }
+			return false // we want the subscribing peer connection to call configure() as well...
+			
+		case .join(let joinResponse) where peerConnectionIsPublisher == false:
+			try await configure(with: joinResponse)
+			return true
 			
 		case .trickle(let response) where response.target == .publisher && peerConnectionIsPublisher == true:
 			try await addIceCandidate(response.candidateInit)

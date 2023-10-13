@@ -13,9 +13,9 @@ import OSLog
 extension PeerConnection {
 	
 	final class Coordinator: NSObject, RTCPeerConnectionDelegate, @unchecked Sendable {
-		@Publishing var peerConnection: RTCPeerConnection? = nil
-		var rtcPeerConnection: some Publisher<RTCPeerConnection, Never> {
-			$peerConnection.publisher.compactMap { $0 }.receive(on: webRTCQueue)
+		@Publishing var rtcPeerConnection: RTCPeerConnection? = nil
+		var rtcPeerConnectionPublisher: some Publisher<RTCPeerConnection, Never> {
+			$rtcPeerConnection.publisher.compactMap { $0 }.receive(on: webRTCQueue)
 		}
 		
 		@Publishing var peerConnectionState: RTCPeerConnectionState? = nil
@@ -28,7 +28,7 @@ extension PeerConnection {
 		
 		let _rtcSignals = PassthroughSubject<PeerConnection.RTCSignal, Never>()
 		var rtcSignals: some Publisher<PeerConnection.RTCSignal, Never> {
-			_rtcSignals.eraseToAnyPublisher()
+			_rtcSignals
 		}
 		
 		let webRTCQueue: DispatchQueue
@@ -67,22 +67,19 @@ extension PeerConnection {
 					
 					return pc
 				}
-			// TODO: at this point we don't know that there was an error - maybe this needs some more drastic informing ?
+				// TODO: at this point we don't know that there was an error - maybe this needs some more drastic informing ?
 				.first()
 				.replaceError(with: nil)
-				.assign(to: \.value, on: _peerConnection.subject)
-				.store(in: &cancellables.value)
+				.assign(to: &_rtcPeerConnection)
 		}
 		
-		func teardown() {
-			cancellables.send(completion: .finished)
-			
-			if let rtcPc = peerConnection {
+		func teardown() {			
+			if let rtcPc = rtcPeerConnection {
 				rtcPc.close()
 				rtcPc.delegate = nil
 			}
 			
-			_peerConnection.finish()
+			_rtcPeerConnection.finish()
 			_peerConnectionState.finish()
 			_signalingState.finish()
 			_iceConnectionState.finish()
@@ -92,6 +89,7 @@ extension PeerConnection {
 			_rtcDataChannelLossy.finish()
 			_rtcSignals.send(completion: .finished)
 			
+			cancellables.send(completion: .finished)
 			Logger.log(oslog: peerConnectionLog, message: "coordinator did teardown")
 		}
 	}
