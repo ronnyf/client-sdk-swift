@@ -1,0 +1,1117 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		600CC3512A097C430033FF99 /* PeerConnection+RTCdelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600CC3502A097C430033FF99 /* PeerConnection+RTCdelegate.swift */; };
+		601BCA7F2AA80F7700F9AE30 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 601BCA7E2AA80F7700F9AE30 /* AsyncAlgorithms */; };
+		601BCA822AA80FA900F9AE30 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = 601BCA812AA80FA900F9AE30 /* SwiftProtobuf */; };
+		6023F5372A18440800005548 /* PeerConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6023F5362A18440800005548 /* PeerConnection.swift */; };
+		6025C3312A147C1800DC21DF /* SharedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6025C3302A147C1800DC21DF /* SharedModels.swift */; };
+		6025C3392A147D3F00DC21DF /* DimensionsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6025C3382A147D3F00DC21DF /* DimensionsProvider.swift */; };
+		6025C3462A147DDB00DC21DF /* Engine-Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6025C3452A147DDB00DC21DF /* Engine-Core.swift */; };
+		6025C3652A14815F00DC21DF /* ConnectivityListener-Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6025C3642A14815F00DC21DF /* ConnectivityListener-Core.swift */; };
+		602B03DF2A9069C000642B1C /* LiveKitCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60888F5329F97E9F00AE5111 /* LiveKitCore.framework */; };
+		603F70492AA9448B004C8D99 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 603F70482AA9448B004C8D99 /* Logging.swift */; };
+		603F704A2AA9448B004C8D99 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 603F70482AA9448B004C8D99 /* Logging.swift */; };
+		605246AF2ACD103600ECA167 /* MessageChannel+Connect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605246AE2ACD103600ECA167 /* MessageChannel+Connect.swift */; };
+		605246B02ACD103600ECA167 /* MessageChannel+Connect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605246AE2ACD103600ECA167 /* MessageChannel+Connect.swift */; };
+		605246B22ACD11B000ECA167 /* PeerConnection+Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605246B12ACD11B000ECA167 /* PeerConnection+Coordinator.swift */; };
+		605246B32ACD11B000ECA167 /* PeerConnection+Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605246B12ACD11B000ECA167 /* PeerConnection+Coordinator.swift */; };
+		605246B52ACD120F00ECA167 /* PeerConnection+Negotiation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605246B42ACD120F00ECA167 /* PeerConnection+Negotiation.swift */; };
+		605246B62ACD120F00ECA167 /* PeerConnection+Negotiation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605246B42ACD120F00ECA167 /* PeerConnection+Negotiation.swift */; };
+		605246B82ACD151100ECA167 /* PeerConnection+Signals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605246B72ACD151100ECA167 /* PeerConnection+Signals.swift */; };
+		605246B92ACD151100ECA167 /* PeerConnection+Signals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605246B72ACD151100ECA167 /* PeerConnection+Signals.swift */; };
+		60594CC32AA8E6B800349D51 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 60594CC22AA8E6B800349D51 /* AsyncAlgorithms */; };
+		60594CC52AA8E6BD00349D51 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = 60594CC42AA8E6BD00349D51 /* SwiftProtobuf */; };
+		605DC9882AAA2C7700583DB8 /* PeerConnectionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605DC9872AAA2C7700583DB8 /* PeerConnectionFactory.swift */; };
+		605DC9892AAA2C7900583DB8 /* PeerConnectionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605DC9872AAA2C7700583DB8 /* PeerConnectionFactory.swift */; };
+		6069A17F2A05490500842647 /* SignalHub+LiveKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6069A17E2A05490500842647 /* SignalHub+LiveKit.swift */; };
+		6069A1832A05C20700842647 /* SignalHub+RTC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6069A1822A05C20700842647 /* SignalHub+RTC.swift */; };
+		6069A1852A05CC8E00842647 /* SignalHub+Signals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6069A1842A05CC8E00842647 /* SignalHub+Signals.swift */; };
+		60888F5829F97E9F00AE5111 /* LiveKitCore.docc in Sources */ = {isa = PBXBuildFile; fileRef = 60888F5729F97E9F00AE5111 /* LiveKitCore.docc */; };
+		60888F6329F97E9F00AE5111 /* LiveKitCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F6229F97E9F00AE5111 /* LiveKitCoreTests.swift */; };
+		60888F7929F97EC900AE5111 /* Publishing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F6E29F97EC900AE5111 /* Publishing.swift */; };
+		60888F7A29F97EC900AE5111 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F6F29F97EC900AE5111 /* Session.swift */; };
+		60888F7F29F97EC900AE5111 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F7429F97EC900AE5111 /* Models.swift */; };
+		60888F8029F97EC900AE5111 /* SignalHub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F7529F97EC900AE5111 /* SignalHub.swift */; };
+		60888F8129F97EC900AE5111 /* MessageChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F7629F97EC900AE5111 /* MessageChannel.swift */; };
+		60888F8229F97EC900AE5111 /* Convenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F7729F97EC900AE5111 /* Convenience.swift */; };
+		60888F8329F97EC900AE5111 /* SignalHub+VideoPublishing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F7829F97EC900AE5111 /* SignalHub+VideoPublishing.swift */; };
+		60888FBD29F97F0300AE5111 /* LiveKit-Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888FA329F97F0300AE5111 /* LiveKit-Core.swift */; };
+		609100E32ABDEF7B002546B9 /* PeerConnection+RTC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 609100E22ABDEF7B002546B9 /* PeerConnection+RTC.swift */; };
+		609443D12AB3ABF200E7AA97 /* LKWebRTC in Frameworks */ = {isa = PBXBuildFile; productRef = 609443D02AB3ABF200E7AA97 /* LKWebRTC */; };
+		609443D32AB3AC1C00E7AA97 /* LKWebRTC in Frameworks */ = {isa = PBXBuildFile; productRef = 609443D22AB3AC1C00E7AA97 /* LKWebRTC */; };
+		60A0DF002A9296ED0038C808 /* ConnectivityListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DEFF2A9296ED0038C808 /* ConnectivityListener.swift */; };
+		60A0DF012A9296ED0038C808 /* ConnectivityListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DEFF2A9296ED0038C808 /* ConnectivityListener.swift */; };
+		60A0DF032A9296FF0038C808 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF022A9296FF0038C808 /* Utils.swift */; };
+		60A0DF042A9296FF0038C808 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF022A9296FF0038C808 /* Utils.swift */; };
+		60A0DF082A92972E0038C808 /* livekit_models.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF052A92972E0038C808 /* livekit_models.pb.swift */; };
+		60A0DF092A92972E0038C808 /* livekit_models.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF052A92972E0038C808 /* livekit_models.pb.swift */; };
+		60A0DF0A2A92972E0038C808 /* livekit_rtc.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF062A92972E0038C808 /* livekit_rtc.pb.swift */; };
+		60A0DF0B2A92972E0038C808 /* livekit_rtc.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF062A92972E0038C808 /* livekit_rtc.pb.swift */; };
+		60A0DF0C2A92972E0038C808 /* livekit_ipc.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF072A92972E0038C808 /* livekit_ipc.pb.swift */; };
+		60A0DF0D2A92972E0038C808 /* livekit_ipc.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF072A92972E0038C808 /* livekit_ipc.pb.swift */; };
+		60A0DF0F2A9297540038C808 /* MediaEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF0E2A9297540038C808 /* MediaEncoding.swift */; };
+		60A0DF102A9297540038C808 /* MediaEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF0E2A9297540038C808 /* MediaEncoding.swift */; };
+		60A0DF122A9297690038C808 /* AudioCaptureOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF112A9297690038C808 /* AudioCaptureOptions.swift */; };
+		60A0DF132A9297690038C808 /* AudioCaptureOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF112A9297690038C808 /* AudioCaptureOptions.swift */; };
+		60A0DF152A9297750038C808 /* AudioEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF142A9297750038C808 /* AudioEncoding.swift */; };
+		60A0DF162A9297750038C808 /* AudioEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF142A9297750038C808 /* AudioEncoding.swift */; };
+		60A0DF182A9297820038C808 /* AudioPublishOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF172A9297820038C808 /* AudioPublishOptions.swift */; };
+		60A0DF192A9297820038C808 /* AudioPublishOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF172A9297820038C808 /* AudioPublishOptions.swift */; };
+		60A0DF1B2A92978B0038C808 /* CaptureOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF1A2A92978B0038C808 /* CaptureOptions.swift */; };
+		60A0DF1C2A92978B0038C808 /* CaptureOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF1A2A92978B0038C808 /* CaptureOptions.swift */; };
+		60A0DF1E2A9297990038C808 /* ConnectionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF1D2A9297990038C808 /* ConnectionState.swift */; };
+		60A0DF1F2A9297990038C808 /* ConnectionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF1D2A9297990038C808 /* ConnectionState.swift */; };
+		60A0DF212A9297B10038C808 /* ConnectOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF202A9297B10038C808 /* ConnectOptions.swift */; };
+		60A0DF222A9297B10038C808 /* ConnectOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF202A9297B10038C808 /* ConnectOptions.swift */; };
+		60A0DF242A9297BB0038C808 /* Dimensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF232A9297BB0038C808 /* Dimensions.swift */; };
+		60A0DF252A9297BB0038C808 /* Dimensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF232A9297BB0038C808 /* Dimensions.swift */; };
+		60A0DF272A9297C20038C808 /* DisconnectReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF262A9297C20038C808 /* DisconnectReason.swift */; };
+		60A0DF282A9297C20038C808 /* DisconnectReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF262A9297C20038C808 /* DisconnectReason.swift */; };
+		60A0DF2A2A9297DD0038C808 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF292A9297DD0038C808 /* Errors.swift */; };
+		60A0DF2B2A9297DD0038C808 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF292A9297DD0038C808 /* Errors.swift */; };
+		60A0DF2D2A9297E80038C808 /* IceCandidate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF2C2A9297E80038C808 /* IceCandidate.swift */; };
+		60A0DF2E2A9297E80038C808 /* IceCandidate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF2C2A9297E80038C808 /* IceCandidate.swift */; };
+		60A0DF302A9297F40038C808 /* Other.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF2F2A9297F40038C808 /* Other.swift */; };
+		60A0DF312A9297F40038C808 /* Other.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF2F2A9297F40038C808 /* Other.swift */; };
+		60A0DF332A9297FF0038C808 /* ProtocolVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF322A9297FF0038C808 /* ProtocolVersion.swift */; };
+		60A0DF342A9297FF0038C808 /* ProtocolVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF322A9297FF0038C808 /* ProtocolVersion.swift */; };
+		60A0DF362A9298120038C808 /* PublishOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF352A9298120038C808 /* PublishOptions.swift */; };
+		60A0DF372A9298120038C808 /* PublishOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF352A9298120038C808 /* PublishOptions.swift */; };
+		60A0DF392A9298250038C808 /* SessionDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF382A9298250038C808 /* SessionDescription.swift */; };
+		60A0DF3A2A9298250038C808 /* SessionDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF382A9298250038C808 /* SessionDescription.swift */; };
+		60A0DF402A92983D0038C808 /* VideoEncoding+Comparable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF3E2A92983D0038C808 /* VideoEncoding+Comparable.swift */; };
+		60A0DF412A92983D0038C808 /* VideoEncoding+Comparable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF3E2A92983D0038C808 /* VideoEncoding+Comparable.swift */; };
+		60A0DF422A92983D0038C808 /* VideoEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF3F2A92983D0038C808 /* VideoEncoding.swift */; };
+		60A0DF432A92983D0038C808 /* VideoEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF3F2A92983D0038C808 /* VideoEncoding.swift */; };
+		60A0DF462A9298590038C808 /* VideoParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF442A9298590038C808 /* VideoParameters.swift */; };
+		60A0DF472A9298590038C808 /* VideoParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF442A9298590038C808 /* VideoParameters.swift */; };
+		60A0DF482A9298590038C808 /* VideoParameters+Comparable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF452A9298590038C808 /* VideoParameters+Comparable.swift */; };
+		60A0DF492A9298590038C808 /* VideoParameters+Comparable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF452A9298590038C808 /* VideoParameters+Comparable.swift */; };
+		60A0DF4B2A9298640038C808 /* VideoQuality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF4A2A9298630038C808 /* VideoQuality.swift */; };
+		60A0DF4C2A9298640038C808 /* VideoQuality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF4A2A9298630038C808 /* VideoQuality.swift */; };
+		60A0DF4E2A92986C0038C808 /* VideoPublishOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF4D2A92986C0038C808 /* VideoPublishOptions.swift */; };
+		60A0DF4F2A92986C0038C808 /* VideoPublishOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF4D2A92986C0038C808 /* VideoPublishOptions.swift */; };
+		60A0DF512A9298840038C808 /* Engine+WebRTC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF502A9298840038C808 /* Engine+WebRTC.swift */; };
+		60A0DF522A9298840038C808 /* Engine+WebRTC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF502A9298840038C808 /* Engine+WebRTC.swift */; };
+		60A0DF572A9298A50038C808 /* Primitives.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF562A9298A50038C808 /* Primitives.swift */; };
+		60A0DF582A9298A50038C808 /* Primitives.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF562A9298A50038C808 /* Primitives.swift */; };
+		60A0DF5C2A9298B90038C808 /* TimeInterval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF592A9298B80038C808 /* TimeInterval.swift */; };
+		60A0DF5D2A9298B90038C808 /* TimeInterval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF592A9298B80038C808 /* TimeInterval.swift */; };
+		60A0DF5E2A9298B90038C808 /* RTCMediaConstraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF5A2A9298B90038C808 /* RTCMediaConstraints.swift */; };
+		60A0DF5F2A9298B90038C808 /* RTCMediaConstraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF5A2A9298B90038C808 /* RTCMediaConstraints.swift */; };
+		60A0DF602A9298B90038C808 /* RTCConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF5B2A9298B90038C808 /* RTCConfiguration.swift */; };
+		60A0DF612A9298B90038C808 /* RTCConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A0DF5B2A9298B90038C808 /* RTCConfiguration.swift */; };
+		60BFB45C2ACDE0010081807F /* VideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60BFB45B2ACDE0010081807F /* VideoView.swift */; };
+		60BFB45D2ACDE0010081807F /* VideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60BFB45B2ACDE0010081807F /* VideoView.swift */; };
+		60D4198C2AC72B54006DE490 /* Session+Connect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D4198B2AC72B54006DE490 /* Session+Connect.swift */; };
+		60D4198E2AC72CDD006DE490 /* Session+Publish.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D4198D2AC72CDD006DE490 /* Session+Publish.swift */; };
+		60D4198F2AC72CE1006DE490 /* Session+Connect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D4198B2AC72B54006DE490 /* Session+Connect.swift */; };
+		60D419902AC72CE5006DE490 /* Session+Publish.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D4198D2AC72CDD006DE490 /* Session+Publish.swift */; };
+		60E39AF32A61A9FD00FBE675 /* Convenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F7729F97EC900AE5111 /* Convenience.swift */; };
+		60E39AF42A61A9FD00FBE675 /* MessageChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F7629F97EC900AE5111 /* MessageChannel.swift */; };
+		60E39AF52A61A9FD00FBE675 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F7429F97EC900AE5111 /* Models.swift */; };
+		60E39AF62A61A9FD00FBE675 /* Publishing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F6E29F97EC900AE5111 /* Publishing.swift */; };
+		60E39AF72A61A9FD00FBE675 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F6F29F97EC900AE5111 /* Session.swift */; };
+		60E39AF82A61A9FD00FBE675 /* SignalHub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F7529F97EC900AE5111 /* SignalHub.swift */; };
+		60E39AF92A61A9FD00FBE675 /* SignalHub+Signals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6069A1842A05CC8E00842647 /* SignalHub+Signals.swift */; };
+		60E39AFB2A61A9FD00FBE675 /* SignalHub+LiveKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6069A17E2A05490500842647 /* SignalHub+LiveKit.swift */; };
+		60E39AFC2A61A9FD00FBE675 /* SignalHub+RTC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6069A1822A05C20700842647 /* SignalHub+RTC.swift */; };
+		60E39AFD2A61A9FD00FBE675 /* SignalHub+VideoPublishing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888F7829F97EC900AE5111 /* SignalHub+VideoPublishing.swift */; };
+		60E39AFE2A61A9FD00FBE675 /* PeerConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6023F5362A18440800005548 /* PeerConnection.swift */; };
+		60E39AFF2A61A9FD00FBE675 /* PeerConnection+RTCdelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600CC3502A097C430033FF99 /* PeerConnection+RTCdelegate.swift */; };
+		60E39B012A61A9FD00FBE675 /* ConnectivityListener-Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6025C3642A14815F00DC21DF /* ConnectivityListener-Core.swift */; };
+		60E39B022A61A9FD00FBE675 /* DimensionsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6025C3382A147D3F00DC21DF /* DimensionsProvider.swift */; };
+		60E39B032A61A9FD00FBE675 /* Engine-Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6025C3452A147DDB00DC21DF /* Engine-Core.swift */; };
+		60E39B042A61A9FD00FBE675 /* LiveKit-Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60888FA329F97F0300AE5111 /* LiveKit-Core.swift */; };
+		60E39B052A61A9FD00FBE675 /* SharedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6025C3302A147C1800DC21DF /* SharedModels.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		60888F5F29F97E9F00AE5111 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 60888F4A29F97E9F00AE5111 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 60888F5229F97E9F00AE5111;
+			remoteInfo = LiveKitCore;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		600CC3502A097C430033FF99 /* PeerConnection+RTCdelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PeerConnection+RTCdelegate.swift"; sourceTree = "<group>"; };
+		6023F5362A18440800005548 /* PeerConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerConnection.swift; sourceTree = "<group>"; };
+		6025C3292A14792D00DC21DF /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Package.swift; path = ../Package.swift; sourceTree = "<group>"; };
+		6025C3302A147C1800DC21DF /* SharedModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedModels.swift; sourceTree = "<group>"; };
+		6025C3382A147D3F00DC21DF /* DimensionsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DimensionsProvider.swift; sourceTree = "<group>"; };
+		6025C3452A147DDB00DC21DF /* Engine-Core.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Engine-Core.swift"; sourceTree = "<group>"; };
+		6025C3642A14815F00DC21DF /* ConnectivityListener-Core.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConnectivityListener-Core.swift"; sourceTree = "<group>"; };
+		603F70482AA9448B004C8D99 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
+		605246AE2ACD103600ECA167 /* MessageChannel+Connect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MessageChannel+Connect.swift"; sourceTree = "<group>"; };
+		605246B12ACD11B000ECA167 /* PeerConnection+Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PeerConnection+Coordinator.swift"; sourceTree = "<group>"; };
+		605246B42ACD120F00ECA167 /* PeerConnection+Negotiation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PeerConnection+Negotiation.swift"; sourceTree = "<group>"; };
+		605246B72ACD151100ECA167 /* PeerConnection+Signals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PeerConnection+Signals.swift"; sourceTree = "<group>"; };
+		605DC9872AAA2C7700583DB8 /* PeerConnectionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerConnectionFactory.swift; sourceTree = "<group>"; };
+		6069A17E2A05490500842647 /* SignalHub+LiveKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalHub+LiveKit.swift"; sourceTree = "<group>"; };
+		6069A1822A05C20700842647 /* SignalHub+RTC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalHub+RTC.swift"; sourceTree = "<group>"; };
+		6069A1842A05CC8E00842647 /* SignalHub+Signals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalHub+Signals.swift"; sourceTree = "<group>"; };
+		60888F5329F97E9F00AE5111 /* LiveKitCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LiveKitCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		60888F5729F97E9F00AE5111 /* LiveKitCore.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = LiveKitCore.docc; sourceTree = "<group>"; };
+		60888F5D29F97E9F00AE5111 /* LiveKitCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LiveKitCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		60888F6229F97E9F00AE5111 /* LiveKitCoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveKitCoreTests.swift; sourceTree = "<group>"; };
+		60888F6E29F97EC900AE5111 /* Publishing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Publishing.swift; sourceTree = "<group>"; };
+		60888F6F29F97EC900AE5111 /* Session.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
+		60888F7429F97EC900AE5111 /* Models.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		60888F7529F97EC900AE5111 /* SignalHub.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignalHub.swift; sourceTree = "<group>"; };
+		60888F7629F97EC900AE5111 /* MessageChannel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageChannel.swift; sourceTree = "<group>"; };
+		60888F7729F97EC900AE5111 /* Convenience.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Convenience.swift; sourceTree = "<group>"; };
+		60888F7829F97EC900AE5111 /* SignalHub+VideoPublishing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SignalHub+VideoPublishing.swift"; sourceTree = "<group>"; };
+		60888FA329F97F0300AE5111 /* LiveKit-Core.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "LiveKit-Core.swift"; sourceTree = "<group>"; };
+		609100E22ABDEF7B002546B9 /* PeerConnection+RTC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PeerConnection+RTC.swift"; sourceTree = "<group>"; };
+		60A0DEFA2A91EC850038C808 /* Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Header.h; sourceTree = "<group>"; };
+		60A0DEFB2A91EC850038C808 /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
+		60A0DEFD2A91EC850038C808 /* Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Header.h; sourceTree = "<group>"; };
+		60A0DEFE2A91EC850038C808 /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
+		60A0DEFF2A9296ED0038C808 /* ConnectivityListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ConnectivityListener.swift; path = LiveKit/Support/ConnectivityListener.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF022A9296FF0038C808 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Utils.swift; path = LiveKit/Support/Utils.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF052A92972E0038C808 /* livekit_models.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = livekit_models.pb.swift; path = LiveKit/Protos/livekit_models.pb.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF062A92972E0038C808 /* livekit_rtc.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = livekit_rtc.pb.swift; path = LiveKit/Protos/livekit_rtc.pb.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF072A92972E0038C808 /* livekit_ipc.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = livekit_ipc.pb.swift; path = LiveKit/Protos/livekit_ipc.pb.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF0E2A9297540038C808 /* MediaEncoding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MediaEncoding.swift; path = LiveKit/Protocols/MediaEncoding.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF112A9297690038C808 /* AudioCaptureOptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AudioCaptureOptions.swift; path = LiveKit/Types/Options/AudioCaptureOptions.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF142A9297750038C808 /* AudioEncoding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AudioEncoding.swift; path = LiveKit/Types/AudioEncoding.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF172A9297820038C808 /* AudioPublishOptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AudioPublishOptions.swift; path = LiveKit/Types/Options/AudioPublishOptions.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF1A2A92978B0038C808 /* CaptureOptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CaptureOptions.swift; path = LiveKit/Types/Options/CaptureOptions.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF1D2A9297990038C808 /* ConnectionState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ConnectionState.swift; path = LiveKit/Types/ConnectionState.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF202A9297B10038C808 /* ConnectOptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ConnectOptions.swift; path = LiveKit/Types/Options/ConnectOptions.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF232A9297BB0038C808 /* Dimensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Dimensions.swift; path = LiveKit/Types/Dimensions.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF262A9297C20038C808 /* DisconnectReason.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DisconnectReason.swift; path = LiveKit/Types/DisconnectReason.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF292A9297DD0038C808 /* Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Errors.swift; path = LiveKit/Errors.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF2C2A9297E80038C808 /* IceCandidate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IceCandidate.swift; path = LiveKit/Types/IceCandidate.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF2F2A9297F40038C808 /* Other.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Other.swift; path = LiveKit/Types/Other.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF322A9297FF0038C808 /* ProtocolVersion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProtocolVersion.swift; path = LiveKit/Types/ProtocolVersion.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF352A9298120038C808 /* PublishOptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PublishOptions.swift; path = LiveKit/Types/Options/PublishOptions.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF382A9298250038C808 /* SessionDescription.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SessionDescription.swift; path = LiveKit/Types/SessionDescription.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF3E2A92983D0038C808 /* VideoEncoding+Comparable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "VideoEncoding+Comparable.swift"; path = "LiveKit/Types/VideoEncoding+Comparable.swift"; sourceTree = SOURCE_ROOT; };
+		60A0DF3F2A92983D0038C808 /* VideoEncoding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = VideoEncoding.swift; path = LiveKit/Types/VideoEncoding.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF442A9298590038C808 /* VideoParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = VideoParameters.swift; path = LiveKit/Types/VideoParameters.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF452A9298590038C808 /* VideoParameters+Comparable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "VideoParameters+Comparable.swift"; path = "LiveKit/Types/VideoParameters+Comparable.swift"; sourceTree = SOURCE_ROOT; };
+		60A0DF4A2A9298630038C808 /* VideoQuality.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = VideoQuality.swift; path = LiveKit/Types/VideoQuality.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF4D2A92986C0038C808 /* VideoPublishOptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = VideoPublishOptions.swift; path = LiveKit/Types/Options/VideoPublishOptions.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF502A9298840038C808 /* Engine+WebRTC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Engine+WebRTC.swift"; path = "LiveKit/Core/Engine+WebRTC.swift"; sourceTree = SOURCE_ROOT; };
+		60A0DF562A9298A50038C808 /* Primitives.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Primitives.swift; path = LiveKit/Extensions/Primitives.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF592A9298B80038C808 /* TimeInterval.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TimeInterval.swift; path = LiveKit/Extensions/TimeInterval.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF5A2A9298B90038C808 /* RTCMediaConstraints.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RTCMediaConstraints.swift; path = LiveKit/Extensions/RTCMediaConstraints.swift; sourceTree = SOURCE_ROOT; };
+		60A0DF5B2A9298B90038C808 /* RTCConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RTCConfiguration.swift; path = LiveKit/Extensions/RTCConfiguration.swift; sourceTree = SOURCE_ROOT; };
+		60BFB45B2ACDE0010081807F /* VideoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoView.swift; sourceTree = "<group>"; };
+		60D4198B2AC72B54006DE490 /* Session+Connect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Session+Connect.swift"; sourceTree = "<group>"; };
+		60D4198D2AC72CDD006DE490 /* Session+Publish.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Session+Publish.swift"; sourceTree = "<group>"; };
+		60E39AEC2A61A91400FBE675 /* libLiveKitCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libLiveKitCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		60888F5029F97E9F00AE5111 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				601BCA7F2AA80F7700F9AE30 /* AsyncAlgorithms in Frameworks */,
+				609443D12AB3ABF200E7AA97 /* LKWebRTC in Frameworks */,
+				601BCA822AA80FA900F9AE30 /* SwiftProtobuf in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60888F5A29F97E9F00AE5111 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				602B03DF2A9069C000642B1C /* LiveKitCore.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60E39AE92A61A91400FBE675 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				60594CC32AA8E6B800349D51 /* AsyncAlgorithms in Frameworks */,
+				609443D32AB3AC1C00E7AA97 /* LKWebRTC in Frameworks */,
+				60594CC52AA8E6BD00349D51 /* SwiftProtobuf in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		600B8ECE2A1C78B40038A6C6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		60888F4929F97E9F00AE5111 = {
+			isa = PBXGroup;
+			children = (
+				60A0DEFC2A91EC850038C808 /* FakeFBLPromises */,
+				60A0DEF92A91EC850038C808 /* FakePromises */,
+				6025C3292A14792D00DC21DF /* Package.swift */,
+				60888F5529F97E9F00AE5111 /* LiveKitCore */,
+				60888F6129F97E9F00AE5111 /* LiveKitCoreTests */,
+				60888F5429F97E9F00AE5111 /* Products */,
+				600B8ECE2A1C78B40038A6C6 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		60888F5429F97E9F00AE5111 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				60888F5329F97E9F00AE5111 /* LiveKitCore.framework */,
+				60888F5D29F97E9F00AE5111 /* LiveKitCoreTests.xctest */,
+				60E39AEC2A61A91400FBE675 /* libLiveKitCore.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		60888F5529F97E9F00AE5111 /* LiveKitCore */ = {
+			isa = PBXGroup;
+			children = (
+				60888F6D29F97EC900AE5111 /* Core */,
+				60888F8B29F97F0300AE5111 /* Shared */,
+				60888F5729F97E9F00AE5111 /* LiveKitCore.docc */,
+			);
+			path = LiveKitCore;
+			sourceTree = "<group>";
+		};
+		60888F6129F97E9F00AE5111 /* LiveKitCoreTests */ = {
+			isa = PBXGroup;
+			children = (
+				60888F6229F97E9F00AE5111 /* LiveKitCoreTests.swift */,
+			);
+			path = LiveKitCoreTests;
+			sourceTree = "<group>";
+		};
+		60888F6D29F97EC900AE5111 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				60888F7729F97EC900AE5111 /* Convenience.swift */,
+				603F70482AA9448B004C8D99 /* Logging.swift */,
+				60888F7629F97EC900AE5111 /* MessageChannel.swift */,
+				605246AE2ACD103600ECA167 /* MessageChannel+Connect.swift */,
+				60888F7429F97EC900AE5111 /* Models.swift */,
+				6023F5362A18440800005548 /* PeerConnection.swift */,
+				605246B12ACD11B000ECA167 /* PeerConnection+Coordinator.swift */,
+				605246B42ACD120F00ECA167 /* PeerConnection+Negotiation.swift */,
+				609100E22ABDEF7B002546B9 /* PeerConnection+RTC.swift */,
+				600CC3502A097C430033FF99 /* PeerConnection+RTCdelegate.swift */,
+				605246B72ACD151100ECA167 /* PeerConnection+Signals.swift */,
+				605DC9872AAA2C7700583DB8 /* PeerConnectionFactory.swift */,
+				60888F6E29F97EC900AE5111 /* Publishing.swift */,
+				60888F6F29F97EC900AE5111 /* Session.swift */,
+				60D4198B2AC72B54006DE490 /* Session+Connect.swift */,
+				60D4198D2AC72CDD006DE490 /* Session+Publish.swift */,
+				60888F7529F97EC900AE5111 /* SignalHub.swift */,
+				6069A17E2A05490500842647 /* SignalHub+LiveKit.swift */,
+				6069A1822A05C20700842647 /* SignalHub+RTC.swift */,
+				6069A1842A05CC8E00842647 /* SignalHub+Signals.swift */,
+				60888F7829F97EC900AE5111 /* SignalHub+VideoPublishing.swift */,
+				60BFB45B2ACDE0010081807F /* VideoView.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		60888F8B29F97F0300AE5111 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				6025C3642A14815F00DC21DF /* ConnectivityListener-Core.swift */,
+				6025C3382A147D3F00DC21DF /* DimensionsProvider.swift */,
+				6025C3452A147DDB00DC21DF /* Engine-Core.swift */,
+				60888FA329F97F0300AE5111 /* LiveKit-Core.swift */,
+				6025C3302A147C1800DC21DF /* SharedModels.swift */,
+				608FEB192A14B8C700924614 /* Extensions */,
+				608FEB222A14B8C700924614 /* Protocols */,
+				608FEB242A14B8C700924614 /* Protos */,
+				608FEB1F2A14B8C700924614 /* Support */,
+				608FEB072A14B8C700924614 /* Types */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		608FEB072A14B8C700924614 /* Types */ = {
+			isa = PBXGroup;
+			children = (
+				60A0DF112A9297690038C808 /* AudioCaptureOptions.swift */,
+				60A0DF142A9297750038C808 /* AudioEncoding.swift */,
+				60A0DF172A9297820038C808 /* AudioPublishOptions.swift */,
+				60A0DF1A2A92978B0038C808 /* CaptureOptions.swift */,
+				60A0DF1D2A9297990038C808 /* ConnectionState.swift */,
+				60A0DF202A9297B10038C808 /* ConnectOptions.swift */,
+				60A0DF232A9297BB0038C808 /* Dimensions.swift */,
+				60A0DF262A9297C20038C808 /* DisconnectReason.swift */,
+				60A0DF292A9297DD0038C808 /* Errors.swift */,
+				60A0DF2C2A9297E80038C808 /* IceCandidate.swift */,
+				60A0DF2F2A9297F40038C808 /* Other.swift */,
+				60A0DF322A9297FF0038C808 /* ProtocolVersion.swift */,
+				60A0DF352A9298120038C808 /* PublishOptions.swift */,
+				60A0DF382A9298250038C808 /* SessionDescription.swift */,
+				60A0DF3F2A92983D0038C808 /* VideoEncoding.swift */,
+				60A0DF3E2A92983D0038C808 /* VideoEncoding+Comparable.swift */,
+				60A0DF442A9298590038C808 /* VideoParameters.swift */,
+				60A0DF452A9298590038C808 /* VideoParameters+Comparable.swift */,
+				60A0DF4D2A92986C0038C808 /* VideoPublishOptions.swift */,
+				60A0DF4A2A9298630038C808 /* VideoQuality.swift */,
+			);
+			path = Types;
+			sourceTree = "<group>";
+		};
+		608FEB192A14B8C700924614 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				60A0DF502A9298840038C808 /* Engine+WebRTC.swift */,
+				60A0DF562A9298A50038C808 /* Primitives.swift */,
+				60A0DF5B2A9298B90038C808 /* RTCConfiguration.swift */,
+				60A0DF5A2A9298B90038C808 /* RTCMediaConstraints.swift */,
+				60A0DF592A9298B80038C808 /* TimeInterval.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		608FEB1F2A14B8C700924614 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				60A0DEFF2A9296ED0038C808 /* ConnectivityListener.swift */,
+				60A0DF022A9296FF0038C808 /* Utils.swift */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
+		608FEB222A14B8C700924614 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				60A0DF0E2A9297540038C808 /* MediaEncoding.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
+		608FEB242A14B8C700924614 /* Protos */ = {
+			isa = PBXGroup;
+			children = (
+				60A0DF072A92972E0038C808 /* livekit_ipc.pb.swift */,
+				60A0DF052A92972E0038C808 /* livekit_models.pb.swift */,
+				60A0DF062A92972E0038C808 /* livekit_rtc.pb.swift */,
+			);
+			path = Protos;
+			sourceTree = "<group>";
+		};
+		60A0DEF92A91EC850038C808 /* FakePromises */ = {
+			isa = PBXGroup;
+			children = (
+				60A0DEFA2A91EC850038C808 /* Header.h */,
+				60A0DEFB2A91EC850038C808 /* module.modulemap */,
+			);
+			path = FakePromises;
+			sourceTree = "<group>";
+		};
+		60A0DEFC2A91EC850038C808 /* FakeFBLPromises */ = {
+			isa = PBXGroup;
+			children = (
+				60A0DEFD2A91EC850038C808 /* Header.h */,
+				60A0DEFE2A91EC850038C808 /* module.modulemap */,
+			);
+			path = FakeFBLPromises;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		60888F5229F97E9F00AE5111 /* LiveKitCore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 60888F6729F97E9F00AE5111 /* Build configuration list for PBXNativeTarget "LiveKitCore" */;
+			buildPhases = (
+				60888F4F29F97E9F00AE5111 /* Sources */,
+				60888F5029F97E9F00AE5111 /* Frameworks */,
+				60888F5129F97E9F00AE5111 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LiveKitCore;
+			packageProductDependencies = (
+				601BCA7E2AA80F7700F9AE30 /* AsyncAlgorithms */,
+				601BCA812AA80FA900F9AE30 /* SwiftProtobuf */,
+				609443D02AB3ABF200E7AA97 /* LKWebRTC */,
+			);
+			productName = LiveKitCore;
+			productReference = 60888F5329F97E9F00AE5111 /* LiveKitCore.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		60888F5C29F97E9F00AE5111 /* LiveKitCoreTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 60888F6A29F97E9F00AE5111 /* Build configuration list for PBXNativeTarget "LiveKitCoreTests" */;
+			buildPhases = (
+				60888F5929F97E9F00AE5111 /* Sources */,
+				60888F5A29F97E9F00AE5111 /* Frameworks */,
+				60888F5B29F97E9F00AE5111 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				60888F6029F97E9F00AE5111 /* PBXTargetDependency */,
+			);
+			name = LiveKitCoreTests;
+			productName = LiveKitCoreTests;
+			productReference = 60888F5D29F97E9F00AE5111 /* LiveKitCoreTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		60E39AEB2A61A91400FBE675 /* libLiveKitCore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 60E39AF22A61A91400FBE675 /* Build configuration list for PBXNativeTarget "libLiveKitCore" */;
+			buildPhases = (
+				60E39AE82A61A91400FBE675 /* Sources */,
+				60E39AE92A61A91400FBE675 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libLiveKitCore;
+			packageProductDependencies = (
+				60594CC22AA8E6B800349D51 /* AsyncAlgorithms */,
+				60594CC42AA8E6BD00349D51 /* SwiftProtobuf */,
+				609443D22AB3AC1C00E7AA97 /* LKWebRTC */,
+			);
+			productName = LiveKitCoreClient;
+			productReference = 60E39AEC2A61A91400FBE675 /* libLiveKitCore.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		60888F4A29F97E9F00AE5111 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1430;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					60888F5229F97E9F00AE5111 = {
+						CreatedOnToolsVersion = 14.3;
+					};
+					60888F5C29F97E9F00AE5111 = {
+						CreatedOnToolsVersion = 14.3;
+					};
+					60E39AEB2A61A91400FBE675 = {
+						CreatedOnToolsVersion = 14.3.1;
+					};
+				};
+			};
+			buildConfigurationList = 60888F4D29F97E9F00AE5111 /* Build configuration list for PBXProject "LiveKitCore" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 60888F4929F97E9F00AE5111;
+			packageReferences = (
+				601BCA7D2AA80F7700F9AE30 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */,
+				601BCA802AA80FA900F9AE30 /* XCRemoteSwiftPackageReference "swift-protobuf" */,
+				609443CF2AB3ABF200E7AA97 /* XCRemoteSwiftPackageReference "webrtc-ios-xcframework" */,
+			);
+			productRefGroup = 60888F5429F97E9F00AE5111 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				60888F5229F97E9F00AE5111 /* LiveKitCore */,
+				60E39AEB2A61A91400FBE675 /* libLiveKitCore */,
+				60888F5C29F97E9F00AE5111 /* LiveKitCoreTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		60888F5129F97E9F00AE5111 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60888F5B29F97E9F00AE5111 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		60888F4F29F97E9F00AE5111 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				60A0DF152A9297750038C808 /* AudioEncoding.swift in Sources */,
+				6025C3462A147DDB00DC21DF /* Engine-Core.swift in Sources */,
+				60A0DF4E2A92986C0038C808 /* VideoPublishOptions.swift in Sources */,
+				60888F7929F97EC900AE5111 /* Publishing.swift in Sources */,
+				60A0DF402A92983D0038C808 /* VideoEncoding+Comparable.swift in Sources */,
+				600CC3512A097C430033FF99 /* PeerConnection+RTCdelegate.swift in Sources */,
+				603F70492AA9448B004C8D99 /* Logging.swift in Sources */,
+				60A0DF212A9297B10038C808 /* ConnectOptions.swift in Sources */,
+				60A0DF5E2A9298B90038C808 /* RTCMediaConstraints.swift in Sources */,
+				60A0DF0A2A92972E0038C808 /* livekit_rtc.pb.swift in Sources */,
+				60A0DF602A9298B90038C808 /* RTCConfiguration.swift in Sources */,
+				6025C3652A14815F00DC21DF /* ConnectivityListener-Core.swift in Sources */,
+				60A0DF0F2A9297540038C808 /* MediaEncoding.swift in Sources */,
+				609100E32ABDEF7B002546B9 /* PeerConnection+RTC.swift in Sources */,
+				60888FBD29F97F0300AE5111 /* LiveKit-Core.swift in Sources */,
+				60A0DF1B2A92978B0038C808 /* CaptureOptions.swift in Sources */,
+				60888F7F29F97EC900AE5111 /* Models.swift in Sources */,
+				60A0DF302A9297F40038C808 /* Other.swift in Sources */,
+				60A0DF422A92983D0038C808 /* VideoEncoding.swift in Sources */,
+				60888F8029F97EC900AE5111 /* SignalHub.swift in Sources */,
+				60A0DF082A92972E0038C808 /* livekit_models.pb.swift in Sources */,
+				60A0DF482A9298590038C808 /* VideoParameters+Comparable.swift in Sources */,
+				60A0DF362A9298120038C808 /* PublishOptions.swift in Sources */,
+				60BFB45C2ACDE0010081807F /* VideoView.swift in Sources */,
+				60A0DF182A9297820038C808 /* AudioPublishOptions.swift in Sources */,
+				605DC9882AAA2C7700583DB8 /* PeerConnectionFactory.swift in Sources */,
+				6069A17F2A05490500842647 /* SignalHub+LiveKit.swift in Sources */,
+				60A0DF572A9298A50038C808 /* Primitives.swift in Sources */,
+				60A0DF2A2A9297DD0038C808 /* Errors.swift in Sources */,
+				60A0DF1E2A9297990038C808 /* ConnectionState.swift in Sources */,
+				6023F5372A18440800005548 /* PeerConnection.swift in Sources */,
+				60888F5829F97E9F00AE5111 /* LiveKitCore.docc in Sources */,
+				60888F8329F97EC900AE5111 /* SignalHub+VideoPublishing.swift in Sources */,
+				60A0DF392A9298250038C808 /* SessionDescription.swift in Sources */,
+				60A0DF272A9297C20038C808 /* DisconnectReason.swift in Sources */,
+				60A0DF462A9298590038C808 /* VideoParameters.swift in Sources */,
+				60A0DF0C2A92972E0038C808 /* livekit_ipc.pb.swift in Sources */,
+				605246AF2ACD103600ECA167 /* MessageChannel+Connect.swift in Sources */,
+				6069A1832A05C20700842647 /* SignalHub+RTC.swift in Sources */,
+				60A0DF5C2A9298B90038C808 /* TimeInterval.swift in Sources */,
+				60D4198C2AC72B54006DE490 /* Session+Connect.swift in Sources */,
+				60888F8229F97EC900AE5111 /* Convenience.swift in Sources */,
+				60888F7A29F97EC900AE5111 /* Session.swift in Sources */,
+				60A0DF512A9298840038C808 /* Engine+WebRTC.swift in Sources */,
+				60A0DF332A9297FF0038C808 /* ProtocolVersion.swift in Sources */,
+				605246B22ACD11B000ECA167 /* PeerConnection+Coordinator.swift in Sources */,
+				605246B82ACD151100ECA167 /* PeerConnection+Signals.swift in Sources */,
+				605246B52ACD120F00ECA167 /* PeerConnection+Negotiation.swift in Sources */,
+				6025C3312A147C1800DC21DF /* SharedModels.swift in Sources */,
+				60A0DF242A9297BB0038C808 /* Dimensions.swift in Sources */,
+				60A0DF002A9296ED0038C808 /* ConnectivityListener.swift in Sources */,
+				60A0DF2D2A9297E80038C808 /* IceCandidate.swift in Sources */,
+				60A0DF032A9296FF0038C808 /* Utils.swift in Sources */,
+				6069A1852A05CC8E00842647 /* SignalHub+Signals.swift in Sources */,
+				60A0DF122A9297690038C808 /* AudioCaptureOptions.swift in Sources */,
+				60A0DF4B2A9298640038C808 /* VideoQuality.swift in Sources */,
+				60D4198E2AC72CDD006DE490 /* Session+Publish.swift in Sources */,
+				6025C3392A147D3F00DC21DF /* DimensionsProvider.swift in Sources */,
+				60888F8129F97EC900AE5111 /* MessageChannel.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60888F5929F97E9F00AE5111 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				60888F6329F97E9F00AE5111 /* LiveKitCoreTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60E39AE82A61A91400FBE675 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				60A0DF412A92983D0038C808 /* VideoEncoding+Comparable.swift in Sources */,
+				60A0DF612A9298B90038C808 /* RTCConfiguration.swift in Sources */,
+				60E39AF32A61A9FD00FBE675 /* Convenience.swift in Sources */,
+				60E39AF42A61A9FD00FBE675 /* MessageChannel.swift in Sources */,
+				60A0DF0D2A92972E0038C808 /* livekit_ipc.pb.swift in Sources */,
+				60A0DF2E2A9297E80038C808 /* IceCandidate.swift in Sources */,
+				60E39AF52A61A9FD00FBE675 /* Models.swift in Sources */,
+				60E39AF62A61A9FD00FBE675 /* Publishing.swift in Sources */,
+				60E39AF72A61A9FD00FBE675 /* Session.swift in Sources */,
+				60D4198F2AC72CE1006DE490 /* Session+Connect.swift in Sources */,
+				60E39AF82A61A9FD00FBE675 /* SignalHub.swift in Sources */,
+				60A0DF012A9296ED0038C808 /* ConnectivityListener.swift in Sources */,
+				60A0DF252A9297BB0038C808 /* Dimensions.swift in Sources */,
+				605246B02ACD103600ECA167 /* MessageChannel+Connect.swift in Sources */,
+				605246B62ACD120F00ECA167 /* PeerConnection+Negotiation.swift in Sources */,
+				60A0DF522A9298840038C808 /* Engine+WebRTC.swift in Sources */,
+				60E39AF92A61A9FD00FBE675 /* SignalHub+Signals.swift in Sources */,
+				60E39AFB2A61A9FD00FBE675 /* SignalHub+LiveKit.swift in Sources */,
+				60E39AFC2A61A9FD00FBE675 /* SignalHub+RTC.swift in Sources */,
+				60A0DF5D2A9298B90038C808 /* TimeInterval.swift in Sources */,
+				605DC9892AAA2C7900583DB8 /* PeerConnectionFactory.swift in Sources */,
+				60E39AFD2A61A9FD00FBE675 /* SignalHub+VideoPublishing.swift in Sources */,
+				60A0DF432A92983D0038C808 /* VideoEncoding.swift in Sources */,
+				605246B92ACD151100ECA167 /* PeerConnection+Signals.swift in Sources */,
+				60E39AFE2A61A9FD00FBE675 /* PeerConnection.swift in Sources */,
+				60A0DF092A92972E0038C808 /* livekit_models.pb.swift in Sources */,
+				60A0DF1C2A92978B0038C808 /* CaptureOptions.swift in Sources */,
+				60E39AFF2A61A9FD00FBE675 /* PeerConnection+RTCdelegate.swift in Sources */,
+				60A0DF3A2A9298250038C808 /* SessionDescription.swift in Sources */,
+				60E39B012A61A9FD00FBE675 /* ConnectivityListener-Core.swift in Sources */,
+				60BFB45D2ACDE0010081807F /* VideoView.swift in Sources */,
+				603F704A2AA9448B004C8D99 /* Logging.swift in Sources */,
+				60A0DF2B2A9297DD0038C808 /* Errors.swift in Sources */,
+				60E39B022A61A9FD00FBE675 /* DimensionsProvider.swift in Sources */,
+				60A0DF4F2A92986C0038C808 /* VideoPublishOptions.swift in Sources */,
+				60A0DF162A9297750038C808 /* AudioEncoding.swift in Sources */,
+				60E39B032A61A9FD00FBE675 /* Engine-Core.swift in Sources */,
+				60A0DF4C2A9298640038C808 /* VideoQuality.swift in Sources */,
+				60A0DF282A9297C20038C808 /* DisconnectReason.swift in Sources */,
+				60E39B042A61A9FD00FBE675 /* LiveKit-Core.swift in Sources */,
+				60E39B052A61A9FD00FBE675 /* SharedModels.swift in Sources */,
+				60A0DF342A9297FF0038C808 /* ProtocolVersion.swift in Sources */,
+				60D419902AC72CE5006DE490 /* Session+Publish.swift in Sources */,
+				60A0DF222A9297B10038C808 /* ConnectOptions.swift in Sources */,
+				60A0DF492A9298590038C808 /* VideoParameters+Comparable.swift in Sources */,
+				60A0DF582A9298A50038C808 /* Primitives.swift in Sources */,
+				60A0DF472A9298590038C808 /* VideoParameters.swift in Sources */,
+				60A0DF5F2A9298B90038C808 /* RTCMediaConstraints.swift in Sources */,
+				60A0DF042A9296FF0038C808 /* Utils.swift in Sources */,
+				60A0DF312A9297F40038C808 /* Other.swift in Sources */,
+				60A0DF372A9298120038C808 /* PublishOptions.swift in Sources */,
+				605246B32ACD11B000ECA167 /* PeerConnection+Coordinator.swift in Sources */,
+				60A0DF0B2A92972E0038C808 /* livekit_rtc.pb.swift in Sources */,
+				60A0DF192A9297820038C808 /* AudioPublishOptions.swift in Sources */,
+				60A0DF102A9297540038C808 /* MediaEncoding.swift in Sources */,
+				60A0DF132A9297690038C808 /* AudioCaptureOptions.swift in Sources */,
+				60A0DF1F2A9297990038C808 /* ConnectionState.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		60888F6029F97E9F00AE5111 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 60888F5229F97E9F00AE5111 /* LiveKitCore */;
+			targetProxy = 60888F5F29F97E9F00AE5111 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		60888F6529F97E9F00AE5111 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		60888F6629F97E9F00AE5111 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		60888F6829F97E9F00AE5111 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = NO;
+				DEVELOPMENT_TEAM = QYHMMGCMJR;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = "";
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
+				OTHER_LDFLAGS = "-ObjC";
+				OTHER_SWIFT_FLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ebay.LiveKitCore;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "macosx iphonesimulator iphoneos";
+				SUPPORTS_MACCATALYST = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) LKCORE LK_USE_CUSTOM_WEBRTC_BUILD";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INCLUDE_PATHS = "\"$(SRCROOT)/FakePromises\" \"$(SRCROOT)/FakeFBLPromises\"";
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_STRICT_CONCURRENCY = targeted;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 15.0;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Debug;
+		};
+		60888F6929F97E9F00AE5111 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = NO;
+				DEVELOPMENT_TEAM = QYHMMGCMJR;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = "";
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
+				OTHER_LDFLAGS = "-ObjC";
+				OTHER_SWIFT_FLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ebay.LiveKitCore;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "macosx iphonesimulator iphoneos";
+				SUPPORTS_MACCATALYST = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) LKCORE LK_USE_CUSTOM_WEBRTC_BUILD";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INCLUDE_PATHS = "\"$(SRCROOT)/FakePromises\" \"$(SRCROOT)/FakeFBLPromises\"";
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = targeted;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 15.0;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Release;
+		};
+		60888F6B29F97E9F00AE5111 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = QYHMMGCMJR;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ebay.LiveKitCoreTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		60888F6C29F97E9F00AE5111 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = QYHMMGCMJR;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ebay.LiveKitCoreTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		60E39AF02A61A91400FBE675 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
+				CLANG_ENABLE_MODULE_DEBUGGING = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = NO;
+				DEVELOPMENT_TEAM = QYHMMGCMJR;
+				ENABLE_MODULE_VERIFIER = YES;
+				HEADER_SEARCH_PATHS = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LIBRARY_SEARCH_PATHS = "";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
+				OTHER_LDFLAGS = "";
+				OTHER_SWIFT_FLAGS = "";
+				PRODUCT_MODULE_NAME = "$(PRODUCT_NAME:c99extidentifier)";
+				PRODUCT_NAME = LiveKitCore;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) LKCORE LK_USE_CUSTOM_WEBRTC_BUILD";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/FakePromises $(SRCROOT)/FakeFBLPromises";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 15.0;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Debug;
+		};
+		60E39AF12A61A91400FBE675 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
+				CLANG_ENABLE_MODULE_DEBUGGING = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = NO;
+				DEVELOPMENT_TEAM = QYHMMGCMJR;
+				ENABLE_MODULE_VERIFIER = YES;
+				HEADER_SEARCH_PATHS = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LIBRARY_SEARCH_PATHS = "";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
+				OTHER_LDFLAGS = "";
+				OTHER_SWIFT_FLAGS = "";
+				PRODUCT_MODULE_NAME = "$(PRODUCT_NAME:c99extidentifier)";
+				PRODUCT_NAME = LiveKitCore;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) LKCORE LK_USE_CUSTOM_WEBRTC_BUILD";
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/FakePromises $(SRCROOT)/FakeFBLPromises";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 15.0;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		60888F4D29F97E9F00AE5111 /* Build configuration list for PBXProject "LiveKitCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				60888F6529F97E9F00AE5111 /* Debug */,
+				60888F6629F97E9F00AE5111 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		60888F6729F97E9F00AE5111 /* Build configuration list for PBXNativeTarget "LiveKitCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				60888F6829F97E9F00AE5111 /* Debug */,
+				60888F6929F97E9F00AE5111 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		60888F6A29F97E9F00AE5111 /* Build configuration list for PBXNativeTarget "LiveKitCoreTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				60888F6B29F97E9F00AE5111 /* Debug */,
+				60888F6C29F97E9F00AE5111 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		60E39AF22A61A91400FBE675 /* Build configuration list for PBXNativeTarget "libLiveKitCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				60E39AF02A61A91400FBE675 /* Debug */,
+				60E39AF12A61A91400FBE675 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		601BCA7D2AA80F7700F9AE30 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-async-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.0;
+			};
+		};
+		601BCA802AA80FA900F9AE30 /* XCRemoteSwiftPackageReference "swift-protobuf" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-protobuf.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+		609443CF2AB3ABF200E7AA97 /* XCRemoteSwiftPackageReference "webrtc-ios-xcframework" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.corp.ebay.com:eBayMobile/webrtc-ios-xcframework.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		601BCA7E2AA80F7700F9AE30 /* AsyncAlgorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 601BCA7D2AA80F7700F9AE30 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */;
+			productName = AsyncAlgorithms;
+		};
+		601BCA812AA80FA900F9AE30 /* SwiftProtobuf */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 601BCA802AA80FA900F9AE30 /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = SwiftProtobuf;
+		};
+		60594CC22AA8E6B800349D51 /* AsyncAlgorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 601BCA7D2AA80F7700F9AE30 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */;
+			productName = AsyncAlgorithms;
+		};
+		60594CC42AA8E6BD00349D51 /* SwiftProtobuf */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 601BCA802AA80FA900F9AE30 /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = SwiftProtobuf;
+		};
+		609443D02AB3ABF200E7AA97 /* LKWebRTC */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 609443CF2AB3ABF200E7AA97 /* XCRemoteSwiftPackageReference "webrtc-ios-xcframework" */;
+			productName = LKWebRTC;
+		};
+		609443D22AB3AC1C00E7AA97 /* LKWebRTC */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 609443CF2AB3ABF200E7AA97 /* XCRemoteSwiftPackageReference "webrtc-ios-xcframework" */;
+			productName = LKWebRTC;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 60888F4A29F97E9F00AE5111 /* Project object */;
+}

@@ -1,0 +1,1 @@
+../../../LiveKit/Protos/livekit_rtc.pb.swift

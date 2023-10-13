@@ -1,0 +1,1 @@
+../../../LiveKit/Types/Options/VideoPublishOptions.swift

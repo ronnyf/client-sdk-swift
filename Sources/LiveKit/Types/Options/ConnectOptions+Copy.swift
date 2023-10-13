@@ -15,18 +15,18 @@
  */
 
 import Foundation
-import WebRTC
+@_implementationOnly import WebRTC
 
 public extension ConnectOptions {
 
     func copyWith(autoSubscribe: Bool? = nil,
-                  rtcConfiguration: RTCConfiguration? = nil,
+				  configuration: LiveKitConfiguration? = nil,
                   reconnectAttempts: Int? = nil,
                   reconnectAttemptDelay: TimeInterval? = nil,
                   protocolVersion: ProtocolVersion? = nil) -> ConnectOptions {
 
         ConnectOptions(autoSubscribe: autoSubscribe ?? self.autoSubscribe,
-                       rtcConfiguration: rtcConfiguration ?? self.rtcConfiguration,
+					   configuration: configuration ?? self.configuration,
                        reconnectAttempts: reconnectAttempts ?? self.reconnectAttempts,
                        reconnectAttemptDelay: reconnectAttemptDelay ?? self.reconnectAttemptDelay,
                        protocolVersion: protocolVersion ?? self.protocolVersion)

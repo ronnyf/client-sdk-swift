@@ -15,23 +15,22 @@
  */
 
 import Foundation
-import WebRTC
+@_implementationOnly import WebRTC
 
 extension RTCConfiguration {
+	
+	static var liveKitDefault: RTCConfiguration {
+		let result = RTCConfiguration()
+		result.sdpSemantics = .unifiedPlan
+		result.continualGatheringPolicy = .gatherContinually
+		result.candidateNetworkPolicy = .all
+		result.tcpCandidatePolicy = .enabled
+		result.iceTransportPolicy = .all
 
-    public static func liveKitDefault() -> RTCConfiguration {
+		return result
+	}
 
-        let result = DispatchQueue.webRTC.sync { RTCConfiguration() }
-        result.sdpSemantics = .unifiedPlan
-        result.continualGatheringPolicy = .gatherContinually
-        result.candidateNetworkPolicy = .all
-        result.tcpCandidatePolicy = .enabled
-        result.iceTransportPolicy = .all
-
-        return result
-    }
-
-    public convenience init(copy configuration: RTCConfiguration) {
+    convenience init(copy configuration: RTCConfiguration) {
         self.init()
         self.enableDscp = configuration.enableDscp
         self.iceServers = configuration.iceServers
