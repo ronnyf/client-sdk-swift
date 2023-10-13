@@ -15,11 +15,11 @@ class MessageChannel: @unchecked Sendable {
 	let coordinator: WebsocketTaskCoordinator
 	
 	var currentWebSocketTask: some Publisher<URLSessionWebSocketTask, Never> {
-		coordinator.openSocketsSubject.publisher
+		coordinator.$openSocketsSubject.publisher.compactMap { $0 }
 	}
 	
 	var currentWebSocketStream: AsyncStream<URLSessionWebSocketTask> {
-		coordinator.openSocketsSubject.stream()
+		coordinator.$openSocketsSubject.publisher.compactMap { $0 }.stream()
 	}
 	
 	var bufferedMessages: AsyncThrowingFlatMapSequence<AsyncStream<URLSessionWebSocketTask>, AsyncBufferSequence<URLSessionWebSocketTaskReceiver>> {
@@ -47,7 +47,7 @@ class MessageChannel: @unchecked Sendable {
 		Logger.log(oslog: coordinator.messageChannelLog, message: "teardown")
 		
 		urlSession.invalidateAndCancel()
-		coordinator.openSocketsSubject.finish()
+		coordinator.closeSocket()
 	}
 	
 	func send(data: Data, timeout: TimeInterval) async throws {
@@ -66,7 +66,7 @@ class MessageChannel: @unchecked Sendable {
 
 extension MessageChannel {
 	final class WebsocketTaskCoordinator: NSObject, URLSessionWebSocketDelegate, URLSessionDelegate, @unchecked Sendable {
-		let openSocketsSubject = _Publishing<URLSessionWebSocketTask, Never>()
+		@Publishing var openSocketsSubject: URLSessionWebSocketTask? = nil
 		let messageChannelLog = OSLog(subsystem: "MessageChannel", category: "LiveKitCore")
 		#if DEBUG
 		override init() {
@@ -86,13 +86,13 @@ extension MessageChannel {
 		}
 		
 		///Close the current (open) socket and wait for it to go through the system (openSocketSubject is nil)
-		func closeSocket() async {
-			openSocketsSubject.finish()
+		func closeSocket() {
+			_openSocketsSubject.finish()
 		}
 		
 		//Indicates that the WebSocket handshake was successful and the connection has been upgraded to webSockets.
 		func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
-			openSocketsSubject.update(webSocketTask)
+			openSocketsSubject = webSocketTask
 			Logger.log(oslog: messageChannelLog, message: "socket opened \(webSocketTask)")
 		}
 		
@@ -110,7 +110,7 @@ extension MessageChannel {
 				Logger.log(level: .error, oslog: messageChannelLog, message: "\(error)")
 			}
 			#endif
-			openSocketsSubject.update(nil)
+			openSocketsSubject = nil
 		}
 		
 		#if DEBUG
