@@ -258,6 +258,12 @@ extension RTCPeerConnection {
 	}
 }
 
+extension RTCVideoRotation {
+	init?(_ rotationAngle: CGFloat) {
+		self.init(rawValue: Int(rotationAngle))
+	}
+}
+
 //MARK: - LiveKit Types
 
 extension Livekit_ICEServer {
