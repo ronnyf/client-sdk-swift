@@ -33,6 +33,12 @@ class VideoEncoderFactory: RTCDefaultVideoEncoderFactory {
     override func supportedCodecs() -> [RTCVideoCodecInfo] {
         super.supportedCodecs().rewriteCodecsIfNeeded()
     }
+	
+	#if DEBUG
+	deinit {
+		print("DEBUG: deinit \(self)")
+	}
+	#endif
 }
 
 class VideoDecoderFactory: RTCDefaultVideoDecoderFactory {
@@ -40,6 +46,12 @@ class VideoDecoderFactory: RTCDefaultVideoDecoderFactory {
     override func supportedCodecs() -> [RTCVideoCodecInfo] {
         super.supportedCodecs().rewriteCodecsIfNeeded()
     }
+	
+	#if DEBUG
+	deinit {
+		print("DEBUG: deinit \(self)")
+	}
+	#endif
 }
 
 #if LK_USE_CUSTOM_WEBRTC_BUILD
@@ -186,7 +198,7 @@ internal extension Engine {
                                             scaleDownBy: Double? = nil,
                                             active: Bool = true) -> RTCRtpEncodingParameters {
 
-        let result = DispatchQueue.webRTC.sync { RTCRtpEncodingParameters() }
+        let result = RTCRtpEncodingParameters()
 
         result.isActive = active
         result.rid = rid

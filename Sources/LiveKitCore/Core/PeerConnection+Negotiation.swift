@@ -25,14 +25,15 @@ extension PeerConnection {
 		
 		let offerTask = Task {
 			let signalingStates = signalingState.stream()
-			let localDescriptions = $localSessionDescription.publisher.stream()
-			let remoteDescriptions = $remoteSessionDescription.publisher.stream()
 			
 			//clear the local description, we're going to set a new one anyways...
 			var firstOfferSent = false
 			
-			for await (signalingState, localDescription, remoteDescription) in combineLatest(signalingStates, localDescriptions, remoteDescriptions) {
+			for await signalingState in signalingStates {
 				try Task.checkCancellation()
+				
+				let localDescription = rtcPeerConnection?.localDescription
+				let remoteDescription = rtcPeerConnection?.remoteDescription
 				
 				switch (signalingState, localDescription, remoteDescription) {
 				case (.stable, _, _) where firstOfferSent == false:
@@ -71,8 +72,8 @@ extension PeerConnection {
 	func sendInitialOffer() async throws -> Livekit_SessionDescription {
 		Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) sending initial offer")
 		let constraints = RTCMediaConstraints(mandatoryConstraints: nil, optionalConstraints: nil)
-		let offer = try await offer(for: constraints)
-		let sdp = try await setLocalDescription(offer)
+		let offer = try await offerDescription(with: constraints)
+		let sdp = try await update(localDescription: offer)
 		return sdp
 	}
 }

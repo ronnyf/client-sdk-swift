@@ -242,7 +242,14 @@ extension Sequence {
 			}
 	}
 	
-	public func grouping<Key: Hashable, T>(by keyPath: KeyPath<T, Key>, into result: inout [Key: T], transform: (Element) -> T) {
+	public func mergingGrouped<Key: Hashable>(by keyPath: KeyPath<Element, Key>, into result: inout [Key: Element]) {
+		for element in self {
+			let key = element[keyPath: keyPath]
+			result[key] = element
+		}
+	}
+	
+	public func mergingGrouped<Key: Hashable, T>(by keyPath: KeyPath<T, Key>, into result: inout [Key: T], transform: (Element) -> T) {
 		map(transform)
 			.forEach { transformedElement in
 				let key = transformedElement[keyPath: keyPath]
@@ -250,3 +257,117 @@ extension Sequence {
 			}
 	}
 }
+
+extension RandomAccessCollection where Element: Comparable {
+	public func binarySearch<Value>(_ value: Value, keyPath: KeyPath<Element, Value>) -> Self.Index where Value: Comparable {
+		guard count > 0 else { return startIndex }
+		
+		var low = startIndex
+		var high = index(endIndex, offsetBy: -1)
+		
+		while low <= high {
+			let delta = distance(from: low, to: high)
+			let midIndex = index(low, offsetBy: delta / 2)
+			let midValue = self[midIndex][keyPath: keyPath]
+			
+			if value == midValue {
+				return midIndex
+			} else if value < midValue {
+				high = index(midIndex, offsetBy: -1)
+			} else {
+				low = index(midIndex, offsetBy: 1)
+			}
+		}
+		return low
+	}
+	
+	public func binarySearch(_ element: Element) -> Self.Index {
+		guard count > 0 else { return startIndex }
+		
+		var low = startIndex
+		var high = index(endIndex, offsetBy: -1)
+		
+		while low <= high {
+			let delta = distance(from: low, to: high)
+			let midIndex = index(low, offsetBy: delta / 2)
+			let midValue = self[midIndex]
+			if element == midValue {
+				return midIndex
+			} else if element < midValue {
+				high = index(midIndex, offsetBy: -1)
+			} else {
+				low = index(midIndex, offsetBy: 1)
+			}
+		}
+		return low
+	}
+}
+
+//MARK: - serial executor
+
+#if swift(>=5.9)
+extension DispatchSerialQueue: SerialExecutor {
+	public func enqueue(_ job: UnownedJob) {
+		self.async {
+			job.runSynchronously(on: UnownedSerialExecutor(ordinary: self))
+		}
+	}
+	
+	public func asUnownedSerialExecutor() -> UnownedSerialExecutor {
+		UnownedSerialExecutor(ordinary: self)
+	}
+}
+#else
+extension DispatchQueue: @unchecked Sendable, SerialExecutor {
+	public func enqueue(_ job: UnownedJob) {
+		self.async {
+			job._runSynchronously(on: UnownedSerialExecutor(ordinary: self))
+		}
+	}
+	
+	public func asUnownedSerialExecutor() -> UnownedSerialExecutor {
+		UnownedSerialExecutor(ordinary: self)
+	}
+}
+#endif
+
+#if swift(>=5.9)
+@available(macOS 14.0, iOS 17.0, watchOS 10.0, tvOS 17.0, *)
+final class DispatchQueueSerialExecutor: SerialExecutor, Sendable {
+	let dispatchQueue: DispatchSerialQueue
+	
+	public init(dispatchQueue: DispatchSerialQueue = DispatchSerialQueue(label: "DispatchQueueSerialExecutor-Q")) {
+		self.dispatchQueue = dispatchQueue
+	}
+
+	public func asUnownedSerialExecutor() -> UnownedSerialExecutor {
+		UnownedSerialExecutor(ordinary: self)
+	}
+	
+	public func enqueue(_ job: consuming ExecutorJob) {
+		let unownedJob = UnownedJob(job)
+		dispatchQueue.async {
+			unownedJob.runSynchronously(on: UnownedSerialExecutor(ordinary: self))
+		}
+	}
+}
+
+@available(iOS, deprecated: 17.0, message: "Use DispatchQueueSerialExecutor()")
+final class LegacyDispatchQueueSerialExecutor: SerialExecutor, Sendable {
+	public let dispatchQueue: DispatchSerialQueue
+	
+	public init(dispatchQueue: DispatchSerialQueue = DispatchSerialQueue(label: "LegacyDispatchQueueSerialExecutor-Q")) {
+		self.dispatchQueue = dispatchQueue
+	}
+	
+	public func enqueue(_ job: UnownedJob) {
+		dispatchQueue.async {
+			job.runSynchronously(on: UnownedSerialExecutor(ordinary: self))
+		}
+	}
+
+	public func asUnownedSerialExecutor() -> UnownedSerialExecutor {
+		UnownedSerialExecutor(ordinary: self)
+	}
+}
+#endif

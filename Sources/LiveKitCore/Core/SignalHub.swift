@@ -8,8 +8,8 @@
 import Foundation
 import Combine
 import OSLog
-@_implementationOnly import WebRTC
 import AsyncAlgorithms
+@_implementationOnly import WebRTC
 
 public enum SignalHubError: Error {
 	case noSignalClient
@@ -24,20 +24,6 @@ public enum SignalHubError: Error {
 // should this be an actor instead ? so the PeerConnection types can be classes instead of actors?
 @available(iOS 15.0, macOS 12.0, *)
 open class SignalHub: @unchecked Sendable {
-	
-	enum LiveKitUpdates {
-		case localParticipants(Livekit_ParticipantInfo)
-		case participantUpdate(Livekit_ParticipantUpdate)
-		case trackPublished(Livekit_TrackPublishedResponse)
-		case trackUnpublished(Livekit_TrackUnpublishedResponse)
-		case token(String)
-		case connectionQuality(Livekit_ConnectionQualityUpdate)
-		case subscriptionQuality(Livekit_SubscribedQualityUpdate)
-		case activeSpeaker(Livekit_ActiveSpeakerUpdate)
-		case speakerChanged(Livekit_SpeakersChanged)
-		case room(Livekit_RoomUpdate)
-		case join(Livekit_JoinResponse)
-	}
 	
 	//MARK: - WebSocket messages, in/out
 	//using this channel specifically for pong messages
@@ -55,13 +41,14 @@ open class SignalHub: @unchecked Sendable {
 	
 	//OK
 	//published tracks ... used for addTrackRequest <> Response during publishing
-	@Publishing var audioTracks: [String: LiveKitTrack] = [:]
-	@Publishing var videoTracks: [String: LiveKitTrack] = [:]
-	@Publishing var dataTracks: [String: LiveKitTrack] = [:]
+	@Publishing var audioTracks: [String: LiveKitTrackInfo] = [:]
+	@Publishing var videoTracks: [String: LiveKitTrackInfo] = [:]
+	@Publishing var dataTracks: [String: LiveKitTrackInfo] = [:]
 	
 	//OK
 	@Publishing public var connectionQuality: [String: LiveKitConnectionQuality] = [:]
-	@Publishing public var mediaStreams: [LiveKitStream] = []
+	@Publishing public var mediaStreams: [String: LiveKitStream] = [:]
+	@Publishing public var receivers: [String: Receiver] = [:]
 	
 	//MARK: - tokens
 	let tokenUpdatesSubject = PassthroughSubject<String, Never>()
@@ -99,34 +86,40 @@ open class SignalHub: @unchecked Sendable {
 	
 	func teardown() async throws {
 		//0: housekeeping
-		incomingDataPackets.send(completion: .finished)
-		outgoingDataPackets.send(completion: .finished)
 		outgoingDataRequestsChannel.finish()
 		outgoingDataRequests.send(completion: .finished)
 		
-		//1: other subjects/publishers
-		_speakerChangedUpdates.finish()
-		_subscriptionQualityUpdates.finish()
-		tokenUpdatesSubject.send(completion: .finished)
-		
+		joinResponse = nil
 		_joinResponse.finish()
-		
-		_dataTracks.finish()
-		_audioTracks.finish()
-		_videoTracks.finish()
-		_mediaStreams.finish()
+		localParticipant = nil
 		_localParticipant.finish()
+		remoteParticipants.removeAll()
 		_remoteParticipants.finish()
 		
-		await withTaskGroup(of: Void.self) { group in
-			for pc in [peerConnectionFactory.publishingPeerConnection, peerConnectionFactory.subscribingPeerConnection] {
-				group.addTask {
-					await pc.teardown()
-				}
-			}
-			
-			await group.waitForAll()
-		}
+		audioTracks.removeAll()
+		_audioTracks.finish()
+		videoTracks.removeAll()
+		_videoTracks.finish()
+		dataTracks.removeAll()
+		_dataTracks.finish()
+		
+		_connectionQuality.finish()
+		
+		mediaStreams.removeAll()
+		_mediaStreams.finish()
+		receivers.removeAll()
+		_receivers.finish()
+
+		tokenUpdatesSubject.send(completion: .finished)
+		subscriptionQualityUpdates = nil
+		_subscriptionQualityUpdates.finish()
+		speakerChangedUpdates = nil
+		_speakerChangedUpdates.finish()
+		
+		incomingDataPackets.send(completion: .finished)
+		outgoingDataPackets.send(completion: .finished)
+		
+		peerConnectionFactory.teardown()
 		
 		Logger.log(oslog: signalHubLog, message: "signalHub did teardown")
 	}
@@ -139,7 +132,7 @@ open class SignalHub: @unchecked Sendable {
 		do {
 			let data = try request.serializedData()
 			outgoingDataRequests.send(data)
-			Logger.log(oslog: signalHubLog, message: "enqueue request: \(String(describing: request.message))")
+//			Logger.log(oslog: signalHubLog, message: "enqueue request: \(String(describing: request.message))")
 		} catch {
 			Logger.log(level: .error, oslog: signalHubLog, message: "MessageChannel: enqueue ERROR: \(error)")
 		}

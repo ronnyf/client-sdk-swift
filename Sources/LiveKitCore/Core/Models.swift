@@ -241,26 +241,34 @@ extension RTCIceGatheringState {
 extension RTCPeerConnectionState: @unchecked Sendable {}
 extension RTCSessionDescription: @unchecked Sendable {}
 extension RTCMediaConstraints: @unchecked Sendable {}
+extension RTCConfiguration: @unchecked Sendable {}
 extension RTCVideoFrame: @unchecked Sendable {}
 extension RTCMediaStream: @unchecked Sendable {}
 extension RTCMediaStreamTrack: @unchecked Sendable {}
+extension RTCRtpTransceiverInit: @unchecked Sendable {}
+extension RTCIceCandidate: @unchecked Sendable {}
 //extension RTCRtpTransceiver: @unchecked Sendable {} // not sure if I'd go this far (yet)
-
-extension RTCPeerConnection {
-	func removeSender(trackId: String) {
-		let senders = self.senders.filter {
-			guard let track = $0.track else { return false }
-			return track.trackId == trackId
-		}
-		for sender in senders {
-			self.removeTrack(sender)
-		}
-	}
-}
 
 extension RTCVideoRotation {
 	init?(_ rotationAngle: CGFloat) {
 		self.init(rawValue: Int(rotationAngle))
+	}
+}
+
+extension RTCMediaStream {
+	var ids: (String, String?) {
+		if let splitIndex = streamId.firstIndex(of: "|") {
+			let pId = streamId[streamId.startIndex..<splitIndex]
+			let tId = streamId[streamId.index(after: splitIndex)..<streamId.endIndex]
+			return (String(pId), String(tId))
+		} else {
+			return (streamId, nil)
+		}
+	}
+	
+	var participantId: some StringProtocol {
+		let splitIndex = streamId.firstIndex(of: "|") ?? streamId.endIndex
+		return streamId[streamId.startIndex..<splitIndex]
 	}
 }
 
@@ -399,7 +407,7 @@ extension Livekit_VideoQuality {
 }
 
 extension Livekit_TrackPermission {
-	init(_ trackPermission: LiveKitTrack.Permission) {
+	init(_ trackPermission: LiveKitTrackInfo.Permission) {
 		self.participantSid = trackPermission.participantSid
 		self.allTracks = trackPermission.allAllowed
 		self.trackSids = trackPermission.allowedTrackSids

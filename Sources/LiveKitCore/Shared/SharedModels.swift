@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 @_implementationOnly import WebRTC
 
 //MARK: - Connected State
@@ -46,11 +47,7 @@ public enum LiveKitState: Sendable {
 
 //MARK: - Stream
 
-// We'd need to be able to retain ownership of the rtc object ...
-// If we were to use a struct, we'd dealloc the rtc object right away, won't we?
-public class MediaTrack: @unchecked Sendable {
-	var rtcMediaStreamTrack: RTCMediaStreamTrack
-	
+public struct MediaTrack: Sendable {
 	public enum TrackType: Sendable {
 		case audio
 		case video
@@ -60,20 +57,13 @@ public class MediaTrack: @unchecked Sendable {
 	public let trackId: String
 	public let trackType: TrackType
 	
-	@MainActor
-	public var isEnabled: Bool {
-		get {
-			rtcMediaStreamTrack.isEnabled
-		}
-		set {
-			rtcMediaStreamTrack.isEnabled = newValue
-		}
+	public init(trackId: String, trackType: TrackType) {
+		self.trackId = trackId
+		self.trackType = trackType
 	}
 	
 	init(_ rtcMediaStreamTrack: RTCMediaStreamTrack) {
-		self.rtcMediaStreamTrack = rtcMediaStreamTrack
-		self.trackId = rtcMediaStreamTrack.trackId
-		self.trackType = TrackType(rtcMediaStreamTrack.kind)
+		self.init(trackId: rtcMediaStreamTrack.trackId, trackType: TrackType(rtcMediaStreamTrack.kind))
 	}
 }
 
@@ -89,46 +79,66 @@ extension MediaTrack.TrackType {
 	}
 }
 
+extension MediaTrack: Identifiable {
+	public var id: String { trackId }
+}
+
 public struct LiveKitStream: Sendable {
-	public let pId: String //participant ID
-	public let tId: String //track ID
-	public let streamId: String
 	
-	public let videoTracks: [MediaTrack]
-	public let audioTracks: [MediaTrack]
-//	public let dataTracks: [MediaTrack] //not supported(yet)
-	
-	init(_ rtcMediaStream: RTCMediaStream) {
-		self.streamId = rtcMediaStream.streamId
+	public enum State: Sendable {
+		case active
+		case paused
 		
-		//PA_dQDLmN3aFt92|TR_VCcdbkczVxyutm
-		if let separatorIndex = streamId.firstIndex(of: "|") {
-			self.pId = String(streamId[streamId.startIndex..<separatorIndex])
-			self.tId = String(streamId[streamId.index(after: separatorIndex)..<streamId.endIndex])
-		} else {
-			self.pId = ""
-			self.tId = ""
+		init?(_ livekit_StreamState: Livekit_StreamState) {
+			switch livekit_StreamState {
+			case .active:
+				self = .active
+				
+			case .paused:
+				self = .paused
+				
+			default:
+				return nil
+			}
 		}
-		
-		self.videoTracks = rtcMediaStream.videoTracks.map { MediaTrack($0) }
-		self.audioTracks = rtcMediaStream.audioTracks.map { MediaTrack($0) }
+	}
+	
+	public let participantId: String //participant ID
+	
+	public var videoTracks: [MediaTrack]
+	public var audioTracks: [MediaTrack]
+//	public let dataTracks: [LiveKitTrackInfo.LiveKitTrack] //not supported(yet)
+	
+	public init<S: Sequence>(participantId: String, videoTracks: S, audioTracks: S) where S.Element == MediaTrack {
+		self.participantId = participantId
+		self.videoTracks = Array(videoTracks)
+		self.audioTracks = Array(audioTracks)
+	}
+	
+	init(_ rtcMediaStream: RTCMediaStream) {	
+		self.init(
+			// e.g.: PA_dQDLmN3aFt92 (omitting '|TR_VCcdbkczVxyutm')
+			participantId: String(rtcMediaStream.participantId),
+			videoTracks: rtcMediaStream.videoTracks.map { MediaTrack($0) },
+			audioTracks: rtcMediaStream.audioTracks.map { MediaTrack($0) }
+		)
 	}
 }
 
 extension LiveKitStream: Equatable {
 	static public func ==(lhs: LiveKitStream, rhs: LiveKitStream) -> Bool {
-		lhs.streamId == rhs.streamId
+		lhs.participantId == rhs.participantId
 	}
 }
 
 extension LiveKitStream: Hashable {
 	public func hash(into hasher: inout Hasher) {
-		hasher.combine(streamId)
+		hasher.combine(participantId)
 	}
 }
 
 extension LiveKitStream: Identifiable {
-	public var id: String { streamId }
+	public var id: String { participantId }
 }
 
 //MARK: - Track
@@ -177,22 +187,27 @@ public struct LiveKitParticipant: Sendable {
 	public var id: String
 	public var name: String
 	public var state: State
-	public var joinedSince: Date
+	public var joinedAt: Int64
+	public var joinedSince: Date {
+		Date(timeIntervalSince1970: TimeInterval(joinedAt))
+	}
 	public var canPublish: Bool
 	public var canSubscribe: Bool
 	public var canPublishData: Bool
 	public var region: String
+	public var tracks: [LiveKitTrackInfo.LiveKitTrack]
 	
 	public static var nobody: LiveKitParticipant {
 		LiveKitParticipant(
 			id: "",
 			name: "",
 			state: .disconnected,
-			joinedSince: Date.distantPast,
+			joinedAt: 0,
 			canPublish: false,
 			canSubscribe: false,
 			canPublishData: false,
-			region: ""
+			region: "",
+			tracks: []
 		)
 	}
 	
@@ -200,31 +215,34 @@ public struct LiveKitParticipant: Sendable {
 		id: String,
 		name: String,
 		state: State,
-		joinedSince: Date,
+		joinedAt: Int64,
 		canPublish: Bool,
 		canSubscribe: Bool,
 		canPublishData: Bool,
-		region: String
+		region: String,
+		tracks: [LiveKitTrackInfo.LiveKitTrack]
 	) {
 		self.id = id
 		self.name = name
 		self.state = state
-		self.joinedSince = joinedSince
+		self.joinedAt = joinedAt
 		self.canPublish = canPublish
 		self.canSubscribe = canSubscribe
 		self.canPublishData = canPublishData
 		self.region = region
+		self.tracks = tracks
 	}
 	
 	init(_ participantInfo: Livekit_ParticipantInfo) {
 		self.id = participantInfo.sid
 		self.name = participantInfo.identity
 		self.state = State(participantInfoState: participantInfo.state)
-		self.joinedSince = Date(timeIntervalSince1970: TimeInterval(participantInfo.joinedAt))
+		self.joinedAt = participantInfo.joinedAt
 		self.canPublish = participantInfo.permission.canPublish
 		self.canSubscribe = participantInfo.permission.canSubscribe
 		self.canPublishData = participantInfo.permission.canPublishData
 		self.region = participantInfo.region
+		self.tracks = participantInfo.tracks.map { LiveKitTrackInfo.LiveKitTrack($0) }
 	}
 }
 
@@ -261,6 +279,13 @@ extension LiveKitParticipant: Hashable {
 	
 	public func hash(into hasher: inout Hasher) {
 		hasher.combine(id)
+	}
+}
+
+extension LiveKitParticipant: Comparable {
+	
+	public static func < (lhs: LiveKitParticipant, rhs: LiveKitParticipant) -> Bool {
+		lhs.joinedSince < rhs.joinedSince
 	}
 }
 
@@ -490,21 +515,21 @@ public struct LiveKitActiveSpeaker: Sendable {
 
 //MARK: - Track published / unpublished
 
-public struct LiveKitTrack: Sendable {
+public struct LiveKitTrackInfo: Sendable {
 	public let trackSid: String
-	public let trackInfo: Info?
+	public let track: LiveKitTrack?
 	
 	init(_ published: Livekit_TrackPublishedResponse) {
 		self.trackSid = published.track.sid
-		self.trackInfo = Info(published.track)
+		self.track = LiveKitTrack(published.track)
 	}
 	
 	init(_ unpublished: Livekit_TrackUnpublishedResponse) {
 		self.trackSid = unpublished.trackSid
-		self.trackInfo = nil
+		self.track = nil
 	}
 	
-	public struct Info: Sendable {
+	public struct LiveKitTrack: Sendable {
 		
 		public let sid: String
 		public let type: Kind
@@ -521,21 +546,25 @@ public struct LiveKitTrack: Sendable {
 		public let codecs: [CodecInfo]
 		public let stereo: Bool
 		
+		init(sid: String, type: Kind, name: String, muted: Bool, width: UInt32, height: UInt32, simulcast: Bool, disableDtx: Bool, source: Source, layers: [VideoLayer], mimeType: String, mid: String, codecs: [CodecInfo], stereo: Bool) {
+			self.sid = sid
+			self.type = type
+			self.name = name
+			self.muted = muted
+			self.width = width
+			self.height = height
+			self.simulcast = simulcast
+			self.disableDtx = disableDtx
+			self.source = source
+			self.layers = layers
+			self.mimeType = mimeType
+			self.mid = mid
+			self.codecs = codecs
+			self.stereo = stereo
+		}
+		
 		init(_ info: Livekit_TrackInfo) {
-			self.sid = info.sid
-			self.type = Kind(info.type)
-			self.name = info.name
-			self.muted = info.muted
-			self.width = info.width
-			self.height = info.height
-			self.simulcast = info.simulcast
-			self.disableDtx = info.disableDtx
-			self.source = Source(info.source)
-			self.layers = info.layers.map { VideoLayer($0) }
-			self.mimeType = info.mimeType
-			self.mid = info.mid
-			self.codecs = info.codecs.map { CodecInfo($0) }
-			self.stereo = info.stereo
+			self.init(sid: info.sid, type: Kind(info.type), name: info.name, muted: info.muted, width: info.width, height: info.height, simulcast: info.simulcast, disableDtx: info.disableDtx, source: Source(info.source), layers: info.layers.map { VideoLayer($0) }, mimeType: info.mimeType, mid: info.mid, codecs: info.codecs.map { CodecInfo($0) }, stereo: info.stereo)
 		}
 	}
 	
@@ -652,5 +681,48 @@ public struct LiveKitTrack: Sendable {
 			self.allowedTrackSids = trackPermission.trackSids
 			self.participantIdentity = trackPermission.participantIdentity
 		}
+	}
+}
+
+@MainActor
+public final class Receiver: @unchecked Sendable, Identifiable {
+		
+	public let mediaStreamTrack: MediaStreamTrack
+	public let id: String
+	
+	let receiver: RTCRtpReceiver
+		
+	nonisolated init?(receiver: RTCRtpReceiver) {
+		guard let track = receiver.track else { return nil }
+		self.id = receiver.receiverId
+		self.receiver = receiver
+		self.mediaStreamTrack = MediaStreamTrack(rtcMediaStreamTrack: track)
+	}
+}
+
+@MainActor
+public final class MediaStreamTrack: @unchecked Sendable {
+	
+	let rtcMediaStreamTrack: RTCMediaStreamTrack
+	
+	nonisolated init(rtcMediaStreamTrack: RTCMediaStreamTrack) {
+		self.rtcMediaStreamTrack = rtcMediaStreamTrack
+	}
+	
+	public var enable: Bool {
+		get {
+			rtcMediaStreamTrack.isEnabled
+		}
+		set {
+			rtcMediaStreamTrack.isEnabled = newValue
+		}
+	}
+	
+	var asAudioTrack: RTCAudioTrack? {
+		return rtcMediaStreamTrack as? RTCAudioTrack
+	}
+	
+	var asVideoTrack: RTCVideoTrack? {
+		return rtcMediaStreamTrack as? RTCVideoTrack
 	}
 }

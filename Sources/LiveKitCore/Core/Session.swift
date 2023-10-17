@@ -21,7 +21,6 @@ import AppKit
 #endif
 import Combine
 import CoreMedia
-import AsyncAlgorithms
 import OSLog
 @_implementationOnly import WebRTC
 
@@ -49,7 +48,7 @@ open class LiveKitSession: @unchecked Sendable {
 	
 #if DEBUG
 	deinit {
-		print("deinit <Session id: \(id)>")
+		print("DEBUG: deinit <Session id: \(id)>")
 	}
 #endif
 	
@@ -61,19 +60,19 @@ open class LiveKitSession: @unchecked Sendable {
 		signalHub.$remoteParticipants.publisher
 	}
 	
-	public var mediaStreams: AnyPublisher<Array<LiveKitStream>, Never> {
-		signalHub.$mediaStreams.publisher.eraseToAnyPublisher()
+	public var mediaStreams: some Publisher<[String: LiveKitStream], Never> {
+		signalHub.$mediaStreams.publisher
 	}
 	
-	public var dataTracks: AnyPublisher<Dictionary<String, LiveKitTrack>, Never> {
+	public var dataTracks: AnyPublisher<Dictionary<String, LiveKitTrackInfo>, Never> {
 		signalHub.$dataTracks.publisher.eraseToAnyPublisher()
 	}
 	
-	public var audioTracks: AnyPublisher<Dictionary<String, LiveKitTrack>, Never> {
+	public var audioTracks: AnyPublisher<Dictionary<String, LiveKitTrackInfo>, Never> {
 		signalHub.$audioTracks.publisher.eraseToAnyPublisher()
 	}
 	
-	public var videoTracks: AnyPublisher<Dictionary<String, LiveKitTrack>, Never> {
+	public var videoTracks: AnyPublisher<Dictionary<String, LiveKitTrackInfo>, Never> {
 		signalHub.$videoTracks.publisher.eraseToAnyPublisher()
 	}
 	
