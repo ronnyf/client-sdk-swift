@@ -33,7 +33,7 @@ public struct Publishing<Value> {
 		}
 	}
 	
-	public var projectedValue: (binding: Binding<Value>, publisher: AnyPublisher<Value, Never>) {
+	public var projectedValue: (binding: Binding<Value>, publisher: some Publisher<Value, Never>) {
 		return (binding: binding, publisher: subject.eraseToAnyPublisher())
 	}
 	

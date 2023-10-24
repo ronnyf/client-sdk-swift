@@ -31,12 +31,8 @@ actor PeerConnection {
 		case incomingResponseMessages
 		case findMediaStreams
 	}
-
-	#if swift(<5.9)
-	typealias DispatchSerialQueue = DispatchQueue
-	#endif
 	
-	let dispatchQueue: DispatchSerialQueue
+	let dispatchQueue: DispatchQueue
 	nonisolated var unownedExecutor: UnownedSerialExecutor { dispatchQueue.asUnownedSerialExecutor() }
 	
 	nonisolated var signalingState: some Publisher<RTCSignalingState, Never> {
@@ -77,7 +73,7 @@ actor PeerConnection {
 	let mediaConstraints: () -> RTCMediaConstraints
 	
 	init(
-		dispatchQueue: DispatchSerialQueue = DispatchSerialQueue(label: "PeerConnection"),
+		dispatchQueue: DispatchQueue = DispatchQueue(label: "PeerConnection"),
 		coordinator: PeerConnection.Coordinator = Coordinator(),
 		isPublisher: Bool,
 		factory: @autoclosure @escaping () -> RTCPeerConnectionFactory,
