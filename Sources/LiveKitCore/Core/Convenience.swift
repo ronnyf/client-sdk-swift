@@ -306,7 +306,7 @@ extension RandomAccessCollection where Element: Comparable {
 //MARK: - serial executor
 
 #if swift(>=5.9)
-extension DispatchSerialQueue: SerialExecutor {
+extension DispatchQueue: SerialExecutor {
 	public func enqueue(_ job: UnownedJob) {
 		self.async {
 			job.runSynchronously(on: UnownedSerialExecutor(ordinary: self))
@@ -334,9 +334,9 @@ extension DispatchQueue: @unchecked Sendable, SerialExecutor {
 #if swift(>=5.9)
 @available(macOS 14.0, iOS 17.0, watchOS 10.0, tvOS 17.0, *)
 final class DispatchQueueSerialExecutor: SerialExecutor, Sendable {
-	let dispatchQueue: DispatchSerialQueue
+	let dispatchQueue: DispatchQueue
 	
-	public init(dispatchQueue: DispatchSerialQueue = DispatchSerialQueue(label: "DispatchQueueSerialExecutor-Q")) {
+	public init(dispatchQueue: DispatchQueue = DispatchQueue(label: "DispatchQueueSerialExecutor-Q")) {
 		self.dispatchQueue = dispatchQueue
 	}
 
@@ -354,9 +354,9 @@ final class DispatchQueueSerialExecutor: SerialExecutor, Sendable {
 
 @available(iOS, deprecated: 17.0, message: "Use DispatchQueueSerialExecutor()")
 final class LegacyDispatchQueueSerialExecutor: SerialExecutor, Sendable {
-	public let dispatchQueue: DispatchSerialQueue
+	public let dispatchQueue: DispatchQueue
 	
-	public init(dispatchQueue: DispatchSerialQueue = DispatchSerialQueue(label: "LegacyDispatchQueueSerialExecutor-Q")) {
+	public init(dispatchQueue: DispatchQueue = DispatchQueue(label: "LegacyDispatchQueueSerialExecutor-Q")) {
 		self.dispatchQueue = dispatchQueue
 	}
 	
