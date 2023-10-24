@@ -10,6 +10,7 @@ import OSLog
 import Combine
 import AsyncAlgorithms
 
+
 public enum MessageChannelConnectionState: Sendable {
     case disconnected
     case connected
@@ -83,17 +84,15 @@ extension MessageChannel {
 		let messageChannelLog = OSLog(subsystem: "MessageChannel", category: "LiveKitCore")
         let connectionState: CurrentValueSubject<MessageChannelConnectionState, Never>
 		
-        override init() {
-            self.connectionState = CurrentValueSubject(.disconnected)
-            super.init()
-            Logger.log(oslog: messageChannelLog, message: "WebsocketTaskCoordinator init")
-        }
-        
-#if DEBUG
+    override init() {
+      self.connectionState = CurrentValueSubject(.disconnected)
+      super.init()
+      Logger.log(oslog: messageChannelLog, message: "WebsocketTaskCoordinator init")
+    }
+
 		deinit {
-			Logger.log(oslog: messageChannelLog, message: "WebsocketTaskCoordinator deinit")
+			Logger.plog(oslog: messageChannelLog, publicMessage: "WebsocketTaskCoordinator deinit")
 		}
-		#endif
 		
 		func openSocket(_ webSocketTask: URLSessionWebSocketTask) {
 			webSocketTask.resume()
@@ -101,7 +100,7 @@ extension MessageChannel {
 		
 		///Close the current (open) socket and wait for it to go through the system (openSocketSubject is nil)
 		func teardown() {
-			Logger.log(oslog: messageChannelLog, message: "tearddown WebsocketTaskCoordinator")
+			Logger.plog(oslog: messageChannelLog, publicMessage: "tearddown WebsocketTaskCoordinator")
 			_webSocketTask.finish()
             connectionState.send(.down)
 		}

@@ -34,22 +34,19 @@ open class SignalHub: @unchecked Sendable {
 	//	let pongMessagesChannel = AsyncChannel<Int64>() // << Switch
 	
 	//MARK: - State Publishers
-	//OK
 	@Publishing var joinResponse: Livekit_JoinResponse? = nil
 	@Publishing public var localParticipant: LiveKitParticipant? = nil
 	@Publishing public var remoteParticipants: [String: LiveKitParticipant] = [:]
 	
-	//OK
 	//published tracks ... used for addTrackRequest <> Response during publishing
 	@Publishing var audioTracks: [String: LiveKitTrackInfo] = [:]
 	@Publishing var videoTracks: [String: LiveKitTrackInfo] = [:]
 	@Publishing var dataTracks: [String: LiveKitTrackInfo] = [:]
 	
-	//OK
 	@Publishing public var connectionQuality: [String: LiveKitConnectionQuality] = [:]
 	@Publishing public var mediaStreams: [String: LiveKitStream] = [:]
 	@Publishing public var receivers: [String: Receiver] = [:]
-	
+    
 	//MARK: - tokens
 	let tokenUpdatesSubject = PassthroughSubject<String, Never>()
 	
