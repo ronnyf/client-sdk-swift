@@ -60,9 +60,8 @@ extension LiveKitSession {
 			}
 			
 			try await messageChannelGroup.cancelOnFirstCompletion()
-			print("DEBUG: STOP!")
 		}
-		Logger.log(oslog: sessionLog, message: "session is disconnecting")
+		Logger.plog(oslog: sessionLog, publicMessage: "session is disconnecting")
 		try await signalHub.teardown()
 	}
 }

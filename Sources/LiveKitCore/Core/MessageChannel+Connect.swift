@@ -47,7 +47,7 @@ extension MessageChannel {
 			}
 		
 			try await group.cancelOnFirstCompletion()
-			Logger.log(oslog: coordinator.messageChannelLog, message: "WebSocketTask factory is down!")
+			Logger.plog(oslog: coordinator.messageChannelLog, publicMessage: "WebSocketTask factory is down!")
 		}
 		teardown()
 	}

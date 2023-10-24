@@ -30,7 +30,7 @@ extension PeerConnection {
 				
 		deinit {
 #if DEBUG
-			Logger.log(oslog: peerConnectionLog, message: "coordinator deinit")
+			Logger.plog(oslog: peerConnectionLog, publicMessage: "coordinator deinit")
 #endif
 		}
 		
@@ -44,7 +44,7 @@ extension PeerConnection {
 			_rtcDataChannelLossy.finish()
 			_rtcSignals.send(completion: .finished)
 			
-			Logger.log(oslog: peerConnectionLog, message: "coordinator did teardown")
+			Logger.plog(oslog: peerConnectionLog, publicMessage: "coordinator did teardown")
 		}
 	}
 }
@@ -55,35 +55,35 @@ extension PeerConnection.Coordinator {
 	
 	func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCPeerConnectionState) {
 		peerConnectionState = newState
-		Logger.log(oslog: peerConnectionLog, message: "connection state: \(newState.debugDescription)")
+		Logger.plog(oslog: peerConnectionLog, publicMessage: "connection state: \(newState.debugDescription)")
 	}
 	
 	func peerConnection(_ peerConnection: RTCPeerConnection, didChange stateChanged: RTCSignalingState) {
 		signalingState = stateChanged
-		Logger.log(oslog: peerConnectionLog, message: "signalingState: \(stateChanged.debugDescription)")
+		Logger.plog(oslog: peerConnectionLog, publicMessage: "signalingState: \(stateChanged.debugDescription)")
 	}
 	
 	func peerConnection(_ peerConnection: RTCPeerConnection, didGenerate candidate: RTCIceCandidate) {
 		let iceCandidate = IceCandidate(candidate)
 		_rtcSignals.send(.didGenerate(iceCandidate))
-		Logger.log(oslog: peerConnectionLog, message: "didGenerate iceCandidate: \(String(describing: candidate))")
+		Logger.plog(oslog: peerConnectionLog, publicMessage: "didGenerate iceCandidate: \(String(describing: candidate))")
 	}
 	
 	func peerConnection(_ peerConnection: RTCPeerConnection, didAdd rtpReceiver: RTCRtpReceiver, streams mediaStreams: [RTCMediaStream]) {
 		//Room.swift:710
 		//participant.addSubscribedMediaTrack(rtcTrack: track, sid: trackSid)
 		_rtcSignals.send(.didAddMediaStreams(mediaStreams, rtpReceiver))
-		Logger.log(oslog: peerConnectionLog, message: "didAdd: rtpReceiver: \(rtpReceiver), streams: \(mediaStreams)")
+		Logger.plog(oslog: peerConnectionLog, publicMessage: "didAdd: rtpReceiver: \(rtpReceiver), streams: \(mediaStreams)")
 	}
 	
 	func peerConnection(_ peerConnection: RTCPeerConnection, didRemove rtpReceiver: RTCRtpReceiver) {
 		_rtcSignals.send(.didRemoveRtpReceiver(rtpReceiver))
-		Logger.log(oslog: peerConnectionLog, message: "didRemove: rtpReceiver: \(rtpReceiver)")
+		Logger.plog(oslog: peerConnectionLog, publicMessage: "didRemove: rtpReceiver: \(rtpReceiver)")
 	}
 	
 	func peerConnection(_ peerConnection: RTCPeerConnection, didStartReceivingOn transceiver: RTCRtpTransceiver) {
 		_rtcSignals.send(.didStartReceivingOn(transceiver))
-		Logger.log(oslog: peerConnectionLog, message: "did start receiving on: \(transceiver)")
+		Logger.plog(oslog: peerConnectionLog, publicMessage: "did start receiving on: \(transceiver)")
 	}
 	
 	func peerConnection(_ peerConnection: RTCPeerConnection, didOpen dataChannel: RTCDataChannel) {
@@ -100,43 +100,43 @@ extension PeerConnection.Coordinator {
 			self.rtcDataChannelLossy = dataChannel
 			
 		case .undefined(let value):
-			Logger.log(level: .error, oslog: peerConnectionLog, message: "data channel opened with undefined label: \(value)")
+			Logger.plog(level: .error, oslog: peerConnectionLog, publicMessage: "data channel opened with undefined label: \(value)")
 		}
-		Logger.log(oslog: peerConnectionLog, message: "did open data channel: \(dataChannel.label)")
+		Logger.plog(oslog: peerConnectionLog, publicMessage: "did open data channel: \(dataChannel.label)")
 	}
 	
 	//MARK: - not implemented in livekit ios sdk
 	
 	func peerConnection(_ peerConnection: RTCPeerConnection, didAdd stream: RTCMediaStream) {
 		_rtcSignals.send(.didAddMediaStream(stream))
-		Logger.log(oslog: peerConnectionLog, message: ">>> did add stream: \(stream.streamId)")
+		Logger.plog(oslog: peerConnectionLog, publicMessage: ">>> did add stream: \(stream.streamId)")
 	}
 	
 	func peerConnection(_ peerConnection: RTCPeerConnection, didRemove stream: RTCMediaStream) {
 		_rtcSignals.send(.didRemoveMediaStream(stream))
-		Logger.log(oslog: peerConnectionLog, message: "<<< did remove stream: \(stream.streamId)")
+		Logger.plog(oslog: peerConnectionLog, publicMessage: "<<< did remove stream: \(stream.streamId)")
 	}
 	
 	/** Called when negotiation is needed, for example ICE has restarted. */
 	func peerConnectionShouldNegotiate(_ peerConnection: RTCPeerConnection) {
 		//TODO: remove this? LiveKit doesn't use it :shrug:
 		_rtcSignals.send(.shouldNegotiate)
-		Logger.log(oslog: peerConnectionLog, message: "should negotiate")
+		Logger.plog(oslog: peerConnectionLog, publicMessage: "should negotiate")
 	}
 	
 	func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceConnectionState) {
 		iceConnectionState = newState
-		Logger.log(oslog: peerConnectionLog, message: "ice connection state: \(newState.debugDescription)")
+		Logger.plog(oslog: peerConnectionLog, publicMessage: "ice connection state: \(newState.debugDescription)")
 	}
 	
 	func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceGatheringState) {
 		iceGatheringState = newState
-		Logger.log(oslog: peerConnectionLog, message: "ice gathering state: \(newState.debugDescription)")
+		Logger.plog(oslog: peerConnectionLog, publicMessage: "ice gathering state: \(newState.debugDescription)")
 	}
 	
 	func peerConnection(_ peerConnection: RTCPeerConnection, didRemove candidates: [RTCIceCandidate]) {
 		_rtcSignals.send(.didRemoveIceCandidates(candidates))
-		Logger.log(oslog: peerConnectionLog, message: "did remove candidates: \(candidates.map { IceCandidate($0) })")
+		Logger.plog(oslog: peerConnectionLog, publicMessage: "did remove candidates: \(candidates.map { IceCandidate($0) })")
 	}
 }
 

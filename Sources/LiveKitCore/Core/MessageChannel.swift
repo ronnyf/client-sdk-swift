@@ -86,12 +86,12 @@ extension MessageChannel {
         override init() {
             self.connectionState = CurrentValueSubject(.disconnected)
             super.init()
-            Logger.log(oslog: messageChannelLog, message: "WebsocketTaskCoordinator init")
+            Logger.plog(oslog: messageChannelLog, publicMessage: "WebsocketTaskCoordinator init")
         }
         
 #if DEBUG
 		deinit {
-			Logger.log(oslog: messageChannelLog, message: "WebsocketTaskCoordinator deinit")
+			Logger.plog(oslog: messageChannelLog, publicMessage: "WebsocketTaskCoordinator deinit")
 		}
 		#endif
 		
@@ -101,7 +101,7 @@ extension MessageChannel {
 		
 		///Close the current (open) socket and wait for it to go through the system (openSocketSubject is nil)
 		func teardown() {
-			Logger.log(oslog: messageChannelLog, message: "tearddown WebsocketTaskCoordinator")
+			Logger.plog(oslog: messageChannelLog, publicMessage: "tearddown WebsocketTaskCoordinator")
 			_webSocketTask.finish()
             connectionState.send(.down)
 		}
