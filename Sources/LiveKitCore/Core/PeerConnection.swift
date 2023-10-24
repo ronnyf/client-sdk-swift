@@ -39,7 +39,11 @@ actor PeerConnection {
 		coordinator.$signalingState.publisher.compactMap { $0 }
 	}
 	
-	nonisolated var connectionState: some Publisher<RTCPeerConnectionState, Never> {
+    nonisolated public var connectionState: some Publisher<PeerConnectionState, Never> {
+        rtcPeerConnectionState.map { PeerConnectionState($0) }
+    }
+    
+	nonisolated var rtcPeerConnectionState: some Publisher<RTCPeerConnectionState, Never> {
 		coordinator.$peerConnectionState.publisher.compactMap { $0 }
 	}
 	
@@ -214,7 +218,7 @@ actor PeerConnection {
 		coordinator.teardown()
 		if let rtcPeerConnection {
 			rtcPeerConnection.close()
-		}		
+		}
 	}
 	
 	// MARK: - retrieve receiver(s) from peer connection
@@ -274,4 +278,34 @@ extension PeerConnection: CustomStringConvertible {
 	nonisolated var description: String {
 		"<PeerConnection \(peerConnectionIsPublisher ? "Publishing" : "Subscribing")>"
 	}
+}
+
+public enum PeerConnectionState {
+    case new
+    case connecting
+    case connected
+    case disconnected
+    case failed
+    case closed
+    case down
+    
+    init(_ rtcPeerConnectionState: RTCPeerConnectionState) {
+        switch rtcPeerConnectionState {
+        case .new:
+            self = .new
+        case .connecting:
+            self = .connecting
+        case .connected:
+            self = .connected
+        case .disconnected:
+            self = .disconnected
+        case .failed:
+            self = .failed
+        case .closed:
+            self = .closed
+            
+        @unknown default:
+            self = .down
+        }
+    }
 }

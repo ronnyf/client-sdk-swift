@@ -33,7 +33,7 @@ extension LiveKitSession {
 		let (videoPublishing, audioPublishing, audioTrackInfo, videoTrackInfo) = try await (videoPublishingResult, audioPublishingResult, audioTrackInfoResult, videoTrackInfoResult)
 		
 		await signalHub.negotiate()
-		let connectionState = signalHub.peerConnectionFactory.publishingPeerConnection.connectionState
+		let connectionState = signalHub.peerConnectionFactory.publishingPeerConnection.rtcPeerConnectionState
 		_ = try await connectionState.firstValue(timeout: 15, condition: { $0 == .connected })
 		
 		let videoTrackSids = [videoTrackInfo.trackSid]

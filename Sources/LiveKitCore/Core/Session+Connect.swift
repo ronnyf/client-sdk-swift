@@ -18,8 +18,13 @@ extension LiveKitSession {
 		guard let url = Utils.buildUrl(urlString, token, adaptiveStream: true) else {
 			throw Errors.url
 		}
-		
+        
+        //just to make sure
+        dispatchPrecondition(condition: .notOnQueue(.main))
+        
 		let messageChannel = MessageChannel(urlSessionConfiguration: urlSessionConfiguration)
+        connect(messageChannel.connectionState)
+        
 		let outgoingData = signalHub.outgoingDataRequests.stream()
 		
 		// the following we'd like to run in parallel as much as possible ...

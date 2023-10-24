@@ -10,27 +10,40 @@ import OSLog
 import Combine
 import AsyncAlgorithms
 
+
+public enum MessageChannelConnectionState: Sendable {
+    case disconnected
+    case connected
+    case reconnecting
+    case down
+}
+
 class MessageChannel: @unchecked Sendable {
-	let urlSession: URLSession
-	let coordinator: WebsocketTaskCoordinator
-	
-	var currentWebSocketTask: some Publisher<URLSessionWebSocketTask, Never> {
-		coordinator.$webSocketTask.publisher.compactMap { $0 }
-	}
-	
-	var currentWebSocketStream: AsyncStream<URLSessionWebSocketTask> {
-		currentWebSocketTask.stream()
-	}
-	
-	var bufferedMessages: AsyncThrowingFlatMapSequence<AsyncStream<URLSessionWebSocketTask>, AsyncBufferSequence<URLSessionWebSocketTaskReceiver>> {
-		currentWebSocketStream.flatMap {
-			$0.bufferedMessages(policy: .bufferingLatest(20))
-		}
-	}
-	
-	var messages: AsyncFlatMapSequence<AsyncStream<URLSessionWebSocketTask>, URLSessionWebSocketTaskReceiver> {
-		currentWebSocketStream.flatMap { $0.messages() }
-	}
+    var currentWebSocketTask: some Publisher<URLSessionWebSocketTask, Never> {
+        coordinator.$webSocketTask.publisher.compactMap { $0 }
+    }
+    
+    var currentWebSocketStream: AsyncStream<URLSessionWebSocketTask> {
+        currentWebSocketTask.stream()
+    }
+    
+    var bufferedMessages: AsyncThrowingFlatMapSequence<AsyncStream<URLSessionWebSocketTask>, AsyncBufferSequence<URLSessionWebSocketTaskReceiver>> {
+        currentWebSocketStream.flatMap {
+            $0.bufferedMessages(policy: .bufferingLatest(20))
+        }
+    }
+    
+    var messages: AsyncFlatMapSequence<AsyncStream<URLSessionWebSocketTask>, URLSessionWebSocketTaskReceiver> {
+        currentWebSocketStream.flatMap { $0.messages() }
+    }
+    
+    var connectionState: some Publisher<MessageChannelConnectionState, Never> {
+        coordinator.connectionState.eraseToAnyPublisher()
+    }
+    
+    
+    let urlSession: URLSession
+    let coordinator: WebsocketTaskCoordinator
 	
 	init(urlSessionConfiguration: URLSessionConfiguration = .liveKitDefault, coordinator: WebsocketTaskCoordinator = WebsocketTaskCoordinator()) {
 		self.urlSession = URLSession(configuration: urlSessionConfiguration, delegate: coordinator, delegateQueue: nil)
@@ -69,17 +82,17 @@ extension MessageChannel {
 		
 		@Publishing var webSocketTask: URLSessionWebSocketTask? = nil
 		let messageChannelLog = OSLog(subsystem: "MessageChannel", category: "LiveKitCore")
+        let connectionState: CurrentValueSubject<MessageChannelConnectionState, Never>
 		
-		#if DEBUG
-		override init() {
-			super.init()
-            Logger.plog(oslog: messageChannelLog, publicMessage: "WebsocketTaskCoordinator init")
-        }
-        
+    override init() {
+      self.connectionState = CurrentValueSubject(.disconnected)
+      super.init()
+      Logger.log(oslog: messageChannelLog, message: "WebsocketTaskCoordinator init")
+    }
+
 		deinit {
 			Logger.plog(oslog: messageChannelLog, publicMessage: "WebsocketTaskCoordinator deinit")
 		}
-		#endif
 		
 		func openSocket(_ webSocketTask: URLSessionWebSocketTask) {
 			webSocketTask.resume()
@@ -89,11 +102,13 @@ extension MessageChannel {
 		func teardown() {
 			Logger.plog(oslog: messageChannelLog, publicMessage: "tearddown WebsocketTaskCoordinator")
 			_webSocketTask.finish()
+            connectionState.send(.down)
 		}
 		
 		//Indicates that the WebSocket handshake was successful and the connection has been upgraded to webSockets.
 		func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
 			self.webSocketTask = webSocketTask
+            self.connectionState.send(.connected)
 			Logger.log(oslog: messageChannelLog, message: "socket opened \(webSocketTask)")
 		}
 		
@@ -112,6 +127,7 @@ extension MessageChannel {
 			}
 			#endif
 			webSocketTask = nil
+            connectionState.send(.disconnected)
 		}
 		
 		#if DEBUG
