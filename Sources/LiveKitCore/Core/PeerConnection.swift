@@ -97,7 +97,7 @@ actor PeerConnection {
 			rtcConfiguration.iceTransportPolicy = .relay
 		}
 		
-		Logger.log(oslog: coordinator.peerConnectionLog, message: "coordinator configure, as publisher: \(peerConnectionIsPublisher)")
+		Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "coordinator configure, as publisher: \(peerConnectionIsPublisher)")
 		
 		guard let rtcPeerConnection = factory().peerConnection(with: configuration(), constraints: mediaConstraints(), delegate: coordinator) else { throw Errors.createPeerConnection }
 		coordinator.peerConnectionState = rtcPeerConnection.connectionState
@@ -206,7 +206,7 @@ actor PeerConnection {
 	}
 	
 	func teardown() async {
-		Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) teardown")
+		Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) teardown")
 		
 		_offerTask?.cancel()
 		_offerTask = nil
