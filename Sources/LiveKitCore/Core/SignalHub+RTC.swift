@@ -18,7 +18,7 @@ extension SignalHub {
 	}
 	
 	func waitForConnectedState(_ timeout: TimeInterval = 10) async throws {
-		_ = try await peerConnectionFactory.publishingPeerConnection.connectionState.firstValue(timeout: timeout) { $0 == .connected }
+		_ = try await peerConnectionFactory.publishingPeerConnection.rtcPeerConnectionState.firstValue(timeout: timeout) { $0 == .connected }
 	}
 	
 	//MARK: - handling of incoming/outgoing messages/requests
