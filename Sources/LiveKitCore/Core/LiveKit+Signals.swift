@@ -25,7 +25,7 @@ extension PeerConnection {
 			case .didAddMediaStream(let mediaStream):
 				let liveKitStream = LiveKitStream(mediaStream)
 				signalHub.mediaStreams[liveKitStream.participantId] = liveKitStream
-				Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) did add media stream: \(liveKitStream)")
+				Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) did add media stream: \(liveKitStream)")
 				
 			case .didRemoveMediaStream(let mediaStream):
 				Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) is removing a media stream: \(mediaStream)")
@@ -33,14 +33,14 @@ extension PeerConnection {
 				signalHub.mediaStreams.removeValue(forKey: key)
 				
 			case .didAddMediaStreams(let mediaStreams, let receiver):
-				Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) did add media streams: \(mediaStreams) with \(receiver)")
+				Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) did add media streams: \(mediaStreams) with \(receiver)")
 				mediaStreams.grouped(by: \.participantId) { LiveKitStream($0) }.forEach { key, value in
 					signalHub.mediaStreams[key] = value
 				}
 				if let publicReceiver = Receiver(receiver: receiver) {
 					signalHub.receivers[receiver.receiverId] = publicReceiver
 				} else {
-					Logger.log(oslog: coordinator.peerConnectionLog, message: "no tracks in receiver \(receiver)")
+					Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "no tracks in receiver \(receiver)")
 				}
 				
 			case .didStartReceivingOn(let transceiver):
@@ -49,7 +49,7 @@ extension PeerConnection {
 					if let publicReceiver = Receiver(receiver: transceiver.receiver) {
 						signalHub.receivers[transceiver.receiver.receiverId] = publicReceiver
 					} else {
-						Logger.log(oslog: coordinator.peerConnectionLog, message: "no tracks in receiver \(transceiver.receiver)")
+						Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "no tracks in receiver \(transceiver.receiver)")
 					}
 				}
 				
@@ -70,7 +70,7 @@ extension PeerConnection {
 			}
 		}
 		
-		Logger.log(oslog: coordinator.peerConnectionLog, message: "handlePeerConnectionSignals() task ended")
+		Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "handlePeerConnectionSignals() task ended")
 	}
 	
 	func handleIncomingResponseMessage(_ message: Livekit_SignalResponse.OneOf_Message, signalHub: SignalHub) async throws -> Bool {
@@ -153,6 +153,9 @@ extension SignalHub {
 				case .active:
 					// merge all active participants (with or without tracks) into our dictionary of remote participants
 					participants.mergingGrouped(by: \.id, into: &remoteParticipants) { LiveKitParticipant($0) }
+					if let myId = localParticipant?.id, let me = remoteParticipants.removeValue(forKey: myId) {
+						localParticipant = me
+					}
 					
 				default:
 					// remove all partipants that were updated to non-active state from our dictionary of remote participants
