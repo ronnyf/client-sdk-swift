@@ -77,10 +77,10 @@ class MessageChannel: @unchecked Sendable {
 //MARK: - URLSessionWebSocketDelegate
 
 extension MessageChannel {
-	final class WebsocketTaskCoordinator: NSObject, URLSessionWebSocketDelegate, URLSessionDelegate, @unchecked Sendable {
-		
-		@Publishing var webSocketTask: URLSessionWebSocketTask? = nil
-		let messageChannelLog = OSLog(subsystem: "MessageChannel", category: "LiveKitCore")
+    final class WebsocketTaskCoordinator: NSObject, URLSessionWebSocketDelegate, URLSessionDelegate, @unchecked Sendable {
+        
+        @Publishing var webSocketTask: URLSessionWebSocketTask? = nil
+        let messageChannelLog = OSLog(subsystem: "MessageChannel", category: "LiveKitCore")
         let connectionState: CurrentValueSubject<MessageChannelConnectionState, Never>
 		
         override init() {
@@ -88,12 +88,10 @@ extension MessageChannel {
             super.init()
             Logger.plog(oslog: messageChannelLog, publicMessage: "WebsocketTaskCoordinator init")
         }
-        
-#if DEBUG
+
 		deinit {
 			Logger.plog(oslog: messageChannelLog, publicMessage: "WebsocketTaskCoordinator deinit")
 		}
-		#endif
 		
 		func openSocket(_ webSocketTask: URLSessionWebSocketTask) {
 			webSocketTask.resume()
@@ -104,6 +102,7 @@ extension MessageChannel {
 			Logger.plog(oslog: messageChannelLog, publicMessage: "tearddown WebsocketTaskCoordinator")
 			_webSocketTask.finish()
             connectionState.send(.down)
+            connectionState.send(completion: .finished)
 		}
 		
 		//Indicates that the WebSocket handshake was successful and the connection has been upgraded to webSockets.
