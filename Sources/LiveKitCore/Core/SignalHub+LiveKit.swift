@@ -71,14 +71,14 @@ extension SignalHub {
 		}
 	}
 	
-	func sendAddTrackRequest(_ request: Livekit_AddTrackRequest, timeout: TimeInterval = 10) async throws -> LiveKitTrackInfo {
+	func sendAddTrackRequest(_ request: Livekit_AddTrackRequest, timeout: TimeInterval = 15) async throws -> LiveKitTrackInfo {
 		let signalRequest = Livekit_SignalRequest.with {
 			$0.addTrack = request
 		}
 		try enqueue(request: signalRequest)
 		
 		//TODO: validate timeout in seconds
-		Logger.log(oslog: signalHubLog, message: "waiting for track published response for: \(request)")
+		Logger.plog(oslog: signalHubLog, publicMessage: "waiting for track published response for: \(request)")
 		
 		let trackPublisher: AnyPublisher<LiveKitTrackInfo, Never>
 		
@@ -96,11 +96,12 @@ extension SignalHub {
 		
 		do {
 			let response = try await trackPublisher.firstValue(timeout: timeout)
-			Logger.log(oslog: signalHubLog, message: "received track published response: \(response)")
+			Logger.plog(oslog: signalHubLog, publicMessage: "received track published response: \(response)")
 			return response
 		} catch {
-			print("STOP!")
-			fatalError()
+			//TODO: sometimes this fails ... I want to find out why this happens sometimes ... 
+			Logger.plog(level: .error, oslog: signalHubLog, publicMessage: "failed receive add track response: \(error)")
+			throw error
 		}
 	}
 	

@@ -12,52 +12,51 @@ import AsyncAlgorithms
 
 
 public enum MessageChannelConnectionState: Sendable {
-    case disconnected
-    case connected
-    case reconnecting
-    case down
+	case disconnected
+	case connected
+	case reconnecting
+	case down
 }
 
 class MessageChannel: @unchecked Sendable {
-    var currentWebSocketTask: some Publisher<URLSessionWebSocketTask, Never> {
-        coordinator.$webSocketTask.publisher.compactMap { $0 }
-    }
-    
-    var currentWebSocketStream: AsyncStream<URLSessionWebSocketTask> {
-        currentWebSocketTask.stream()
-    }
-    
-    var bufferedMessages: AsyncThrowingFlatMapSequence<AsyncStream<URLSessionWebSocketTask>, AsyncBufferSequence<URLSessionWebSocketTaskReceiver>> {
-        currentWebSocketStream.flatMap {
-            $0.bufferedMessages(policy: .bufferingLatest(20))
-        }
-    }
-    
-    var messages: AsyncFlatMapSequence<AsyncStream<URLSessionWebSocketTask>, URLSessionWebSocketTaskReceiver> {
-        currentWebSocketStream.flatMap { $0.messages() }
-    }
-    
-    var connectionState: some Publisher<MessageChannelConnectionState, Never> {
-        coordinator.connectionState.eraseToAnyPublisher()
-    }
-    
-    
-    let urlSession: URLSession
-    let coordinator: WebsocketTaskCoordinator
+	var currentWebSocketTask: some Publisher<URLSessionWebSocketTask, Never> {
+		coordinator.$webSocketTask.publisher.compactMap { $0 }
+	}
+	
+	var currentWebSocketStream: AsyncStream<URLSessionWebSocketTask> {
+		currentWebSocketTask.stream()
+	}
+	
+	var bufferedMessages: AsyncThrowingFlatMapSequence<AsyncStream<URLSessionWebSocketTask>, AsyncBufferSequence<URLSessionWebSocketTaskReceiver>> {
+		currentWebSocketStream.flatMap {
+			$0.bufferedMessages(policy: .bufferingLatest(50))
+		}
+	}
+	
+	var messages: AsyncFlatMapSequence<AsyncStream<URLSessionWebSocketTask>, URLSessionWebSocketTaskReceiver> {
+		currentWebSocketStream.flatMap { $0.messages() }
+	}
+	
+	var connectionState: some Publisher<MessageChannelConnectionState, Never> {
+		coordinator.connectionState.eraseToAnyPublisher()
+	}
+	
+	let urlSession: URLSession
+	let coordinator: WebsocketTaskCoordinator
 	
 	init(urlSessionConfiguration: URLSessionConfiguration = .liveKitDefault, coordinator: WebsocketTaskCoordinator = WebsocketTaskCoordinator()) {
 		self.urlSession = URLSession(configuration: urlSessionConfiguration, delegate: coordinator, delegateQueue: nil)
 		self.coordinator = coordinator
 	}
 	
-	#if DEBUG
+#if DEBUG
 	deinit {
-		Logger.log(oslog: coordinator.messageChannelLog, message: "deinit MessageChannel")
+		Logger.plog(oslog: coordinator.messageChannelLog, publicMessage: "deinit MessageChannel")
 	}
-	#endif
+#endif
 	
 	func teardown() {
-		Logger.log(oslog: coordinator.messageChannelLog, message: "teardown MessageChannel")
+		Logger.plog(oslog: coordinator.messageChannelLog, publicMessage: "teardown MessageChannel")
 		
 		urlSession.invalidateAndCancel()
 		coordinator.teardown()
@@ -82,17 +81,19 @@ extension MessageChannel {
 		
 		@Publishing var webSocketTask: URLSessionWebSocketTask? = nil
 		let messageChannelLog = OSLog(subsystem: "MessageChannel", category: "LiveKitCore")
-        let connectionState: CurrentValueSubject<MessageChannelConnectionState, Never>
+		let connectionState: CurrentValueSubject<MessageChannelConnectionState, Never>
 		
-    override init() {
-      self.connectionState = CurrentValueSubject(.disconnected)
-      super.init()
-      Logger.log(oslog: messageChannelLog, message: "WebsocketTaskCoordinator init")
-    }
-
+		override init() {
+			self.connectionState = CurrentValueSubject(.disconnected)
+			super.init()
+			Logger.plog(oslog: messageChannelLog, publicMessage: "WebsocketTaskCoordinator init")
+		}
+		
+#if DEBUG
 		deinit {
 			Logger.plog(oslog: messageChannelLog, publicMessage: "WebsocketTaskCoordinator deinit")
 		}
+#endif
 		
 		func openSocket(_ webSocketTask: URLSessionWebSocketTask) {
 			webSocketTask.resume()
@@ -102,45 +103,46 @@ extension MessageChannel {
 		func teardown() {
 			Logger.plog(oslog: messageChannelLog, publicMessage: "tearddown WebsocketTaskCoordinator")
 			_webSocketTask.finish()
-            connectionState.send(.down)
+			connectionState.send(.down)
+			connectionState.send(completion: .finished)
 		}
 		
 		//Indicates that the WebSocket handshake was successful and the connection has been upgraded to webSockets.
 		func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
 			self.webSocketTask = webSocketTask
-            self.connectionState.send(.connected)
-			Logger.log(oslog: messageChannelLog, message: "socket opened \(webSocketTask)")
+			self.connectionState.send(.connected)
+			Logger.plog(oslog: messageChannelLog, publicMessage: "socket opened \(webSocketTask)")
 		}
 		
 		//Indicates that the WebSocket has received a close frame from the server endpoint.
 		func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
 			webSocketTask.cancel(with: closeCode, reason: reason)
-			Logger.log(oslog: messageChannelLog, message: "socket did close \(webSocketTask)")
+			Logger.plog(oslog: messageChannelLog, publicMessage: "socket did close \(webSocketTask)")
 		}
 		
 		// Sent as the last message related to a specific task.  Error may be nil, which implies that no error occurred and this task is complete.
 		func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-			Logger.log(oslog: messageChannelLog, message: "socket did complete \(task)")
-			#if DEBUG
+			Logger.plog(oslog: messageChannelLog, publicMessage: "socket did complete \(task)")
+#if DEBUG
 			if let error {
-				Logger.log(level: .error, oslog: messageChannelLog, message: "\(error)")
+				Logger.plog(level: .error, oslog: messageChannelLog, publicMessage: "\(error)")
 			}
-			#endif
+#endif
 			webSocketTask = nil
-            connectionState.send(.disconnected)
+			connectionState.send(.disconnected)
 		}
 		
-		#if DEBUG
-		func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
-			if let trust = challenge.protectionSpace.serverTrust {
-				let cred = URLCredential(trust: trust)
-				Logger.log(oslog: messageChannelLog, message: "override https certificate acceptance")
-				return (.useCredential, cred)
-			}
-			
-			return (.rejectProtectionSpace, nil)
-		}
-		#endif
+		//		#if DEBUG
+		//		func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
+		//			if let trust = challenge.protectionSpace.serverTrust {
+		//				let cred = URLCredential(trust: trust)
+		//				Logger.log(oslog: messageChannelLog, message: "override https certificate acceptance")
+		//				return (.useCredential, cred)
+		//			}
+		//
+		//			return (.rejectProtectionSpace, nil)
+		//		}
+		//		#endif
 	}
 }
 

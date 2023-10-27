@@ -21,7 +21,7 @@ extension PeerConnection {
 			update(offerInProgress: false)
 		}
 		
-		Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) offering machine >>> start")
+		Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) offering machine >>> start")
 		
 		let offerTask = Task {
 			let signalingStates = signalingState.stream()
@@ -46,7 +46,7 @@ extension PeerConnection {
 					
 				case (.haveLocalOffer, _, _):
 					// wait for remote answer
-					Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) is waiting for an answer")
+					Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) is waiting for an answer")
 					// trickle requests should be coming in
 					continue
 					
@@ -58,19 +58,19 @@ extension PeerConnection {
 					break
 					
 				default:
-					Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) received an unhandled (yet) signalingState: \(signalingState.debugDescription)")
+					Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) received an unhandled (yet) signalingState: \(signalingState.debugDescription)")
 					continue
 				}
 				
 				break
 			}
-			Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) offering machine <<< end")
+			Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) offering machine <<< end")
 		}
 		update(offerTask: offerTask)
 	}
 	
 	func sendInitialOffer() async throws -> Livekit_SessionDescription {
-		Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) sending initial offer")
+		Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) sending initial offer")
 		let constraints = RTCMediaConstraints(mandatoryConstraints: nil, optionalConstraints: nil)
 		let offer = try await offerDescription(with: constraints)
 		let sdp = try await update(localDescription: offer)
