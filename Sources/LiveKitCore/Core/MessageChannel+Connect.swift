@@ -21,6 +21,8 @@ extension MessageChannel {
 		
 		Logger.log(oslog: coordinator.messageChannelLog, message: "connecting to: \(urlRequest)")
 		
+		Logger.log(oslog: coordinator.messageChannelLog, message: "connecting to: \(urlRequest)")
+		
 		try await withThrowingTaskGroup(of: Void.self) { [coordinator] group in
 			group.addTask {
 				for await (webSocketTask, message) in combineLatest(openWebSocketTasks, outgoingMessages) {
