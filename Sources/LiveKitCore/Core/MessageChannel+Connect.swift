@@ -17,14 +17,13 @@ extension MessageChannel {
 	) async throws {
 		let openWebSocketTasks = coordinator.$webSocketTask.publisher.compactMap{ $0 }.stream()
 		let outgoingMessages = outgoingDataStream.map { URLSessionWebSocketTask.Message.data($0) }
-		let bufferedOutgoingMessages = AsyncBufferSequence(base: outgoingMessages, policy: .bounded(20))
-		// this should create sufficient demand on the publisher --------^
+		// --------^ this should create sufficient demand on the publisher
 		
 		Logger.log(oslog: coordinator.messageChannelLog, message: "connecting to: \(urlRequest)")
 		
 		try await withThrowingTaskGroup(of: Void.self) { [coordinator] group in
 			group.addTask {
-				for await (webSocketTask, message) in combineLatest(openWebSocketTasks, bufferedOutgoingMessages) {
+				for await (webSocketTask, message) in combineLatest(openWebSocketTasks, outgoingMessages) {
 					try await webSocketTask.send(message)
 				}
 			}
