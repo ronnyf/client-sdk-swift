@@ -27,7 +27,7 @@ extension PeerConnection {
 		}
 		
 		let peerConnectionLog = OSLog(subsystem: "PeerConnection", category: "LiveKitCore")
-				
+		
 		deinit {
 #if DEBUG
 			Logger.plog(oslog: peerConnectionLog, publicMessage: "coordinator deinit")

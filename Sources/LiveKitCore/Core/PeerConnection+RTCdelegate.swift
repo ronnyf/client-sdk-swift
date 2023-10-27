@@ -96,7 +96,7 @@ extension PeerConnection.DataChannelLabel: RawRepresentable {
 			self = .undefined(rawValue)
 		}
 	}
-
+	
 	var dataPacketKind: Livekit_DataPacket.Kind {
 		switch self {
 		case .reliable:

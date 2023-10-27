@@ -10,7 +10,7 @@ import Combine
 import OSLog
 @_implementationOnly import WebRTC
 
-extension PeerConnection {	
+extension PeerConnection {
 	// called from session (in task group), injecting the signalhub property so we can collect the signals as needed
 	func handlePeerConnectionSignals(with signalHub: SignalHub) async throws {
 		for await rtcSignal in signals.stream() {
@@ -28,7 +28,7 @@ extension PeerConnection {
 				Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) did add media stream: \(liveKitStream)")
 				
 			case .didRemoveMediaStream(let mediaStream):
-				Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) is removing a media stream: \(mediaStream)")
+				Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) is removing a media stream: \(mediaStream)")
 				let key = String(mediaStream.participantId)
 				signalHub.mediaStreams.removeValue(forKey: key)
 				
@@ -44,7 +44,7 @@ extension PeerConnection {
 				}
 				
 			case .didStartReceivingOn(let transceiver):
-				Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) did start receiving on: \(transceiver)")
+				Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) did start receiving on: \(transceiver)")
 				if signalHub.receivers[transceiver.receiver.receiverId] == nil {
 					if let publicReceiver = Receiver(receiver: transceiver.receiver) {
 						signalHub.receivers[transceiver.receiver.receiverId] = publicReceiver
@@ -54,7 +54,7 @@ extension PeerConnection {
 				}
 				
 			case .didRemoveRtpReceiver(let receiver):
-				Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) did remove: \(receiver)")
+				Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) did remove: \(receiver)")
 				signalHub.receivers.removeValue(forKey: receiver.receiverId)
 				continue
 				
@@ -85,6 +85,8 @@ extension PeerConnection {
 			
 			if joinResponse.subscriberPrimary == false {
 				offeringMachine(signalHub: signalHub)
+			} else {
+				Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "subscriber is primary ... waiting for offer")
 			}
 			
 			signalHub.localParticipant = LiveKitParticipant(joinResponse.participant)
@@ -97,21 +99,26 @@ extension PeerConnection {
 			return true
 			
 		case .trickle(let response) where response.target == .publisher && peerConnectionIsPublisher == true:
+			//            Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) publicher received trickle: \(response)")
 			try await add(candidateInit: response.candidateInit)
 			return true
 			
 		case .trickle(let response) where response.target == .subscriber && peerConnectionIsPublisher == false:
+			//            Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) subscriber received trickle: \(response)")
 			try await add(candidateInit: response.candidateInit)
 			return true
 			
+		case .trickle(_):
+			return false
+			
 		case .answer(let answer) where peerConnectionIsPublisher == true:
-//			Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) received answer: \(answer)")
+			Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) received answer: \(answer)")
 			try await update(remoteDescription: answer)
 			return true
 			
 			// offers that come in via websocket are for the subscribing pc only
 		case .offer(let offer) where peerConnectionIsPublisher == false:
-//			Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) received offer: \(offer)")
+			Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) received offer: \(offer)")
 			
 			try await update(remoteDescription: offer)
 			let answer = try await answerDescription()
@@ -127,8 +134,11 @@ extension PeerConnection {
 			}
 			return true
 			
+		case .offer(_):
+			return false
+			
 		default:
-//			Logger.log(oslog: coordinator.peerConnectionLog, message: "\(self.description) unhandled message: \(message)")
+			Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) unhandled message: \(message)")
 			return false
 		}
 	}
@@ -142,9 +152,9 @@ extension SignalHub {
 		
 		// handling (some cases of) response messages that arrive via livekit socket
 		switch responseMessage {
-		/// sent when participants in the room has changed
+			/// sent when participants in the room has changed
 		case .update(let participantUpdate):
-			Logger.log(oslog: signalHubLog, message: "participant update: \(participantUpdate)")
+			Logger.plog(oslog: signalHubLog, publicMessage: "participant update: \(participantUpdate)")
 			
 			let groupedParticipants = Dictionary(grouping: participantUpdate.participants) { $0.state }
 			
@@ -167,10 +177,12 @@ extension SignalHub {
 			return true
 			
 		case .trackPublished(let update) where update.track.type == .audio :
+			Logger.plog(oslog: signalHubLog, publicMessage: "audio track published: \(update)")
 			audioTracks[update.cid] = LiveKitTrackInfo(update)
 			return true
 			
 		case .trackPublished(let update) where update.track.type == .video :
+			Logger.plog(oslog: signalHubLog, publicMessage: "video track published: \(update)")
 			videoTracks[update.cid] = LiveKitTrackInfo(update)
 			return true
 			
@@ -185,47 +197,52 @@ extension SignalHub {
 			return true
 			
 		case .leave(let request):
-			Logger.log(oslog: signalHubLog, message: "leave request: \(request)")
+			Logger.plog(oslog: signalHubLog, publicMessage: "leave request: \(request)")
 			//TODO: reconnect?
 			return true
 			
 		case .refreshToken(let token):
-			Logger.log(oslog: signalHubLog, message: "refreshToken update: \(token)")
+			Logger.plog(oslog: signalHubLog, publicMessage: "refreshToken update: \(token)")
 			return true
 			
 		case .connectionQuality(let update):
-			Logger.log(oslog: signalHubLog, message: "connection quality update: \(update)")
+			Logger.plog(oslog: signalHubLog, publicMessage: "connection quality update: \(update)")
 			connectionQuality = update.livekitQualities
 			return true
 			
 		case .subscribedQualityUpdate(let update):
-			Logger.log(oslog: signalHubLog, message: "subscribed quality update: \(update)")
+			Logger.plog(oslog: signalHubLog, publicMessage: "subscribed quality update: \(update)")
 			return true
 			
-		case .pong(_):
-			Logger.log(oslog: signalHubLog, message: "messages: pong")
+		case .pong(let timestamp):
+			Logger.plog(oslog: signalHubLog, publicMessage: "messages: pong: \(timestamp)")
 			return true
+			
+		case .pongResp(let pong):
+			Logger.plog(oslog: signalHubLog, publicMessage: "messages: pongResp: \(pong)")
+			return true
+			
 			
 		case .streamStateUpdate(let update):
-			Logger.log(oslog: signalHubLog, message: "stream state update: \(update)")
+			Logger.plog(oslog: signalHubLog, publicMessage: "stream state update: \(update)")
 			
-			let streamStateInfos = update.streamStates
-			for streamStateInfo in streamStateInfos {
-				//TODO:
-			}
+			//			let streamStateInfos = update.streamStates
+			//			for streamStateInfo in streamStateInfos {
+			//				//TODO:
+			//			}
 			
 			return true
 			
 		case .subscriptionPermissionUpdate(let update):
-			Logger.log(oslog: signalHubLog, message: "subscriptionPermission update: \(update)")
+			Logger.plog(oslog: signalHubLog, publicMessage: "subscriptionPermission update: \(update)")
 			return true
 			
 		case .speakersChanged(let update):
-			Logger.log(oslog: signalHubLog, message: "speakersChanged update: \(update)")
+			Logger.plog(oslog: signalHubLog, publicMessage: "speakersChanged update: \(update)")
 			return true
 			
 		case .roomUpdate(let update):
-			Logger.log(oslog: signalHubLog, message: "roomUpdate update: \(update)")
+			Logger.plog(oslog: signalHubLog, publicMessage: "roomUpdate update: \(update)")
 			// TODO: participants and max participants can be found here
 			return true
 			

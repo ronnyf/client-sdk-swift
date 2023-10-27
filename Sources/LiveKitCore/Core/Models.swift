@@ -78,19 +78,19 @@ extension RTCRtpTransceiverInit {
 }
 
 extension RTCRtpEncodingParameters {
-
+	
 	var __description: String {
 		"RTCRtpEncodingParameters(rid: \(rid ?? "nil"), "
-			+ "active: \(isActive), "
-			+ "scaleResolutionDownBy: \(String(describing: scaleResolutionDownBy)), "
-			+ "minBitrateBps: \(minBitrateBps == nil ? "nil" : String(describing: minBitrateBps)), "
-			+ "maxBitrateBps: \(maxBitrateBps == nil ? "nil" : String(describing: maxBitrateBps)), "
-			+ "maxFramerate: \(maxFramerate == nil ? "nil" : String(describing: maxFramerate)))"
+		+ "active: \(isActive), "
+		+ "scaleResolutionDownBy: \(String(describing: scaleResolutionDownBy)), "
+		+ "minBitrateBps: \(minBitrateBps == nil ? "nil" : String(describing: minBitrateBps)), "
+		+ "maxBitrateBps: \(maxBitrateBps == nil ? "nil" : String(describing: maxBitrateBps)), "
+		+ "maxFramerate: \(maxFramerate == nil ? "nil" : String(describing: maxFramerate)))"
 	}
 }
 
 extension RTCDataChannelState {
-
+	
 	var _description: String {
 		switch self {
 		case .connecting: return ".connecting"
@@ -372,7 +372,7 @@ extension Livekit_SessionDescription {
 		self.sdp = sd.sdp
 		self.type = RTCSessionDescription.string(for: sd.type)
 	}
-
+	
 	init?(_ sd: RTCSessionDescription?) {
 		guard let sd else { return nil }
 		self.init(sd)
