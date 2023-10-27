@@ -97,7 +97,7 @@ extension Publisher {
 	public func firstValue() async throws -> Self.Output where Failure == Never, Self.Output: Sendable {
 		guard let value = await values.first(where: { _ in true }) else { throw NoValueError() }
 		return value
-	}	
+	}
 	
 	public func firstValue(timeout: TimeInterval) async throws -> Self.Output where Failure == Never, Self.Output: Sendable {
 		let pub = self.setFailureType(to: TimeoutError.self)
@@ -111,13 +111,13 @@ extension Publisher {
 	public func firstValue(condition: (@Sendable (Self.Output) async throws -> Bool)) async throws -> Self.Output where Failure == Never, Self.Output: Sendable {
 		guard let value = try await values.first(where: condition) else { throw NoValueError() }
 		return value
-	}	
+	}
 	
 	public func firstValue(timeout: TimeInterval, condition: (@Sendable (Self.Output) async throws -> Bool)) async throws -> Self.Output where Self.Output: Sendable {
 		let pub = self.timeout(.seconds(timeout), scheduler: DispatchQueue.global(qos: .background))
 		guard let value = try await pub.values.first(where: condition) else { throw TimeoutError() }
 		return value
-	}	
+	}
 	
 	public func firstValue(timeout: TimeInterval, condition: (@Sendable (Self.Output) async throws -> Bool)) async throws -> Self.Output where Failure == Never, Self.Output: Sendable {
 		let pub = self.setFailureType(to: TimeoutError.self)
@@ -339,7 +339,7 @@ final class DispatchQueueSerialExecutor: SerialExecutor, Sendable {
 	public init(dispatchQueue: DispatchQueue = DispatchQueue(label: "DispatchQueueSerialExecutor-Q")) {
 		self.dispatchQueue = dispatchQueue
 	}
-
+	
 	public func asUnownedSerialExecutor() -> UnownedSerialExecutor {
 		UnownedSerialExecutor(ordinary: self)
 	}
@@ -365,7 +365,7 @@ final class LegacyDispatchQueueSerialExecutor: SerialExecutor, Sendable {
 			job.runSynchronously(on: UnownedSerialExecutor(ordinary: self))
 		}
 	}
-
+	
 	public func asUnownedSerialExecutor() -> UnownedSerialExecutor {
 		UnownedSerialExecutor(ordinary: self)
 	}

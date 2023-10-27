@@ -107,7 +107,7 @@ public struct LiveKitStream: Sendable {
 	
 	public var videoTracks: [MediaTrack]
 	public var audioTracks: [MediaTrack]
-//	public let dataTracks: [LiveKitTrackInfo.LiveKitTrack] //not supported(yet)
+	//	public let dataTracks: [LiveKitTrackInfo.LiveKitTrack] //not supported(yet)
 	
 	public init<S: Sequence>(participantId: String, videoTracks: S, audioTracks: S) where S.Element == MediaTrack {
 		self.participantId = participantId
@@ -336,7 +336,7 @@ extension LiveKitQuality {
 			
 		case .excellent:
 			self = .excellent
-		
+			
 		case .UNRECOGNIZED(let value):
 			self = .value(value)
 		}
@@ -686,12 +686,12 @@ public struct LiveKitTrackInfo: Sendable {
 
 @MainActor
 public final class Receiver: @unchecked Sendable, Identifiable {
-		
+	
 	public let mediaStreamTrack: MediaStreamTrack
 	public let id: String
 	
 	let receiver: RTCRtpReceiver
-		
+	
 	nonisolated init?(receiver: RTCRtpReceiver) {
 		guard let track = receiver.track else { return nil }
 		self.id = receiver.receiverId

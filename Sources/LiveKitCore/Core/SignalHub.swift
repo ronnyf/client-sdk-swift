@@ -46,7 +46,7 @@ open class SignalHub: @unchecked Sendable {
 	@Publishing public var connectionQuality: [String: LiveKitConnectionQuality] = [:]
 	@Publishing public var mediaStreams: [String: LiveKitStream] = [:]
 	@Publishing public var receivers: [String: Receiver] = [:]
-    
+	
 	//MARK: - tokens
 	let tokenUpdatesSubject = PassthroughSubject<String, Never>()
 	
@@ -106,7 +106,7 @@ open class SignalHub: @unchecked Sendable {
 		_mediaStreams.finish()
 		receivers.removeAll()
 		_receivers.finish()
-
+		
 		tokenUpdatesSubject.send(completion: .finished)
 		subscriptionQualityUpdates = nil
 		_subscriptionQualityUpdates.finish()
@@ -129,7 +129,7 @@ open class SignalHub: @unchecked Sendable {
 		do {
 			let data = try request.serializedData()
 			outgoingDataRequests.send(data)
-//			Logger.log(oslog: signalHubLog, message: "enqueue request: \(String(describing: request.message))")
+			//			Logger.log(oslog: signalHubLog, message: "enqueue request: \(String(describing: request.message))")
 		} catch {
 			Logger.log(level: .error, oslog: signalHubLog, message: "MessageChannel: enqueue ERROR: \(error)")
 		}

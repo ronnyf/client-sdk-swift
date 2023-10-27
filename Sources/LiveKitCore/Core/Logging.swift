@@ -12,23 +12,23 @@ import OSLog
 
 public enum Logger {
 	
-    public static func log(
-        level: OSLogType = .info,
-        oslog: OSLog,
-        line: UInt = #line,
-        file: StaticString = #file,
-        message: @autoclosure () -> String
-    ) {
-        os_log(level, log: oslog, "%s [%s:%s]", message(), file.description, line.description)
-    }	
-    
-    public static func plog(
+	public static func log(
+		level: OSLogType = .info,
+		oslog: OSLog,
+		line: UInt = #line,
+		file: StaticString = #file,
+		message: @autoclosure () -> String
+	) {
+		os_log(level, log: oslog, "%s [%s:%s]", message(), file.description, line.description)
+	}	
+	
+	public static func plog(
 		level: OSLogType = .info,
 		oslog: OSLog,
 		line: UInt = #line,
 		publicMessage: String
 	) {
-        os_log(level, log: oslog, "\(publicMessage, privacy: .public) [\(line.description, privacy: .public)]")
+		os_log(level, log: oslog, "\(publicMessage, privacy: .public) [\(line.description, privacy: .public)]")
 	}
 }
 
