@@ -89,7 +89,7 @@ extension SignalHub {
 			trackPublisher = $audioTracks.publisher.compactMap { $0[request.cid] }.eraseToAnyPublisher()
 		case .data:
 			trackPublisher = $dataTracks.publisher.compactMap { $0[request.cid] }.eraseToAnyPublisher()
-		
+			
 		case .UNRECOGNIZED(_):
 			trackPublisher = Empty<LiveKitTrackInfo, Never>().eraseToAnyPublisher()
 		}

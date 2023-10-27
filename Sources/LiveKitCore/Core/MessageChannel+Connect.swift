@@ -20,6 +20,8 @@ extension MessageChannel {
 		let bufferedOutgoingMessages = AsyncBufferSequence(base: outgoingMessages, policy: .bounded(20))
 		// this should create sufficient demand on the publisher --------^
 		
+		Logger.log(oslog: coordinator.messageChannelLog, message: "connecting to: \(urlRequest)")
+		
 		try await withThrowingTaskGroup(of: Void.self) { [coordinator] group in
 			group.addTask {
 				for await (webSocketTask, message) in combineLatest(openWebSocketTasks, bufferedOutgoingMessages) {
@@ -45,7 +47,7 @@ extension MessageChannel {
 					webSocketTask.resume()
 				}
 			}
-		
+			
 			try await group.cancelOnFirstCompletion()
 			Logger.plog(oslog: coordinator.messageChannelLog, publicMessage: "WebSocketTask factory is down!")
 		}

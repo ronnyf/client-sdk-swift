@@ -24,16 +24,16 @@ class PeerConnectionFactory: @unchecked Sendable {
 			let encoderFactory = VideoEncoderFactory()
 			let decoderFactory = VideoDecoderFactory()
 			
-	#if LK_USE_CUSTOM_WEBRTC_BUILD
+#if LK_USE_CUSTOM_WEBRTC_BUILD
 			let audioProcessingModule = RTCDefaultAudioProcessingModule()
 			let pcf = RTCPeerConnectionFactory(bypassVoiceProcessing: false,
 											   encoderFactory: encoderFactory,
 											   decoderFactory: decoderFactory,
 											   audioProcessingModule: audioProcessingModule)
-	#else
+#else
 			let pcf = RTCPeerConnectionFactory(encoderFactory: encoderFactory,
 											   decoderFactory: decoderFactory)
-	#endif
+#endif
 			return pcf
 		}()
 		

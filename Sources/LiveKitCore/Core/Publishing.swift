@@ -38,7 +38,7 @@ public struct Publishing<Value> {
 	}
 	
 	public let subject: CurrentValueSubject<Value, Never>
-
+	
 	public init(wrappedValue value: Value) {
 		self.subject = CurrentValueSubject(value)
 	}
