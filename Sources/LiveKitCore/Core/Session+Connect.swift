@@ -18,13 +18,13 @@ extension LiveKitSession {
 		guard let url = Utils.buildUrl(urlString, token, adaptiveStream: true) else {
 			throw Errors.url
 		}
-        
-        //just to make sure
-        dispatchPrecondition(condition: .notOnQueue(.main))
-        
+		
+		//just to make sure
+		dispatchPrecondition(condition: .notOnQueue(.main))
+		
 		let messageChannel = MessageChannel(urlSessionConfiguration: urlSessionConfiguration)
-        connect(messageChannel.connectionState)
-        
+		connect(messageChannel.connectionState)
+		
 		let outgoingData = signalHub.outgoingDataRequests.stream()
 		
 		// the following we'd like to run in parallel as much as possible ...
@@ -46,15 +46,14 @@ extension LiveKitSession {
 				}
 			}
 			
-			let messages = messageChannel.messages.compactMap {
+			let messages = messageChannel.bufferedMessages.compactMap {
 				try? Livekit_SignalResponse.OneOf_Message(message: $0)
 			}
 			
-			let bufferedMessages = AsyncBufferSequence(base: messages, policy: .bufferingLatest(10))
-			
 			messageChannelGroup.addTask { [signalHub] in
 				// setup incoming (from livekit) signals sequence
-				for try await message in bufferedMessages  {
+				for try await message in messages  {
+					Logger.plog(oslog: messageChannel.coordinator.messageChannelLog, publicMessage: "incoming message: \(message)")
 					try await signalHub.handle(responseMessage: message)
 				}
 			}

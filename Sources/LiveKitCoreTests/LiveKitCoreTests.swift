@@ -73,7 +73,7 @@ final class LiveKitCoreTests: XCTestCase {
 	}
 	
 	func test_SerialExecutor() async throws {
-		let q = DispatchSerialQueue(label: "TestQ")
+		let q = DispatchQueue(label: "TestQ")
 		let a = TestActor(dispatchQueue: q)
 		await withTaskGroup(of: Void.self) { group in
 			for _ in (0..<100) {
@@ -113,12 +113,12 @@ final class LiveKitCoreTests: XCTestCase {
 }
 
 actor TestActor {
-	let dispatchQueue: DispatchSerialQueue
+	let dispatchQueue: DispatchQueue
 	nonisolated var unownedExecutor: UnownedSerialExecutor {
 		dispatchQueue.asUnownedSerialExecutor()
 	}
 	
-	init(dispatchQueue: DispatchSerialQueue) {
+	init(dispatchQueue: DispatchQueue) {
 		self.dispatchQueue = dispatchQueue
 	}
 	
