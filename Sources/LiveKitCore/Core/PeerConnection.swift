@@ -39,16 +39,20 @@ actor PeerConnection {
 		coordinator.$signalingState.publisher.compactMap { $0 }
 	}
 	
-	nonisolated public var connectionState: some Publisher<PeerConnectionState, Never> {
-		rtcPeerConnectionState.map { PeerConnectionState($0) }
+	nonisolated public var connectionState: PeerConnectionState {
+		PeerConnectionState(coordinator.peerConnectionState)
 	}
 	
-	nonisolated var rtcPeerConnectionState: some Publisher<RTCPeerConnectionState, Never> {
-		coordinator.$peerConnectionState.publisher.compactMap { $0 }
+	nonisolated public var connectionStatePublisher: some Publisher<PeerConnectionState, Never> {
+		rtcPeerConnectionStatePublisher.map { PeerConnectionState($0) }
 	}
 	
-	nonisolated var iceConnectionState: some Publisher<RTCIceConnectionState, Never> {
-		coordinator.$iceConnectionState.publisher.compactMap { $0 }
+	nonisolated var rtcPeerConnectionStatePublisher: some Publisher<RTCPeerConnectionState, Never> {
+		coordinator.$peerConnectionState.publisher
+	}
+	
+	nonisolated var iceConnectionStatePublisher: some Publisher<RTCIceConnectionState, Never> {
+		coordinator.$iceConnectionState.publisher
 	}
 	
 	nonisolated var signals: some Publisher<PeerConnection.RTCSignal, Never> {
@@ -114,15 +118,19 @@ actor PeerConnection {
 	func configureDataChannels() async throws {
 		guard peerConnectionIsPublisher == true, let rtcPeerConnection else { return }
 		
-		coordinator.rtcDataChannelReliable = rtcPeerConnection.dataChannel(
+		let reliable = rtcPeerConnection.dataChannel(
 			forLabel: PeerConnection.DataChannelLabel.reliable.rawValue,
 			configuration: RTCDataChannelConfiguration.createDataChannelConfiguration(maxRetransmits: -1)
 		)
+		reliable?.delegate = coordinator
+		coordinator.rtcDataChannelReliable = reliable
 		
-		coordinator.rtcDataChannelLossy = rtcPeerConnection.dataChannel(
+		let lossy = rtcPeerConnection.dataChannel(
 			forLabel: PeerConnection.DataChannelLabel.lossy.rawValue,
 			configuration: RTCDataChannelConfiguration.createDataChannelConfiguration(maxRetransmits: 0)
 		)
+		lossy?.delegate = coordinator
+		coordinator.rtcDataChannelLossy = lossy
 	}
 	
 	struct VideoPublishItems {
@@ -225,6 +233,15 @@ actor PeerConnection {
 }
 
 extension PeerConnection {
+	
+	func negotiate(condition: @Sendable (PeerConnectionState) -> (Bool, SignalHub)) async throws {
+		let (shouldNegotiate, signalHub) = condition(connectionState)
+		if shouldNegotiate == true {
+			offeringMachine(signalHub: signalHub)
+			let _ = try await rtcPeerConnectionStatePublisher.map { PeerConnectionState($0) }.firstValue(timeout: 15)
+		}
+	}
+	
 	//FIXME: call this from somewhere?
 	//TODO: fixme?
 	func closeDataChannels() {
@@ -259,14 +276,16 @@ extension PeerConnection {
 	
 	func send(_ data: Data, preferred label: DataChannelLabel = .lossy) throws {
 		let buffer = RTCDataBuffer(data: data, isBinary: true)
+		precondition(coordinator.peerConnectionState == .connected)
 		switch label {
 		case .lossy:
-			fatalError()
-			//			lossyChannel.value?.sendData(buffer)
+			let channel = coordinator.rtcDataChannelLossy ?? coordinator.rtcDataChannelReliable
+			let result = channel?.sendData(buffer)
+			print("DEBUG: result: \(result)")
 			
 		case .reliable:
-			fatalError()
-			//			reliableChannel.value?.sendData(buffer)
+			let channel = coordinator.rtcDataChannelReliable ?? coordinator.rtcDataChannelLossy
+			channel?.sendData(buffer)
 			
 		case .undefined:
 			throw Errors.noDataChannel
@@ -280,7 +299,7 @@ extension PeerConnection: CustomStringConvertible {
 	}
 }
 
-public enum PeerConnectionState {
+public enum PeerConnectionState: Sendable {
 	case new
 	case connecting
 	case connected
