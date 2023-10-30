@@ -13,10 +13,10 @@ import OSLog
 extension PeerConnection {
 	
 	final class Coordinator: NSObject, RTCPeerConnectionDelegate, @unchecked Sendable {
-		@Publishing var peerConnectionState: RTCPeerConnectionState? = nil
+		@Publishing var peerConnectionState: RTCPeerConnectionState = .new
 		@Publishing var signalingState: RTCSignalingState? = nil
-		@Publishing var iceConnectionState: RTCIceConnectionState? = nil
-		@Publishing var iceGatheringState: RTCIceGatheringState? = nil
+		@Publishing var iceConnectionState: RTCIceConnectionState = .new
+		@Publishing var iceGatheringState: RTCIceGatheringState = .new
 		
 		@Publishing var rtcDataChannelReliable: RTCDataChannel? = nil
 		@Publishing var rtcDataChannelLossy: RTCDataChannel? = nil

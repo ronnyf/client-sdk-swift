@@ -58,6 +58,18 @@ extension LiveKitSession {
 				}
 			}
 			
+			let outgoingDataPackets = signalHub.outgoingDataPackets.stream()
+			messageChannelGroup.addTask { [signalHub] in
+				for await dataPacket in outgoingDataPackets {
+					try? await publishingPeerConnection.negotiate {
+						let newState = $0 == .new
+						return (newState, signalHub)
+					}
+					Logger.plog(oslog: messageChannel.coordinator.messageChannelLog, publicMessage: "outgoing data packet: \(dataPacket)")
+					try? await publishingPeerConnection.send(dataPacket: dataPacket, preferred: .lossy)
+				}
+			}
+			
 			try await messageChannelGroup.cancelOnFirstCompletion()
 		}
 		Logger.plog(oslog: sessionLog, publicMessage: "session is disconnecting")
