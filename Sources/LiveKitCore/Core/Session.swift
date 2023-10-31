@@ -34,9 +34,9 @@ open class LiveKitSession: @unchecked Sendable {
 		case url
 	}
 	
-    // TODO: rename?
-    @Publishing public var liveKitConnectionState: MessageChannelConnectionState = .disconnected
-    
+	// TODO: rename?
+	@Publishing public var liveKitConnectionState: MessageChannelConnectionState = .disconnected
+	
 	public let id: String
 	public let signalHub: SignalHub
 	let sessionLog = OSLog(subsystem: "LiveKitSession", category: "LiveKitCore")
@@ -54,10 +54,10 @@ open class LiveKitSession: @unchecked Sendable {
 		print("DEBUG: deinit <Session id: \(id)>")
 	}
 #endif
-    
-    func connect<P: Publisher>(_ connectionStatePublisher: P) where P.Output == MessageChannelConnectionState, P.Failure == Never {
-        connectionStatePublisher.assign(to: &_liveKitConnectionState)
-    }
+	
+	func connect<P: Publisher>(_ connectionStatePublisher: P) where P.Output == MessageChannelConnectionState, P.Failure == Never {
+		connectionStatePublisher.assign(to: &_liveKitConnectionState)
+	}
 	
 	public var localParticipantPublisher: some Publisher<LiveKitParticipant, Never> {
 		signalHub.$localParticipant.publisher.compactMap{ $0 }

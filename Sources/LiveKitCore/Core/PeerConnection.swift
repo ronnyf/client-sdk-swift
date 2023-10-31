@@ -39,10 +39,10 @@ actor PeerConnection {
 		coordinator.$signalingState.publisher.compactMap { $0 }
 	}
 	
-    nonisolated public var connectionState: some Publisher<PeerConnectionState, Never> {
-        rtcPeerConnectionState.map { PeerConnectionState($0) }
-    }
-    
+	nonisolated public var connectionState: some Publisher<PeerConnectionState, Never> {
+		rtcPeerConnectionState.map { PeerConnectionState($0) }
+	}
+	
 	nonisolated var rtcPeerConnectionState: some Publisher<RTCPeerConnectionState, Never> {
 		coordinator.$peerConnectionState.publisher.compactMap { $0 }
 	}
@@ -118,7 +118,7 @@ actor PeerConnection {
 			forLabel: PeerConnection.DataChannelLabel.reliable.rawValue,
 			configuration: RTCDataChannelConfiguration.createDataChannelConfiguration(maxRetransmits: -1)
 		)
-			
+		
 		coordinator.rtcDataChannelLossy = rtcPeerConnection.dataChannel(
 			forLabel: PeerConnection.DataChannelLabel.lossy.rawValue,
 			configuration: RTCDataChannelConfiguration.createDataChannelConfiguration(maxRetransmits: 0)
@@ -130,7 +130,7 @@ actor PeerConnection {
 		let track: RTCVideoTrack
 		let source: RTCVideoSource
 	}
-
+	
 	struct AudioPublishItems {
 		var transceiver: RTCRtpTransceiver?
 		let track: RTCAudioTrack
@@ -159,11 +159,11 @@ actor PeerConnection {
 	
 	func audioTransceiver(audioPublication: Publication, enabled: Bool = false) async throws -> AudioPublishItems {
 		dispatchPrecondition(condition: .onQueue(dispatchQueue))
-
+		
 		guard let rtcPeerConnection = rtcPeerConnection else { throw PeerConnection.Errors.noPeerConnection }
 		
 		let (rtcAudioTrack, rtcAudioSource) = audioTrack(audioPublication: audioPublication, enabled: enabled)
-				
+		
 		let transceiverInit = RTCRtpTransceiverInit(encodingParameters: audioPublication.encodings)
 		let transceiver = rtcPeerConnection.addTransceiver(with: rtcAudioTrack, init: transceiverInit)
 		return AudioPublishItems(transceiver: transceiver, track: rtcAudioTrack, source: rtcAudioSource)
@@ -262,11 +262,11 @@ extension PeerConnection {
 		switch label {
 		case .lossy:
 			fatalError()
-//			lossyChannel.value?.sendData(buffer)
+			//			lossyChannel.value?.sendData(buffer)
 			
 		case .reliable:
 			fatalError()
-//			reliableChannel.value?.sendData(buffer)
+			//			reliableChannel.value?.sendData(buffer)
 			
 		case .undefined:
 			throw Errors.noDataChannel
@@ -281,31 +281,31 @@ extension PeerConnection: CustomStringConvertible {
 }
 
 public enum PeerConnectionState {
-    case new
-    case connecting
-    case connected
-    case disconnected
-    case failed
-    case closed
-    case down
-    
-    init(_ rtcPeerConnectionState: RTCPeerConnectionState) {
-        switch rtcPeerConnectionState {
-        case .new:
-            self = .new
-        case .connecting:
-            self = .connecting
-        case .connected:
-            self = .connected
-        case .disconnected:
-            self = .disconnected
-        case .failed:
-            self = .failed
-        case .closed:
-            self = .closed
-            
-        @unknown default:
-            self = .down
-        }
-    }
+	case new
+	case connecting
+	case connected
+	case disconnected
+	case failed
+	case closed
+	case down
+	
+	init(_ rtcPeerConnectionState: RTCPeerConnectionState) {
+		switch rtcPeerConnectionState {
+		case .new:
+			self = .new
+		case .connecting:
+			self = .connecting
+		case .connected:
+			self = .connected
+		case .disconnected:
+			self = .disconnected
+		case .failed:
+			self = .failed
+		case .closed:
+			self = .closed
+			
+		@unknown default:
+			self = .down
+		}
+	}
 }

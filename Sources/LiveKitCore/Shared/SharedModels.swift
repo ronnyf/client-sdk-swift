@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if os(iOS)
 import UIKit
+#endif
 @_implementationOnly import WebRTC
 
 //MARK: - Connected State
@@ -107,7 +109,7 @@ public struct LiveKitStream: Sendable {
 	
 	public var videoTracks: [MediaTrack]
 	public var audioTracks: [MediaTrack]
-//	public let dataTracks: [LiveKitTrackInfo.LiveKitTrack] //not supported(yet)
+	//	public let dataTracks: [LiveKitTrackInfo.LiveKitTrack] //not supported(yet)
 	
 	public init<S: Sequence>(participantId: String, videoTracks: S, audioTracks: S) where S.Element == MediaTrack {
 		self.participantId = participantId
@@ -140,37 +142,6 @@ extension LiveKitStream: Hashable {
 extension LiveKitStream: Identifiable {
 	public var id: String { participantId }
 }
-
-//MARK: - Track
-
-//public struct LiveKitVideoTrack: Sendable {
-//	
-//	let rtcVideoTrack: RTCVideoTrack
-//	
-//	public var trackId: String { rtcVideoTrack.trackId }
-//	
-//	init(rtcVideoTrack: RTCVideoTrack) {
-//		self.rtcVideoTrack = rtcVideoTrack
-//	}
-//	
-//	func add(renderer: RTCVideoRenderer) {
-//		self.rtcVideoTrack.add(renderer)
-//	}
-//}
-//
-//extension LiveKitVideoTrack: Equatable {
-//	
-//	public static func ==(lhs: Self, rhs: Self) -> Bool {
-//		lhs.rtcVideoTrack.trackId == rhs.rtcVideoTrack.trackId
-//	}
-//}
-//
-//extension LiveKitVideoTrack: Hashable {
-//	
-//	public func hash(into hasher: inout Hasher) {
-//		hasher.combine(rtcVideoTrack.trackId)
-//	}
-//}
 
 //MARK: - Participant
 
@@ -336,7 +307,7 @@ extension LiveKitQuality {
 			
 		case .excellent:
 			self = .excellent
-		
+			
 		case .UNRECOGNIZED(let value):
 			self = .value(value)
 		}
@@ -686,12 +657,12 @@ public struct LiveKitTrackInfo: Sendable {
 
 @MainActor
 public final class Receiver: @unchecked Sendable, Identifiable {
-		
+	
 	public let mediaStreamTrack: MediaStreamTrack
 	public let id: String
 	
 	let receiver: RTCRtpReceiver
-		
+	
 	nonisolated init?(receiver: RTCRtpReceiver) {
 		guard let track = receiver.track else { return nil }
 		self.id = receiver.receiverId

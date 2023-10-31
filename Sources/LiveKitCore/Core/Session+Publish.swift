@@ -84,7 +84,7 @@ extension LiveKitSession {
 		
 		try await signalHub.removeTrack(videoPublishing.track.trackId)
 		try await signalHub.removeTrack(audioPublishing.track.trackId)
-					
+		
 		//publisher should negotiate and tell the other side that we remove the track(s)
 		await signalHub.negotiate()
 	}
