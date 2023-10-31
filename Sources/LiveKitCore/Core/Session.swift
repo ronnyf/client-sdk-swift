@@ -75,11 +75,11 @@ open class LiveKitSession: @unchecked Sendable {
 		signalHub.$dataTracks.publisher.eraseToAnyPublisher()
 	}
 	
-	public var audioTracks: AnyPublisher<Dictionary<String, LiveKitTrackInfo>, Never> {
+	public var audioTracks: AnyPublisher<[String: LiveKitTrackInfo], Never> {
 		signalHub.$audioTracks.publisher.eraseToAnyPublisher()
 	}
 	
-	public var videoTracks: AnyPublisher<Dictionary<String, LiveKitTrackInfo>, Never> {
+	public var videoTracks: AnyPublisher<[String: LiveKitTrackInfo], Never> {
 		signalHub.$videoTracks.publisher.eraseToAnyPublisher()
 	}
 	

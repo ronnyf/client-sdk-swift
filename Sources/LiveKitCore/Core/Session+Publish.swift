@@ -19,21 +19,21 @@ extension LiveKitSession {
 		let videoPublication = Publication.videoPublication(dimensions: videoDimensions)
 		let audioPublication = Publication.audioPublication()
 		
-		//wait for transceiver to be created...
+		// wait for transceiver to be created...
 		async let videoPublishingResult = signalHub.createVideoTransceiver(videoPublication: videoPublication)
 		async let audioPublishingResult = signalHub.createAudioTransceiver(audioPublication: audioPublication, enabled: audioEnabled)
 		
 		let addVideoTrackRequest = signalHub.makeAddTrackRequest(publication: videoPublication)
 		let addAudioTrackRequest = signalHub.makeAddTrackRequest(publication: audioPublication)
 		
-		//TODO: let's think about how to make those not just fake sendable but actually sendable
+		// TODO: let's think about how to make those not just fake sendable but actually sendable
 		async let videoTrackInfoResult = signalHub.sendAddTrackRequest(addVideoTrackRequest)
 		async let audioTrackInfoResult = signalHub.sendAddTrackRequest(addAudioTrackRequest)
 		
 		let (videoPublishing, audioPublishing, audioTrackInfo, videoTrackInfo) = try await (videoPublishingResult, audioPublishingResult, audioTrackInfoResult, videoTrackInfoResult)
 		
 		await signalHub.negotiate()
-		let connectionState = signalHub.peerConnectionFactory.publishingPeerConnection.rtcPeerConnectionState
+		let connectionState = signalHub.peerConnectionFactory.publishingPeerConnection.rtcPeerConnectionStatePublisher
 		_ = try await connectionState.firstValue(timeout: 15, condition: { $0 == .connected })
 		
 		let videoTrackSids = [videoTrackInfo.trackSid]
