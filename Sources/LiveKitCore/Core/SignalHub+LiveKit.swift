@@ -99,9 +99,9 @@ extension SignalHub {
 			Logger.plog(oslog: signalHubLog, publicMessage: "received track published response: \(response)")
 			return response
 		} catch {
-            //TODO: sometimes this fails ... I want to find out why this happens sometimes ... 
-            Logger.plog(level: .error, oslog: signalHubLog, publicMessage: "failed receive add track response: \(error)")
-            throw error
+			//TODO: sometimes this fails ... I want to find out why this happens sometimes ... 
+			Logger.plog(level: .error, oslog: signalHubLog, publicMessage: "failed receive add track response: \(error)")
+			throw error
 		}
 	}
 	
