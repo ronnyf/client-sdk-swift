@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if os(iOS)
 import UIKit
+#endif
 @_implementationOnly import WebRTC
 
 //MARK: - Connected State
@@ -140,37 +142,6 @@ extension LiveKitStream: Hashable {
 extension LiveKitStream: Identifiable {
 	public var id: String { participantId }
 }
-
-//MARK: - Track
-
-//public struct LiveKitVideoTrack: Sendable {
-//	
-//	let rtcVideoTrack: RTCVideoTrack
-//	
-//	public var trackId: String { rtcVideoTrack.trackId }
-//	
-//	init(rtcVideoTrack: RTCVideoTrack) {
-//		self.rtcVideoTrack = rtcVideoTrack
-//	}
-//	
-//	func add(renderer: RTCVideoRenderer) {
-//		self.rtcVideoTrack.add(renderer)
-//	}
-//}
-//
-//extension LiveKitVideoTrack: Equatable {
-//	
-//	public static func ==(lhs: Self, rhs: Self) -> Bool {
-//		lhs.rtcVideoTrack.trackId == rhs.rtcVideoTrack.trackId
-//	}
-//}
-//
-//extension LiveKitVideoTrack: Hashable {
-//	
-//	public func hash(into hasher: inout Hasher) {
-//		hasher.combine(rtcVideoTrack.trackId)
-//	}
-//}
 
 //MARK: - Participant
 
