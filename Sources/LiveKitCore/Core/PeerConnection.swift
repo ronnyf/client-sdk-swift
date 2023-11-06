@@ -238,7 +238,7 @@ extension PeerConnection {
 		let (shouldNegotiate, signalHub) = condition(connectionState)
 		if shouldNegotiate == true {
 			offeringMachine(signalHub: signalHub)
-			let _ = try await rtcPeerConnectionStatePublisher.map { PeerConnectionState($0) }.firstValue(timeout: 15)
+			let _ = try await rtcPeerConnectionStatePublisher.map { PeerConnectionState($0) }.firstValue(timeout: 15, condition: { $0 == .connected})
 		}
 	}
 	
