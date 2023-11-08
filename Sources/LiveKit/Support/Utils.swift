@@ -226,7 +226,11 @@ internal class Utils {
         let encoding = preferredEncoding ?? dimensions.computeSuggestedPreset(in: dimensions.computeSuggestedPresets(isScreenShare: isScreenShare))
 
         guard publishOptions.simulcast else {
+			#if LKCORE
+			return [RTCRtpEncodingParameters.createRtpEncodingParameters(encoding: encoding, scaleDownBy: 1)]
+			#else
             return [Engine.createRtpEncodingParameters(encoding: encoding, scaleDownBy: 1)]
+			#endif
         }
 
         let baseParameters = VideoParameters(dimensions: dimensions,

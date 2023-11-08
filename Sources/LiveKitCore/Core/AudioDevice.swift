@@ -168,7 +168,9 @@ class AudioDeviceProxy: NSObject, RTCAudioDevice {
 	
 	override init() {
 		super.init()
+		#if DEBUG
 		print("DEBUG: init \(self)")
+		#endif
 	}
 	
 	#if DEBUG

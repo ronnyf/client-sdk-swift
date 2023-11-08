@@ -31,8 +31,8 @@ let package = Package(
 		.systemLibrary(name: "CHeaders"),
 		.binaryTarget(
 			name: "LKWebRTC",
-			url: "https://github.com/webrtc-sdk/Specs/releases/download/114.5735.08/WebRTC.xcframework.zip",
-			checksum: "3bf0e56961f2ccf5e1516f9ca556f868e9616e603a644345f57ea83d69a651ce"
+			url: "https://github.com/livekit/webrtc-xcframework-static/releases/download/114.5735.09/WebRTC.xcframework.zip",
+			checksum: "e8484f95a7ff68265ffe0b476aaf2917bb612466024c31290309a82a9dfcf434"
 		),
 		.target(
 			name: "LiveKit",
@@ -46,10 +46,10 @@ let package = Package(
 			],
 			path: "Sources",
 			sources: [
-				"LiveKit/",
+				"LiveKit",
 			],
 			swiftSettings: [
-				.define("LK_USE_CUSTOM_WEBRTC_BUILD"),
+				.define("LIVEKIT_STATIC_WEBRTC"),
 			]
 		),
 		.testTarget(
@@ -95,7 +95,6 @@ let package = Package(
 				"Shared/ConnectivityListener-Core.swift",
 				"Shared/DimensionsProvider.swift",
 				"Shared/Engine-Core.swift",
-				"Shared/Extensions/Engine+WebRTC.swift",
 				"Shared/Extensions/Primitives.swift",
 				"Shared/Extensions/RTCConfiguration.swift",
 				"Shared/Extensions/RTCMediaConstraints.swift",
@@ -121,7 +120,6 @@ let package = Package(
 				"Shared/Types/Other.swift",
 				"Shared/Types/ProtocolVersion.swift",
 				"Shared/Types/PublishOptions.swift",
-				"Shared/Types/SessionDescription.swift",
 				"Shared/Types/VideoEncoding+Comparable.swift",
 				"Shared/Types/VideoEncoding.swift",
 				"Shared/Types/VideoParameters+Comparable.swift",
@@ -131,7 +129,7 @@ let package = Package(
 			],
 			swiftSettings: [
 				.define("LKCORE"),
-				.define("LK_USE_CUSTOM_WEBRTC_BUILD"),
+				.define("LIVEKIT_STATIC_WEBRTC"),
 			]
 		),
 		.testTarget(

@@ -10,7 +10,6 @@ import OSLog
 import Combine
 import AsyncAlgorithms
 
-
 public enum MessageChannelConnectionState: Sendable {
 	case disconnected
 	case connected

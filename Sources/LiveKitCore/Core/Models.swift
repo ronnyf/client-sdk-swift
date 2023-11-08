@@ -67,7 +67,7 @@ extension RTCRtpTransceiverInit {
 	convenience init<E: MediaEncoding>(encoding: E?) {
 		self.init()
 		self.direction = .sendOnly
-		self.sendEncodings = [Engine.createRtpEncodingParameters(encoding: encoding)]
+		self.sendEncodings = [RTCRtpEncodingParameters.createRtpEncodingParameters(encoding: encoding)]
 	}
 	
 	convenience init(encodingParameters: [RTCRtpEncodingParameters]) {

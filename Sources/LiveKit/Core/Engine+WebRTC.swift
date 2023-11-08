@@ -54,7 +54,7 @@ class VideoDecoderFactory: RTCDefaultVideoDecoderFactory {
 	#endif
 }
 
-#if LK_USE_CUSTOM_WEBRTC_BUILD
+#if LIVEKIT_STATIC_WEBRTC
 
 class VideoEncoderFactorySimulcast: RTCVideoEncoderFactorySimulcast {
 
@@ -67,12 +67,12 @@ class VideoEncoderFactorySimulcast: RTCVideoEncoderFactorySimulcast {
 
 internal extension Engine {
 
-	#if LK_USE_CUSTOM_WEBRTC_BUILD
+	#if LIVEKIT_STATIC_WEBRTC
     static var bypassVoiceProcessing: Bool = false
 	#endif
 
     static let h264BaselineLevel5CodecInfo: RTCVideoCodecInfo = {
-		#if LK_USE_CUSTOM_WEBRTC_BUILD
+		#if LIVEKIT_STATIC_WEBRTC
         // this should never happen
         guard let profileLevelId = RTCH264ProfileLevelId(profile: .constrainedBaseline, level: .level5) else {
             logger.log("failed to generate profileLevelId", .error, type: Engine.self)
@@ -92,7 +92,7 @@ internal extension Engine {
 
     static private let encoderFactory: RTCVideoEncoderFactory = {
         let encoderFactory = VideoEncoderFactory()
-        #if LK_USE_CUSTOM_WEBRTC_BUILD
+        #if LIVEKIT_STATIC_WEBRTC
         return VideoEncoderFactorySimulcast(primary: encoderFactory,
                                             fallback: encoderFactory)
 
@@ -103,7 +103,7 @@ internal extension Engine {
 
     static private let decoderFactory = VideoDecoderFactory()
 	
-	#if LK_USE_CUSTOM_WEBRTC_BUILD
+	#if LIVEKIT_STATIC_WEBRTC
 	static let audioProcessingModule: RTCDefaultAudioProcessingModule = {
 		RTCDefaultAudioProcessingModule()
 	}()
@@ -122,7 +122,7 @@ internal extension Engine {
 
         logger.log("Initializing PeerConnectionFactory...", type: Engine.self)
 
-        #if LK_USE_CUSTOM_WEBRTC_BUILD
+        #if LIVEKIT_STATIC_WEBRTC
         return RTCPeerConnectionFactory(bypassVoiceProcessing: bypassVoiceProcessing,
                                         encoderFactory: encoderFactory,
 										decoderFactory: decoderFactory,
@@ -134,7 +134,7 @@ internal extension Engine {
     }()
 
     // forbid direct access
-	#if LK_USE_CUSTOM_WEBRTC_BUILD
+	#if LIVEKIT_STATIC_WEBRTC
     static var audioDeviceModule: RTCAudioDeviceModule {
         peerConnectionFactory.audioDeviceModule
     }
@@ -148,7 +148,7 @@ internal extension Engine {
     }
 
     static func createVideoSource(forScreenShare: Bool) -> RTCVideoSource {
-        #if LK_USE_LIVEKIT_WEBRTC_BUILD
+        #if LIVEKIT_STATIC_WEBRTC
         DispatchQueue.webRTC.sync { peerConnectionFactory.videoSource(forScreenCast: forScreenShare) }
         #else
         DispatchQueue.webRTC.sync { peerConnectionFactory.videoSource() }

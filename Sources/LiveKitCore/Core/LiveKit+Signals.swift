@@ -90,7 +90,7 @@ extension PeerConnection {
 			}
 			
 			signalHub.localParticipant = LiveKitParticipant(joinResponse.participant)
-			// ---v this should use same grouping as in SignalHub+Signals.swift:~line:23, though we map first
+			// ---v this should use same grouping as in LiveKit+Signals.swift, though we map first
 			signalHub.remoteParticipants = joinResponse.otherParticipants.grouped(by: \.id) { LiveKitParticipant($0) }
 			return false // we want the subscribing peer connection to call configure() as well...
 			

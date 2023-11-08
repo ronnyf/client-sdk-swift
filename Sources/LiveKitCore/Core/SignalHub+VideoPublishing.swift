@@ -29,7 +29,7 @@ struct Publication: Sendable {
 		switch type {
 		case .audio:
 			let encoding = audioPublishOptions?.encoding ?? AudioEncoding.presetSpeech
-			return [Engine.createRtpEncodingParameters(encoding: encoding)]
+			return [RTCRtpEncodingParameters.createRtpEncodingParameters(encoding: encoding)]
 			
 		case .video:
 			return Utils.computeEncodings(

@@ -143,13 +143,19 @@ extension Dimensions {
             guard let rid = VideoQuality.rids[safe: index] else {
                 continue
             }
-
+			#if LKCORE
+			let parameters = RTCRtpEncodingParameters.createRtpEncodingParameters(
+				rid: rid,
+				encoding: preset.encoding,
+				scaleDownBy: Double(max) / Double(preset.dimensions.max)
+			)
+			#else
             let parameters = Engine.createRtpEncodingParameters(
                 rid: rid,
                 encoding: preset.encoding,
                 scaleDownBy: Double(max) / Double(preset.dimensions.max)
             )
-
+			#endif
             result.append(parameters)
         }
 

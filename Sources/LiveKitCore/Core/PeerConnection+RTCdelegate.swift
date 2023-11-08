@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 import OSLog
-@_implementationOnly @preconcurrency import WebRTC
+@_implementationOnly import WebRTC
 
 extension PeerConnection {
 	enum RTCSignal: Sendable {
