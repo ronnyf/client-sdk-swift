@@ -170,6 +170,11 @@ open class LiveKitSession: @unchecked Sendable {
 		//            }
 		//        }
 	}
+	
+	// MARK: - audio
+	public func stopAudioDelivery() {
+		signalHub.peerConnectionFactory.audioDevice.stopAudioDelivery()
+	}
 }
 
 extension URLSessionConfiguration {

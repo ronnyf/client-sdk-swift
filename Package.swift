@@ -90,6 +90,7 @@ let package = Package(
 				"Core/SignalHub+RTC.swift",
 				"Core/SignalHub+VideoPublishing.swift",
 				"Core/VideoView.swift",
+				"Core/AudioDevice.swift",
 				// the following sources are symlinks:
 				"Shared/ConnectivityListener-Core.swift",
 				"Shared/DimensionsProvider.swift",

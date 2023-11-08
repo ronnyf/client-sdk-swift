@@ -50,6 +50,7 @@ open class SignalHub: @unchecked Sendable {
 	@Publishing public var audioTransmitter: AudioTransmitter? = nil
 	
 	//MARK: - tokens
+	//TODO
 	let tokenUpdatesSubject = PassthroughSubject<String, Never>()
 	
 	//MARK: - quality updates
@@ -63,6 +64,11 @@ open class SignalHub: @unchecked Sendable {
 	//MARK: - data channels
 	let incomingDataPackets = PassthroughSubject<Livekit_DataPacket, Never>()
 	let outgoingDataPackets = PassthroughSubject<Livekit_DataPacket, Never>()
+	
+	// MARK: - audio device
+	public var audioDevice: AudioDevice {
+		peerConnectionFactory.audioDevice
+	}
 	
 	let signalHubLog = OSLog(subsystem: "SignalHub", category: "LiveKitCore")
 	
