@@ -297,7 +297,6 @@ extension PeerConnection {
 		case .reliable:
 			let channel = coordinator.rtcDataChannelReliable ?? coordinator.rtcDataChannelLossy
 			channel?.sendData(buffer)
-		
 		case .undefined:
 			throw Errors.noDataChannel
 		}
