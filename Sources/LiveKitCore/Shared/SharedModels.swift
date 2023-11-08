@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import Combine
+import SwiftUI
 #if os(iOS)
 import UIKit
 #endif
@@ -668,6 +670,44 @@ public final class Receiver: @unchecked Sendable, Identifiable {
 		self.id = receiver.receiverId
 		self.receiver = receiver
 		self.mediaStreamTrack = MediaStreamTrack(rtcMediaStreamTrack: track)
+	}
+}
+
+public class AudioTransmitter: @unchecked Sendable, Identifiable {
+	let sender: RTCRtpSender
+	let track: RTCAudioTrack
+	let source: RTCAudioSource	
+	
+	@Publishing public var enabled: Bool
+	
+	private var observationToken: NSKeyValueObservation?
+	private var subscription: AnyCancellable?
+	
+	nonisolated init(sender: RTCRtpSender, track: RTCAudioTrack, source: RTCAudioSource) {
+		self.sender = sender
+		self.track = track
+		self.source = source
+		self._enabled = Publishing(wrappedValue: track.isEnabled)
+		
+		// first, we observe (remember kvo?) the objc property of track, this should not fire immediately
+		observationToken = track.observe(\.isEnabled, options: [.new]) { _, change in
+			print("DEBUG: KVO: track.isEnabled: \(change)")
+			guard let enabled = change.newValue, self.enabled != enabled else { return }
+			self.enabled = enabled
+		}
+		
+		// then we subscribe to the changes to `enabled` and assign the new value to track.isEnabled
+		subscription = $enabled.publisher
+			.dropFirst()
+			.receive(on: DispatchQueue.main)
+			.filter { $0 != track.isEnabled }
+			.assign(to: \.isEnabled, on: track)
+		
+		// and voialla, we have a very crude but effective 2-way binding ...
+	}
+	
+	deinit {
+		print("DEBUG: deinit <AudioTransmitter \(track)>")
 	}
 }
 
