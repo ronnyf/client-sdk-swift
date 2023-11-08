@@ -222,8 +222,9 @@ actor PeerConnection {
 		
 		_offerTask?.cancel()
 		_offerTask = nil
-		
+
 		coordinator.teardown()
+		closeDataChannels()
 		if let rtcPeerConnection {
 			rtcPeerConnection.close()
 		}
@@ -242,10 +243,9 @@ extension PeerConnection {
 		}
 	}
 	
-	//FIXME: call this from somewhere?
-	//TODO: fixme?
 	func closeDataChannels() {
-		fatalError()
+		coordinator.rtcDataChannelLossy?.close()
+		coordinator.rtcDataChannelReliable?.close()
 	}
 }
 
@@ -280,13 +280,11 @@ extension PeerConnection {
 		switch label {
 		case .lossy:
 			let channel = coordinator.rtcDataChannelLossy ?? coordinator.rtcDataChannelReliable
-			let result = channel?.sendData(buffer)
-			print("DEBUG: result: \(result)")
-			
+			channel?.sendData(buffer)
 		case .reliable:
 			let channel = coordinator.rtcDataChannelReliable ?? coordinator.rtcDataChannelLossy
 			channel?.sendData(buffer)
-			
+		
 		case .undefined:
 			throw Errors.noDataChannel
 		}
