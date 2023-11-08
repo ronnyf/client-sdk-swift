@@ -12,7 +12,6 @@ import SwiftUI
 ///It's mainly used when an AsyncChannel wouldn't work due to the back-pressure feature.
 ///Sometimes we simply need a publisher that can be subscribed to by several subscribers without
 ///backpressure. So it can be mapped to an async stream per subscriber.
-
 @propertyWrapper
 public struct Publishing<Value> {
 	
