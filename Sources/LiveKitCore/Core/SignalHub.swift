@@ -47,6 +47,8 @@ open class SignalHub: @unchecked Sendable {
 	@Publishing public var mediaStreams: [String: LiveKitStream] = [:]
 	@Publishing public var receivers: [String: Receiver] = [:]
 	
+	@Publishing public var audioTransmitter: AudioTransmitter? = nil
+	
 	//MARK: - tokens
 	let tokenUpdatesSubject = PassthroughSubject<String, Never>()
 	

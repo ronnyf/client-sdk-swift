@@ -21,7 +21,7 @@ extension LiveKitSession {
 		
 		// wait for transceiver to be created...
 		async let videoPublishingResult = signalHub.createVideoTransceiver(videoPublication: videoPublication)
-		async let audioPublishingResult = signalHub.createAudioTransceiver(audioPublication: audioPublication, enabled: audioEnabled)
+		async let audioTransmitterTask = signalHub.createAudioTransmitter(audioPublication: audioPublication, enabled: audioEnabled)
 		
 		let addVideoTrackRequest = signalHub.makeAddTrackRequest(publication: videoPublication)
 		let addAudioTrackRequest = signalHub.makeAddTrackRequest(publication: audioPublication)
@@ -30,7 +30,8 @@ extension LiveKitSession {
 		async let videoTrackInfoResult = signalHub.sendAddTrackRequest(addVideoTrackRequest)
 		async let audioTrackInfoResult = signalHub.sendAddTrackRequest(addAudioTrackRequest)
 		
-		let (videoPublishing, audioPublishing, audioTrackInfo, videoTrackInfo) = try await (videoPublishingResult, audioPublishingResult, audioTrackInfoResult, videoTrackInfoResult)
+		let (videoPublishing, audioTransmitter, audioTrackInfo, videoTrackInfo) = try await (videoPublishingResult, audioTransmitterTask, audioTrackInfoResult, videoTrackInfoResult)
+		signalHub.audioTransmitter = audioTransmitter
 		
 		await signalHub.negotiate()
 		let connectionState = signalHub.peerConnectionFactory.publishingPeerConnection.rtcPeerConnectionStatePublisher
@@ -79,13 +80,16 @@ extension LiveKitSession {
 		try signalHub.sendMuteTrack(trackSid: videoTrackInfo.trackSid, muted: true)
 		try signalHub.sendMuteTrack(trackSid: audioTrackInfo.trackSid, muted: true)
 		
-		signalHub.setMediaTrack(videoPublishing.track, enabled: false)
-		signalHub.setMediaTrack(audioPublishing.track, enabled: false)
-		
+		await signalHub.setMediaTrack(videoPublishing.track, enabled: false)
 		try await signalHub.removeTrack(videoPublishing.track.trackId)
-		try await signalHub.removeTrack(audioPublishing.track.trackId)
+		
+		if let audioTransmitter {
+			await signalHub.setMediaTrack(audioTransmitter.track, enabled: false)
+			try await signalHub.removeTrack(audioTransmitter.track.trackId)
+		}
 		
 		//publisher should negotiate and tell the other side that we remove the track(s)
 		await signalHub.negotiate()
+		signalHub.audioTransmitter = nil
 	}
 }
