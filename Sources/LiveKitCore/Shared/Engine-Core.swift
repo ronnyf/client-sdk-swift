@@ -38,10 +38,6 @@ struct Engine {
 		
 		return result
 	}
-	
-	static func createVideoTrack(source: RTCVideoSource, trackId: String = UUID().uuidString) -> RTCVideoTrack {
-		peerConnectionFactory.videoTrack(with: source, trackId: trackId)
-	}
 }
 
 #endif

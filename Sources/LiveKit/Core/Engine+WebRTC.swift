@@ -78,6 +78,11 @@ internal extension Engine {
             logger.log("failed to generate profileLevelId", .error, type: Engine.self)
             fatalError("failed to generate profileLevelId")
         }
+		#elseif LK_USE_ALTERNATIVE_WEBRTC_BUILD
+		guard let profileLevelId = RTCH264ProfileLevelId(profile: .constrainedBaseline, level: .level5) else {
+			logger.log("failed to generate profileLevelId", .error, type: Engine.self)
+			fatalError("failed to generate profileLevelId")
+		}
 		#else
 		let profileLevelId = RTCH264ProfileLevelId(profile: .constrainedBaseline, level: .level5)
 		#endif
