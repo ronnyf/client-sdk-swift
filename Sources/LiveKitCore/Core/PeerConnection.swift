@@ -239,7 +239,11 @@ extension PeerConnection {
 		let (shouldNegotiate, signalHub) = condition(connectionState)
 		if shouldNegotiate == true {
 			offeringMachine(signalHub: signalHub)
-			let _ = try await rtcPeerConnectionStatePublisher.map { PeerConnectionState($0) }.firstValue(timeout: 15, condition: { $0 == .connected})
+			let _ = try await rtcPeerConnectionStatePublisher.map { PeerConnectionState($0) }.firstValue(timeout: 15, condition: { currentState in
+				PeerConnectionState.finalStates.contains { finalState in
+					return finalState == currentState
+				}
+			})
 		}
 	}
 	
@@ -304,6 +308,8 @@ public enum PeerConnectionState: Sendable {
 	case failed
 	case closed
 	case down
+	
+	static let finalStates: [PeerConnectionState] = [.connected, .disconnected, .failed, .closed]
 	
 	init(_ rtcPeerConnectionState: RTCPeerConnectionState) {
 		switch rtcPeerConnectionState {
