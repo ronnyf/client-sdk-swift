@@ -11,9 +11,16 @@ import Foundation
 class PeerConnectionFactory: @unchecked Sendable {
 	let publishingPeerConnection: PeerConnection
 	let subscribingPeerConnection: PeerConnection
+	let audioDevice: AudioDevice
 	
-	init(rtcConfiguration: RTCConfiguration = .liveKitDefault, rtcMediaConstraints: RTCMediaConstraints = .defaultPCConstraints) {
+	init(
+		rtcConfiguration: RTCConfiguration = .liveKitDefault,
+		rtcMediaConstraints: RTCMediaConstraints = .defaultPCConstraints,
+		audioDevice: AudioDevice = AudioDevice()
+	) {
 		dispatchPrecondition(condition: .onQueue(.main))
+		
+		self.audioDevice = audioDevice
 		
 		let rtcPeerConnectionFactory: RTCPeerConnectionFactory = {
 			RTCInitializeSSL()
@@ -25,14 +32,11 @@ class PeerConnectionFactory: @unchecked Sendable {
 			let decoderFactory = VideoDecoderFactory()
 			
 #if LK_USE_CUSTOM_WEBRTC_BUILD
-			let audioProcessingModule = RTCDefaultAudioProcessingModule()
-			let pcf = RTCPeerConnectionFactory(bypassVoiceProcessing: false,
-											   encoderFactory: encoderFactory,
-											   decoderFactory: decoderFactory,
-											   audioProcessingModule: audioProcessingModule)
+			let pcf = RTCPeerConnectionFactory(encoderFactory: encoderFactory, decoderFactory: decoderFactory, audioDevice: audioDevice.rtc)
 #else
 			let pcf = RTCPeerConnectionFactory(encoderFactory: encoderFactory,
-											   decoderFactory: decoderFactory)
+											   decoderFactory: decoderFactory,
+											   audioDevice: audioDevice.rtc)
 #endif
 			return pcf
 		}()
@@ -54,6 +58,8 @@ class PeerConnectionFactory: @unchecked Sendable {
 	
 	func teardown() {
 		RTCCleanupSSL()
+		audioDevice.teardown()
+		
 		Task {
 			await withTaskGroup(of: Void.self) { group in
 				for pc in [publishingPeerConnection, subscribingPeerConnection] {
