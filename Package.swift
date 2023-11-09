@@ -88,7 +88,6 @@ let package = Package(
 				"Core/SignalHub.swift",
 				"Core/SignalHub+LiveKit.swift",
 				"Core/SignalHub+RTC.swift",
-				"Core/SignalHub+Signals.swift",
 				"Core/SignalHub+VideoPublishing.swift",
 				"Core/VideoView.swift",
 				// the following sources are symlinks:

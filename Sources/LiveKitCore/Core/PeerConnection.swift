@@ -77,7 +77,7 @@ actor PeerConnection {
 	let mediaConstraints: () -> RTCMediaConstraints
 	
 	init(
-		dispatchQueue: DispatchQueue = DispatchQueue(label: "PeerConnection"),
+		dispatchQueue: DispatchQueue = DispatchQueue(label: "PeerConnection", target: DispatchQueue.global(qos: .userInitiated)),
 		coordinator: PeerConnection.Coordinator = Coordinator(),
 		isPublisher: Bool,
 		factory: @autoclosure @escaping () -> RTCPeerConnectionFactory,
@@ -163,6 +163,18 @@ actor PeerConnection {
 		let audioTrack = factory().audioTrack(with: source, trackId: audioPublication.cid)
 		audioTrack.isEnabled = true
 		return (audioTrack, source)
+	}
+	
+	func audioTransmitter(audioPublication: Publication, enabled: Bool = false) async throws -> AudioTransmitter? {
+		dispatchPrecondition(condition: .onQueue(dispatchQueue))
+		
+		guard let rtcPeerConnection = rtcPeerConnection else { throw PeerConnection.Errors.noPeerConnection }
+		
+		let (rtcAudioTrack, rtcAudioSource) = audioTrack(audioPublication: audioPublication, enabled: enabled)
+		
+		let transceiverInit = RTCRtpTransceiverInit(encodingParameters: audioPublication.encodings)
+		guard let transceiver = rtcPeerConnection.addTransceiver(with: rtcAudioTrack, init: transceiverInit) else { return nil }
+		return AudioTransmitter(sender: transceiver.sender, track: rtcAudioTrack, source: rtcAudioSource)
 	}
 	
 	func audioTransceiver(audioPublication: Publication, enabled: Bool = false) async throws -> AudioPublishItems {
