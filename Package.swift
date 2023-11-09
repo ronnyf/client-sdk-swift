@@ -30,15 +30,15 @@ let package = Package(
 	targets: [
 		.systemLibrary(name: "CHeaders"),
 		.binaryTarget(
-			name: "LKWebRTC",
-			url: "https://github.com/webrtc-sdk/Specs/releases/download/114.5735.08/WebRTC.xcframework.zip",
-			checksum: "3bf0e56961f2ccf5e1516f9ca556f868e9616e603a644345f57ea83d69a651ce"
+			name: "WebRTC",
+			url: "https://github.com/stasel/WebRTC/releases/download/119.0.0/WebRTC-M119.xcframework.zip",
+			checksum: "60737020738e76f2200f3f2c12a32f260d116f858a2e1ff33c48973ddd3e1c97"
 		),
 		.target(
 			name: "LiveKit",
 			dependencies: [
 				.target(name: "CHeaders"),
-				.target(name: "LKWebRTC"),
+				.target(name: "WebRTC"),
 				.product(name: "SwiftProtobuf", package: "swift-protobuf"),
 				.product(name: "Promises", package: "Promises"),
 				.product(name: "FBLPromises", package: "Promises"),
@@ -46,10 +46,7 @@ let package = Package(
 			],
 			path: "Sources",
 			sources: [
-				"LiveKit/",
-			],
-			swiftSettings: [
-				.define("LK_USE_CUSTOM_WEBRTC_BUILD"),
+				"LiveKit",
 			]
 		),
 		.testTarget(
@@ -63,7 +60,7 @@ let package = Package(
 			dependencies: [
 				.target(name: "FakePromises"),
 				.target(name: "FakeFBLPromises"),
-				.target(name: "LKWebRTC"),
+				.target(name: "WebRTC"),
 				.product(name: "SwiftProtobuf", package: "swift-protobuf"),
 				.product(name: "AsyncAlgorithms", package: "swift-async-algorithms"),
 			],
@@ -131,7 +128,7 @@ let package = Package(
 			],
 			swiftSettings: [
 				.define("LKCORE"),
-				.define("LK_USE_CUSTOM_WEBRTC_BUILD"),
+				.define("LK_USE_ALTERNATIVE_WEBRTC_BUILD"),
 			]
 		),
 		.testTarget(
