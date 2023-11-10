@@ -27,6 +27,9 @@ public struct LiveKitVideoView: View {
 			.onDisappear {
 				isVisible = false
 			}
+			.onChange(of: isVisible) { newValue in
+				UIApplication.shared.isIdleTimerDisabled = newValue
+			}
 	}
 }
 
