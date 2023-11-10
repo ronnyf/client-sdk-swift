@@ -299,11 +299,11 @@
 			isa = PBXGroup;
 			children = (
 				60888F7729F97EC900AE5111 /* Convenience.swift */,
-				605246B72ACD151100ECA167 /* LiveKit+Signals.swift */,
 				603F70482AA9448B004C8D99 /* Logging.swift */,
 				60888F7629F97EC900AE5111 /* MessageChannel.swift */,
 				605246AE2ACD103600ECA167 /* MessageChannel+Connect.swift */,
 				60888F7429F97EC900AE5111 /* Models.swift */,
+				605246B72ACD151100ECA167 /* LiveKit+Signals.swift */,
 				6023F5362A18440800005548 /* PeerConnection.swift */,
 				605246B12ACD11B000ECA167 /* PeerConnection+Coordinator.swift */,
 				605246B42ACD120F00ECA167 /* PeerConnection+Negotiation.swift */,
