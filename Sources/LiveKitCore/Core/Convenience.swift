@@ -66,6 +66,22 @@ extension Publisher {
 		}
 	}
 	
+	public func stream<P: Publisher>(flatMap transform: @escaping (Self.Output) -> P) -> AsyncStream<P.Output> where Failure == Never {
+		AsyncStream<P.Output> { continuation in
+			let subscription = self
+				.flatMap { transform($0) }
+				.sink { completion in
+					continuation.finish()
+				} receiveValue: { value in
+					continuation.yield(value)
+				}
+			
+			continuation.onTermination = { @Sendable _ in
+				subscription.cancel()
+			}
+		}
+	}
+	
 	public func throwingStream<T>(
 		filter: @escaping (Self.Output) -> Bool,
 		map transform: @escaping (Self.Output) throws -> T

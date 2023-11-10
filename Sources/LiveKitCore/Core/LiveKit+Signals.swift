@@ -90,7 +90,7 @@ extension PeerConnection {
 			}
 			
 			signalHub.localParticipant = LiveKitParticipant(joinResponse.participant)
-			// ---v this should use same grouping as in SignalHub+Signals.swift:~line:23, though we map first
+			// ---v this should use same grouping as in LiveKit+Signals.swift
 			signalHub.remoteParticipants = joinResponse.otherParticipants.grouped(by: \.id) { LiveKitParticipant($0) }
 			return false // we want the subscribing peer connection to call configure() as well...
 			
@@ -161,11 +161,13 @@ extension SignalHub {
 			for (status, participants) in groupedParticipants {
 				switch status {
 				case .active:
-					// merge all active participants (with or without tracks) into our dictionary of remote participants
-					participants.mergingGrouped(by: \.id, into: &remoteParticipants) { LiveKitParticipant($0) }
-					if let myId = localParticipant?.id, let me = remoteParticipants.removeValue(forKey: myId) {
-						localParticipant = me
-					}
+					participants
+						// get those with at least one (published) track
+						.filter({ $0.tracks.isEmpty == false && $0.sid != localParticipant?.id })
+						// merge all active participants (with or without tracks) into our dictionary of remote participants
+						.mergingGrouped(by: \.id, into: &remoteParticipants) { LiveKitParticipant($0) }
+					
+					Logger.plog(oslog: signalHubLog, publicMessage: "after participant update: \(remoteParticipants)")
 					
 				default:
 					// remove all partipants that were updated to non-active state from our dictionary of remote participants
@@ -239,6 +241,7 @@ extension SignalHub {
 			
 		case .speakersChanged(let update):
 			Logger.plog(oslog: signalHubLog, publicMessage: "speakersChanged update: \(update)")
+			activeSpeakers = update.speakers.filter { $0.active == true }.map { SpeakingParticipant($0) }
 			return true
 			
 		case .roomUpdate(let update):

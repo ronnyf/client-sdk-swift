@@ -30,10 +30,8 @@ open class SignalHub: @unchecked Sendable {
 	let outgoingDataRequestsChannel = AsyncChannel<Data>()
 	let outgoingDataRequests = PassthroughSubject<Data, Never>()
 	
-	//MARK: - publishers
-	//	let pongMessagesChannel = AsyncChannel<Int64>() // << Switch
-	
 	//MARK: - State Publishers
+	
 	@Publishing var joinResponse: Livekit_JoinResponse? = nil
 	@Publishing public var localParticipant: LiveKitParticipant? = nil
 	@Publishing public var remoteParticipants: [String: LiveKitParticipant] = [:]
@@ -49,19 +47,20 @@ open class SignalHub: @unchecked Sendable {
 	
 	@Publishing public var audioTransmitter: AudioTransmitter? = nil
 	
+	//MARK: - speaker updates
+	
+	@Publishing public var activeSpeakers: [SpeakingParticipant] = []
+	
 	//MARK: - tokens
 	//TODO
 	let tokenUpdatesSubject = PassthroughSubject<String, Never>()
 	
 	//MARK: - quality updates
 	//TODO
-	@Publishing var subscriptionQualityUpdates: Livekit_SubscribedQualityUpdate? = nil
-	
-	//MARK: - speaker updates
-	//TODO
-	@Publishing var speakerChangedUpdates: Livekit_SpeakersChanged? = nil
+	@Publishing var subscriptionQualityUpdates: Livekit_SubscribedQualityUpdate?
 	
 	//MARK: - data channels
+	
 	let incomingDataPackets = PassthroughSubject<Livekit_DataPacket, Never>()
 	let outgoingDataPackets = PassthroughSubject<Livekit_DataPacket, Never>()
 	
@@ -118,12 +117,11 @@ open class SignalHub: @unchecked Sendable {
 		tokenUpdatesSubject.send(completion: .finished)
 		subscriptionQualityUpdates = nil
 		_subscriptionQualityUpdates.finish()
-		speakerChangedUpdates = nil
-		_speakerChangedUpdates.finish()
 		
 		incomingDataPackets.send(completion: .finished)
 		outgoingDataPackets.send(completion: .finished)
 		
+//		_activeSpeakers.subject.send(completion: .finished)
 		peerConnectionFactory.teardown()
 		
 		Logger.log(oslog: signalHubLog, message: "signalHub did teardown")

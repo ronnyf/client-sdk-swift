@@ -87,6 +87,12 @@ extension MediaTrack: Identifiable {
 	public var id: String { trackId }
 }
 
+extension MediaTrack: Equatable {
+	public static func ==(lhs: MediaTrack, rhs: MediaTrack) -> Bool {
+		lhs.trackId == rhs.trackId
+	}
+}
+
 public struct LiveKitStream: Sendable {
 	
 	public enum State: Sendable {
@@ -381,7 +387,7 @@ public struct LiveKitSubscriptionQualityUpdate {
 
 public enum LiveKitPacketData: Sendable {
 	case user(LiveKitUserData)
-	case speaker(LiveKitActiveSpeaker)
+	case speaker(LiveKitSpeaker)
 	case unknown
 	
 	init(_ liveKitDataPacket: Livekit_DataPacket) {
@@ -390,7 +396,7 @@ public enum LiveKitPacketData: Sendable {
 			self = .user(LiveKitUserData(userPacket))
 			
 		case .speaker(let speakerData):
-			self = .speaker(LiveKitActiveSpeaker(speakerData))
+			self = .speaker(LiveKitSpeaker(speakerData))
 			
 		default:
 			self = .unknown
@@ -399,26 +405,58 @@ public enum LiveKitPacketData: Sendable {
 }
 
 public struct LiveKitUserData: Sendable {
+	/// participant ID of user that sent the message
+	public let participantSid: String
 	
-	public let data: Data
-	public let originID: String
-	public let destinationIDs: [String]
+	public let participantIdentity: String
 	
-	public init(data: Data, originID: String, destinationIDs: [String]) {
-		self.data = data
-		self.originID = originID
-		self.destinationIDs = destinationIDs
+	/// user defined payload
+	public let payload: Data
+	
+	/// the ID of the participants who will receive the message (sent to all by default)
+	public let destinationSids: [String]
+	
+	/// identities of participants who will receive the message (sent to all by default)
+	public let destinationIdentities: [String]
+	
+	/// topic under which the message was published
+	public let topic: String
+	
+	public init(
+		payload: Data,
+		participantSid: String,
+		participantIdentity: String,
+		destinationSids: [String] = [],
+		destinationIdentities: [String] = [],
+		topic: String = ""
+	) {
+		self.payload = payload
+		self.participantSid = participantSid
+		self.participantIdentity = participantIdentity
+		self.destinationSids = destinationSids
+		self.destinationIdentities = destinationIdentities
+		self.topic = topic
 	}
 	
 	init(_ livekitUserPacket: Livekit_UserPacket) {
-		self.init(data: livekitUserPacket.payload, originID: livekitUserPacket.participantSid, destinationIDs: livekitUserPacket.destinationSids)
+		self.init(
+			payload: livekitUserPacket.payload,
+			participantSid: livekitUserPacket.participantSid,
+			participantIdentity: livekitUserPacket.participantIdentity,
+			destinationSids: livekitUserPacket.destinationSids,
+			destinationIdentities: livekitUserPacket.destinationIdentities,
+			topic: livekitUserPacket.topic
+		)
 	}
 	
 	func makeUserPacket() -> Livekit_UserPacket {
 		let userPacket = Livekit_UserPacket.with {
-			$0.destinationSids = destinationIDs
-			$0.payload = data
-			$0.participantSid = originID
+			$0.payload = payload
+			$0.participantSid = participantSid
+			$0.participantIdentity = participantIdentity
+			$0.destinationSids = destinationSids
+			$0.destinationIdentities = destinationIdentities
+			$0.topic = topic
 		}
 		return userPacket
 	}
@@ -434,18 +472,18 @@ public struct LiveKitUserData: Sendable {
 
 //MARK: - Speaker
 
-public struct Speaker: Sendable {
+public struct SpeakingParticipant: Sendable {
 	
 	public let id: String
 	public let active: Bool
 	public let level: Float
 	
-	static func make(from speakerChanged: Livekit_SpeakersChanged) -> [Speaker] {
-		speakerChanged.speakers.map { Speaker($0) }
+	static func make(from speakerChanged: Livekit_SpeakersChanged) -> [SpeakingParticipant] {
+		speakerChanged.speakers.map { SpeakingParticipant($0) }
 	}
 	
-	static func make(from activeSpeakerUpdate: Livekit_ActiveSpeakerUpdate) -> [Speaker] {
-		activeSpeakerUpdate.speakers.map { Speaker($0) }
+	static func make(from activeSpeakerUpdate: Livekit_ActiveSpeakerUpdate) -> [SpeakingParticipant] {
+		activeSpeakerUpdate.speakers.map { SpeakingParticipant($0) }
 	}
 	
 	init(_ livekit_SpeakerInfo: Livekit_SpeakerInfo) {
@@ -455,36 +493,36 @@ public struct Speaker: Sendable {
 	}
 }
 
-extension Speaker: Equatable {
-	public static func ==(lhs: Speaker, rhs: Speaker) -> Bool {
+extension SpeakingParticipant: Equatable {
+	public static func ==(lhs: SpeakingParticipant, rhs: SpeakingParticipant) -> Bool {
 		lhs.id == rhs.id
 	}
 }
 
-extension Speaker: Hashable {
+extension SpeakingParticipant: Hashable {
 	public func hash(into hasher: inout Hasher) {
 		hasher.combine(id)
 	}
 }
 
-public struct LiveKitSpeaker {
+extension SpeakingParticipant: Identifiable {}
+
+public struct LiveKitSpeaker: Sendable {
 	
-	public let speakers: [Speaker]
+	public let speakers: [SpeakingParticipant]
 	
 	init(_ speakerChanged: Livekit_SpeakersChanged) {
-		self.speakers = speakerChanged.speakers.map { Speaker($0) }
+		self.speakers = speakerChanged.speakers.map { SpeakingParticipant($0) }
 	}
-}
-
-public struct LiveKitActiveSpeaker: Sendable {
-	
-	let speakers: [Speaker]
 	
 	init(_ activeSpeakerUpdate: Livekit_ActiveSpeakerUpdate) {
-		self.speakers = activeSpeakerUpdate.speakers.map { Speaker($0) }
+		self.speakers = activeSpeakerUpdate.speakers.map { SpeakingParticipant($0) }
+	}
+	
+	init<S: Sequence>(_ speakers: S) where S.Element == SpeakingParticipant {
+		self.speakers = Array(speakers)
 	}
 }
-
 
 //MARK: - Track published / unpublished
 
@@ -670,6 +708,12 @@ public final class Receiver: @unchecked Sendable, Identifiable {
 		self.id = receiver.receiverId
 		self.receiver = receiver
 		self.mediaStreamTrack = MediaStreamTrack(rtcMediaStreamTrack: track)
+	}
+}
+
+extension Receiver: Equatable {
+	public static func == (lhs: Receiver, rhs: Receiver) -> Bool {
+		lhs.id == rhs.id
 	}
 }
 
