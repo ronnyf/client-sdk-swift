@@ -92,20 +92,12 @@ open class LiveKitSession: @unchecked Sendable {
 		signalHub.incomingDataPackets.map { LiveKitPacketData($0) }.eraseToAnyPublisher()
 	}
 	
-	public func activeSpeakers() -> AnyPublisher<LiveKitActiveSpeaker, Never> {
-		signalHub.incomingDataPackets.map { LiveKitActiveSpeaker($0.speaker) }.eraseToAnyPublisher()
+	public func activeSpeakers() -> AnyPublisher<LiveKitSpeaker, Never> {
+		signalHub.incomingDataPackets.map { LiveKitSpeaker($0.speaker) }.eraseToAnyPublisher()
 	}
 	
-	public func userData() -> AnyPublisher<LiveKitUserData, Never> {
-		signalHub.incomingDataPackets.map { LiveKitUserData($0.user) }.eraseToAnyPublisher()
-	}
-	
-	public func speakersChanged() -> AsyncStream<Dictionary<String, Speaker>> {
-		signalHub.speakerChangedUpdates.publisher.map({ speakerChanged in
-			speakerChanged.speakers.reduce(into: [String: Speaker]()) { result, element in
-				result[element.sid] = Speaker(element)
-			}
-		}).stream()
+	public func userData() -> some Publisher<LiveKitUserData, Never> {
+		signalHub.incomingDataPackets.map { LiveKitUserData($0.user) }
 	}
 	
 	public func statsStream() -> AsyncStream<Any> {
