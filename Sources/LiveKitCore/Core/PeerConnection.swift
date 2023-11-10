@@ -240,9 +240,7 @@ extension PeerConnection {
 		if shouldNegotiate == true {
 			offeringMachine(signalHub: signalHub)
 			let _ = try await rtcPeerConnectionStatePublisher.map { PeerConnectionState($0) }.firstValue(timeout: 15, condition: { currentState in
-				PeerConnectionState.finalStates.contains { finalState in
-					return finalState == currentState
-				}
+				PeerConnectionState.finalStates.contains(currentState)
 			})
 		}
 	}
@@ -302,7 +300,7 @@ extension PeerConnection: CustomStringConvertible {
 	}
 }
 
-public enum PeerConnectionState: Sendable {
+public enum PeerConnectionState: Sendable, Equatable {
 	case new
 	case connecting
 	case connected
