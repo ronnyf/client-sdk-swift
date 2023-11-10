@@ -234,8 +234,9 @@ actor PeerConnection {
 		
 		_offerTask?.cancel()
 		_offerTask = nil
-		
+
 		coordinator.teardown()
+		closeDataChannels()
 		if let rtcPeerConnection {
 			rtcPeerConnection.close()
 		}
@@ -250,14 +251,15 @@ extension PeerConnection {
 		let (shouldNegotiate, signalHub) = condition(connectionState)
 		if shouldNegotiate == true {
 			offeringMachine(signalHub: signalHub)
-			let _ = try await rtcPeerConnectionStatePublisher.map { PeerConnectionState($0) }.firstValue(timeout: 15)
+			let _ = try await rtcPeerConnectionStatePublisher.map { PeerConnectionState($0) }.firstValue(timeout: 15, condition: { currentState in
+				PeerConnectionState.finalStates.contains(currentState)
+			})
 		}
 	}
 	
-	//FIXME: call this from somewhere?
-	//TODO: fixme?
 	func closeDataChannels() {
-		fatalError()
+		coordinator.rtcDataChannelLossy?.close()
+		coordinator.rtcDataChannelReliable?.close()
 	}
 }
 
@@ -310,7 +312,7 @@ extension PeerConnection: CustomStringConvertible {
 	}
 }
 
-public enum PeerConnectionState: Sendable {
+public enum PeerConnectionState: Sendable, Equatable {
 	case new
 	case connecting
 	case connected
@@ -318,6 +320,8 @@ public enum PeerConnectionState: Sendable {
 	case failed
 	case closed
 	case down
+	
+	static let finalStates: [PeerConnectionState] = [.connected, .disconnected, .failed, .closed]
 	
 	init(_ rtcPeerConnectionState: RTCPeerConnectionState) {
 		switch rtcPeerConnectionState {
