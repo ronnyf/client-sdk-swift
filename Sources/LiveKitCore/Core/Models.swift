@@ -350,6 +350,13 @@ extension Livekit_SignalRequest {
 		answer = sdp
 	}
 	
+	init(trackId: String, muted: Bool) {
+		mute = Livekit_MuteTrackRequest.with {
+			$0.sid = trackId
+			$0.muted = muted
+		}
+	}
+	
 	init(_ iceCandidate: IceCandidate, target: Livekit_SignalTarget) throws {
 		self.trickle = try Livekit_TrickleRequest.with {
 			$0.target = target

@@ -167,6 +167,10 @@ open class LiveKitSession: @unchecked Sendable {
 	public func stopAudioDelivery() {
 		signalHub.peerConnectionFactory.audioDevice.stopAudioDelivery()
 	}
+	
+	public func muteAudio(_ muted: Bool, trackId: String) throws {
+		try signalHub.enqueue(request: Livekit_SignalRequest(trackId: trackId, muted: muted))
+	}
 }
 
 extension URLSessionConfiguration {
