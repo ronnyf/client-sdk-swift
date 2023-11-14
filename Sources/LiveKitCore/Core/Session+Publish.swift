@@ -20,7 +20,7 @@ extension LiveKitSession {
 		let audioPublication = Publication.audioPublication()
 		
 		// wait for transceiver to be created...
-		async let videoPublishingResult = signalHub.createVideoTransceiver(videoPublication: videoPublication)
+		async let videoTransmitterTask = signalHub.createVideoTransmitter(videoPublication: videoPublication, enabled: true)
 		async let audioTransmitterTask = signalHub.createAudioTransmitter(audioPublication: audioPublication, enabled: audioEnabled)
 		
 		let addVideoTrackRequest = signalHub.makeAddTrackRequest(publication: videoPublication)
@@ -30,8 +30,9 @@ extension LiveKitSession {
 		async let videoTrackInfoResult = signalHub.sendAddTrackRequest(addVideoTrackRequest)
 		async let audioTrackInfoResult = signalHub.sendAddTrackRequest(addAudioTrackRequest)
 		
-		let (videoPublishing, audioTransmitter, audioTrackInfo, videoTrackInfo) = try await (videoPublishingResult, audioTransmitterTask, audioTrackInfoResult, videoTrackInfoResult)
+		let (videoTransmitter, audioTransmitter, audioTrackInfo, videoTrackInfo) = try await (videoTransmitterTask, audioTransmitterTask, audioTrackInfoResult, videoTrackInfoResult)
 		signalHub.audioTransmitter = audioTransmitter
+		signalHub.videoTransmitter = videoTransmitter
 		
 		await signalHub.negotiate()
 		let connectionState = signalHub.peerConnectionFactory.publishingPeerConnection.rtcPeerConnectionStatePublisher
@@ -47,7 +48,7 @@ extension LiveKitSession {
 		
 		try signalHub.sendMuteTrack(trackSid: audioTrackInfo.trackSid, muted: audioEnabled == false)
 		
-		let videoOrientationPublisher = videoRotation.removeDuplicates().map { RTCVideoRotation($0) }
+		let videoOrientationPublisher = videoRotation.map { RTCVideoRotation($0) }
 		let videoFrames = Publishers.CombineLatest(videoSource, videoOrientationPublisher).compactMap { sampleBuffer, rotation -> RTCVideoFrame? in
 			guard let imageBuffer = sampleBuffer.imageBuffer else { return nil }
 			
@@ -65,9 +66,9 @@ extension LiveKitSession {
 		
 		await withThrowingTaskGroup(of: Void.self) { group in
 			group.addTask {
-				let videoSource = videoPublishing.source
-				let videoCapturer = RTCVideoCapturer(delegate: videoSource)
+				guard let videoSource = videoTransmitter?.source as? RTCVideoSource else { return }
 				for await videoFrame in videoFrames {
+				let videoCapturer = RTCVideoCapturer(delegate: videoSource)
 					videoSource.capturer(videoCapturer, didCapture: videoFrame)
 					try Task.checkCancellation()
 				}
@@ -77,19 +78,23 @@ extension LiveKitSession {
 			group.cancelAll()
 		}
 		
-		try signalHub.sendMuteTrack(trackSid: videoTrackInfo.trackSid, muted: true)
-		try signalHub.sendMuteTrack(trackSid: audioTrackInfo.trackSid, muted: true)
-		
-		await signalHub.setMediaTrack(videoPublishing.track, enabled: false)
-		try await signalHub.removeTrack(videoPublishing.track.trackId)
+		[videoTrackInfo, audioTrackInfo].forEach {
+			try? signalHub.sendMuteTrack(trackSid: $0.trackSid, muted: true)
+		}
+				
+		if let videoTransmitter {
+			videoTransmitter.enabled = false
+			try await signalHub.removeTrack(videoTransmitter.trackId)
+		}
 		
 		if let audioTransmitter {
-			await signalHub.setMediaTrack(audioTransmitter.track, enabled: false)
-			try await signalHub.removeTrack(audioTransmitter.track.trackId)
+			audioTransmitter.enabled = false
+			try await signalHub.removeTrack(audioTransmitter.trackId)
 		}
 		
 		//publisher should negotiate and tell the other side that we remove the track(s)
 		await signalHub.negotiate()
 		signalHub.audioTransmitter = nil
+		signalHub.videoTransmitter = nil
 	}
 }

@@ -46,6 +46,7 @@ open class SignalHub: @unchecked Sendable {
 	@Publishing public var receivers: [String: Receiver] = [:]
 	
 	@Publishing public var audioTransmitter: AudioTransmitter? = nil
+	@Publishing public var videoTransmitter: VideoTransmitter? = nil
 	
 	//MARK: - speaker updates
 	
@@ -135,9 +136,9 @@ open class SignalHub: @unchecked Sendable {
 		do {
 			let data = try request.serializedData()
 			outgoingDataRequests.send(data)
-			//			Logger.log(oslog: signalHubLog, message: "enqueue request: \(String(describing: request.message))")
+			Logger.plog(oslog: signalHubLog, publicMessage: "enqueued request: \(String(describing: request.message))")
 		} catch {
-			Logger.log(level: .error, oslog: signalHubLog, message: "MessageChannel: enqueue ERROR: \(error)")
+			Logger.plog(level: .error, oslog: signalHubLog, publicMessage: "MessageChannel: enqueue ERROR: \(error)")
 		}
 	}
 }
