@@ -60,17 +60,12 @@ extension SignalHub {
 }
 
 extension SignalHub {
-	
-	func createVideoTransceiver(videoPublication: Publication) async throws -> PeerConnection.VideoPublishItems {
-		try await peerConnectionFactory.publishingPeerConnection.videoTransceiver(videoPublication: videoPublication, enabled: true)
-	}
 
 	func createAudioTransmitter(audioPublication: Publication, enabled: Bool = false) async throws -> AudioTransmitter? {
 		try await peerConnectionFactory.publishingPeerConnection.audioTransmitter(audioPublication: audioPublication, enabled: enabled)
 	}
 	
-	@MainActor
-	func setMediaTrack(_ track: RTCMediaStreamTrack, enabled: Bool) {
-		track.isEnabled = enabled
+	func createVideoTransmitter(videoPublication: Publication, enabled: Bool = false) async throws -> VideoTransmitter? {
+		try await peerConnectionFactory.publishingPeerConnection.videoTransmitter(videoPublication: videoPublication, enabled: enabled)
 	}
 }

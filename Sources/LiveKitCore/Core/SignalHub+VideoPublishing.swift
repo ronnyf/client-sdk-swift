@@ -72,3 +72,7 @@ struct Publication: Sendable {
 		)
 	}
 }
+
+extension VideoPublishOptions: @unchecked Sendable {}
+extension AudioPublishOptions: @unchecked Sendable {}
+extension AudioCaptureOptions: @unchecked Sendable {}

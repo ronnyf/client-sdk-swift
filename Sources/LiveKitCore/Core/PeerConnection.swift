@@ -174,22 +174,10 @@ actor PeerConnection {
 		
 		let transceiverInit = RTCRtpTransceiverInit(encodingParameters: audioPublication.encodings)
 		guard let transceiver = rtcPeerConnection.addTransceiver(with: rtcAudioTrack, init: transceiverInit) else { return nil }
-		return AudioTransmitter(sender: transceiver.sender, track: rtcAudioTrack, source: rtcAudioSource)
+		return AudioTransmitter(sender: transceiver.sender, audioTrack: rtcAudioTrack, audioSource: rtcAudioSource)
 	}
 	
-	func audioTransceiver(audioPublication: Publication, enabled: Bool = false) async throws -> AudioPublishItems {
-		dispatchPrecondition(condition: .onQueue(dispatchQueue))
-		
-		guard let rtcPeerConnection = rtcPeerConnection else { throw PeerConnection.Errors.noPeerConnection }
-		
-		let (rtcAudioTrack, rtcAudioSource) = audioTrack(audioPublication: audioPublication, enabled: enabled)
-		
-		let transceiverInit = RTCRtpTransceiverInit(encodingParameters: audioPublication.encodings)
-		let transceiver = rtcPeerConnection.addTransceiver(with: rtcAudioTrack, init: transceiverInit)
-		return AudioPublishItems(transceiver: transceiver, track: rtcAudioTrack, source: rtcAudioSource)
-	}
-	
-	func videoTransceiver(videoPublication: Publication, enabled: Bool = true) async throws -> VideoPublishItems {
+	func videoTransmitter(videoPublication: Publication, enabled: Bool = true) async throws -> VideoTransmitter? {
 		dispatchPrecondition(condition: .onQueue(dispatchQueue))
 		
 		guard let rtcPeerConnection = rtcPeerConnection else { throw PeerConnection.Errors.noPeerConnection }
@@ -200,9 +188,8 @@ actor PeerConnection {
 		let rtcVideoTrack = factory().videoTrack(with: rtcVideoSource, trackId: videoPublication.cid)
 		rtcVideoTrack.isEnabled = enabled
 		
-		let transceiver = rtcPeerConnection.addTransceiver(with: rtcVideoTrack, init: transceiverInit)
-		assert(transceiver != nil)
-		return VideoPublishItems(transceiver: transceiver, track: rtcVideoTrack, source: rtcVideoSource)
+		guard let transceiver = rtcPeerConnection.addTransceiver(with: rtcVideoTrack, init: transceiverInit) else { return nil }
+		return VideoTransmitter(sender: transceiver.sender, videoTrack: rtcVideoTrack, videoSource: rtcVideoSource)
 	}
 	
 	func offerInProgress() -> Bool {
