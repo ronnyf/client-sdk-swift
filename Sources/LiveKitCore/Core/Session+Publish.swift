@@ -31,6 +31,10 @@ extension LiveKitSession {
 		async let audioTrackInfoResult = signalHub.sendAddTrackRequest(addAudioTrackRequest)
 		
 		let (videoTransmitter, audioTransmitter, audioTrackInfo, videoTrackInfo) = try await (videoTransmitterTask, audioTransmitterTask, audioTrackInfoResult, videoTrackInfoResult)
+		
+		audioTransmitter?.trackInfo = audioTrackInfo
+		videoTransmitter?.trackInfo = videoTrackInfo
+		
 		signalHub.audioTransmitter = audioTransmitter
 		signalHub.videoTransmitter = videoTransmitter
 		

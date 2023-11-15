@@ -11,6 +11,8 @@
 		600CC3512A097C430033FF99 /* PeerConnection+RTCdelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600CC3502A097C430033FF99 /* PeerConnection+RTCdelegate.swift */; };
 		601BCA7F2AA80F7700F9AE30 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 601BCA7E2AA80F7700F9AE30 /* AsyncAlgorithms */; };
 		601BCA822AA80FA900F9AE30 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = 601BCA812AA80FA900F9AE30 /* SwiftProtobuf */; };
+		601C71452B054359005DD0A0 /* MediaTransmitters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 601C71442B054359005DD0A0 /* MediaTransmitters.swift */; };
+		601C71462B054359005DD0A0 /* MediaTransmitters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 601C71442B054359005DD0A0 /* MediaTransmitters.swift */; };
 		6023F5372A18440800005548 /* PeerConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6023F5362A18440800005548 /* PeerConnection.swift */; };
 		6025C3312A147C1800DC21DF /* SharedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6025C3302A147C1800DC21DF /* SharedModels.swift */; };
 		6025C3392A147D3F00DC21DF /* DimensionsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6025C3382A147D3F00DC21DF /* DimensionsProvider.swift */; };
@@ -146,6 +148,7 @@
 
 /* Begin PBXFileReference section */
 		600CC3502A097C430033FF99 /* PeerConnection+RTCdelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PeerConnection+RTCdelegate.swift"; sourceTree = "<group>"; };
+		601C71442B054359005DD0A0 /* MediaTransmitters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaTransmitters.swift; sourceTree = "<group>"; };
 		6023F5362A18440800005548 /* PeerConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerConnection.swift; sourceTree = "<group>"; };
 		6025C3292A14792D00DC21DF /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Package.swift; path = ../Package.swift; sourceTree = "<group>"; };
 		6025C3302A147C1800DC21DF /* SharedModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedModels.swift; sourceTree = "<group>"; };
@@ -320,6 +323,7 @@
 				60888F7829F97EC900AE5111 /* SignalHub+VideoPublishing.swift */,
 				60BFB45B2ACDE0010081807F /* VideoView.swift */,
 				607EA56F2AFD3A29001B0C45 /* AudioDevice.swift */,
+				601C71442B054359005DD0A0 /* MediaTransmitters.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -599,6 +603,7 @@
 				6069A1832A05C20700842647 /* SignalHub+RTC.swift in Sources */,
 				60A0DF5C2A9298B90038C808 /* TimeInterval.swift in Sources */,
 				60D4198C2AC72B54006DE490 /* Session+Connect.swift in Sources */,
+				601C71452B054359005DD0A0 /* MediaTransmitters.swift in Sources */,
 				60888F8229F97EC900AE5111 /* Convenience.swift in Sources */,
 				60888F7A29F97EC900AE5111 /* Session.swift in Sources */,
 				60A0DF512A9298840038C808 /* Engine+WebRTC.swift in Sources */,
@@ -663,6 +668,7 @@
 				600BAA0C2AD740E90000DE98 /* PeerConnection+RTC.swift in Sources */,
 				60E39B012A61A9FD00FBE675 /* ConnectivityListener-Core.swift in Sources */,
 				60BFB45D2ACDE0010081807F /* VideoView.swift in Sources */,
+				601C71462B054359005DD0A0 /* MediaTransmitters.swift in Sources */,
 				603F704A2AA9448B004C8D99 /* Logging.swift in Sources */,
 				60A0DF2B2A9297DD0038C808 /* Errors.swift in Sources */,
 				60E39B022A61A9FD00FBE675 /* DimensionsProvider.swift in Sources */,

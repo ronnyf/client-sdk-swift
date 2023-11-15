@@ -23,9 +23,14 @@ extension PeerConnection {
 				try signalHub.enqueue(request: request)
 				
 			case .didAddMediaStream(let mediaStream):
-				let liveKitStream = LiveKitStream(mediaStream)
-				signalHub.mediaStreams[liveKitStream.participantId] = liveKitStream
-				Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) did add media stream: \(liveKitStream)")
+				let participantId = String(mediaStream.participantId)
+				if var liveKitStream = signalHub.mediaStreams[participantId] {
+					liveKitStream.update(with: mediaStream)
+					signalHub.mediaStreams[participantId] = liveKitStream
+				} else {
+					signalHub.mediaStreams[participantId] = LiveKitStream(mediaStream)
+				}
+				Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) did add media stream: \(mediaStream)")
 				
 			case .didRemoveMediaStream(let mediaStream):
 				Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) is removing a media stream: \(mediaStream)")

@@ -12,6 +12,10 @@ import Combine
 public class AudioDevice {
 	public enum Errors: Error {
 		case noDeliveryFormat
+		case noOutputFormat
+		case rtcFormat
+		case getPlayoutData
+		case getPlayoutDataResult
 	}
 	
 	let rtc: AudioDeviceProxy // RTCAudioDevice
@@ -29,7 +33,9 @@ public class AudioDevice {
 	
 	@Publishing var audioConverter: AudioConverterRef?
 	
+	@Publishing public var audioSourceNode: AVAudioSourceNode?
 	@Publishing public var audioSinkNode: AVAudioSinkNode?
+	
 	private var subscriptions: Set<AnyCancellable> = []
 	
 	convenience public init() {
@@ -71,7 +77,7 @@ public class AudioDevice {
 		AudioConverterNew(recordingFormat.streamDescription, deliveryFormat.streamDescription, &audioConverter)
 		print("DEBUG: made new audio converter: \(String(describing: audioConverter))")
 		
-		let isRecordingPublisher = rtc.$shouldRecord.publisher.dropFirst()
+		let isRecordingPublisher = rtc.$shouldRecord.publisher
 		isRecordingPublisher
 			.sink { [weak self] isRecording in
 				guard let self else { return }
@@ -90,12 +96,48 @@ public class AudioDevice {
 			let payload = AudioPayload(timestamp: timestamp, frameCount: framecount, audioBufferList: audioBufferList)
 			return rtc.deliver(payload, converter: audioConverter)
 		}
-		print("DEBUG: made audio sink node: \(audioSinkNode!)")
 	}
 	
 	public func stopAudioDelivery() {
 		print("DEBUG: stopping audio delivery")
 		audioSinkNode = nil
+	}
+	
+	public func prepareAudioCapture(outputFormat: AVAudioFormat) throws {
+		print("DEBUG: preparing audio capture with format: \(outputFormat)")
+		guard let rtcFormat = AVAudioFormat(commonFormat: .pcmFormatInt16,
+											sampleRate: outputFormat.sampleRate,
+											channels: outputFormat.channelCount,
+											interleaved: true) else { throw Errors.rtcFormat }
+		
+		let isPlayingPublisher = rtc.$shouldPlay.publisher
+		isPlayingPublisher
+			.sink { [weak self] isPlaying in
+				guard let self else { return }
+				if isPlaying == true {
+					self.startAudioCapture(format: rtcFormat)
+				} else {
+					self.stopAudioCapture()
+				}
+			}
+			.store(in: &subscriptions)
+	}
+	
+	public func startAudioCapture(format: AVAudioFormat, inputBus: Int = 0) {
+		print("DEBUG: starting audio capture")
+		
+		audioSourceNode = AVAudioSourceNode(format: format, renderBlock: { [rtc] (isSilence: UnsafeMutablePointer<ObjCBool>, timestamp: UnsafePointer<AudioTimeStamp>, frameCount: AVAudioFrameCount, audioBufferList: UnsafeMutablePointer<AudioBufferList>) in
+			// rtc delivers the payload directly to the audio source node ...
+			guard let getPlayoutData = rtc.audioDeviceDelegate?.getPlayoutData else { return -1 }
+			var flags: AudioUnitRenderActionFlags = []
+			let playResult = getPlayoutData(&flags, timestamp, inputBus, frameCount, audioBufferList)
+			return playResult
+		})
+	}
+	
+	public func stopAudioCapture() {
+		print("DEBUG: stopping audio capture")
+		audioSourceNode = nil
 	}
 	
 	func teardown() {
@@ -163,8 +205,7 @@ class AudioDeviceProxy: NSObject, RTCAudioDevice {
 	@Publishing var shouldRecord: Bool = false
 	
 	@Publishing var audioDeviceDelegate: RTCAudioDeviceDelegate?
-	
-	var audioRenderActionFlags: AudioUnitRenderActionFlags = []
+	@Publishing var audioRenderActionFlags: AudioUnitRenderActionFlags = []
 	
 	override init() {
 		super.init()
@@ -215,10 +256,12 @@ class AudioDeviceProxy: NSObject, RTCAudioDevice {
 	
 	func startPlayout() -> Bool {
 		shouldPlay = true
+		print("DEBUG: startPlayout()")
 		return true
 	}
 	
 	func stopPlayout() -> Bool {
+		print("DEBUG: stopPlayout()")
 		shouldPlay = false
 		return true
 	}
@@ -258,139 +301,9 @@ extension AudioDeviceProxy {
 		
 		if let converter {
 			let convertedAudioBufferList = payload.convert(audioConverter: converter)
-//			print("DEBUG: delivering converted audio: \(converter.debugDescription)")
 			return deliverRecordedData(&audioRenderActionFlags, payload.timestamp, 0, payload.frameCount, withUnsafePointer(to: convertedAudioBufferList, { $0 }), nil, nil)
 		} else {
 			return deliverRecordedData(&audioRenderActionFlags, payload.timestamp, 0, payload.frameCount, payload.audioBufferList, nil, nil)
 		}
 	}
 }
-
-//		NotificationCenter.default.addObserver(self,
-//											   selector: #selector(self.handleInterruption(_:)),
-//											   name: AVAudioSession.interruptionNotification,
-//											   object: AVAudioSession.sharedInstance())
-//		NotificationCenter.default.addObserver(self,
-//											   selector: #selector(self.handleRouteChange(_:)),
-//											   name: AVAudioSession.routeChangeNotification,
-//											   object: AVAudioSession.sharedInstance())
-//		NotificationCenter.default.addObserver(self,
-//											   selector: #selector(self.handleMediaServicesWereReset(_:)),
-//											   name: AVAudioSession.mediaServicesWereResetNotification,
-//											   object: AVAudioSession.sharedInstance())
-//}
-
-//	func setupAudioEngine() throws {
-//		do {
-//			try rtc.avAudioSession.setCategory(.playAndRecord, options: .defaultToSpeaker)
-//		} catch {
-//			print("Could not set the audio category: \(error.localizedDescription)")
-//		}
-//
-//		audioEngine.isAutoShutdownEnabled = true
-//
-//		let useVoiceProcessingAudioUnit = rtc.avAudioSession.supportsVoiceProcessing
-//		// NOTE: Toggle voice processing state over outputNode, not to eagerly create inputNote.
-//		// Also do it just after creation of AVAudioEngine to avoid random crashes observed when voice processing changed on later stages.
-//		if audioEngine.outputNode.isVoiceProcessingEnabled != useVoiceProcessingAudioUnit {
-//			do {
-//				// Use VPIO to as I/O audio unit.
-//				try audioEngine.outputNode.setVoiceProcessingEnabled(useVoiceProcessingAudioUnit)
-//			}
-//			catch let e {
-//				print("setVoiceProcessingEnabled error: \(e)")
-//				return
-//			}
-//		}
-//
-//		let inputNode = audioEngine.inputNode
-//		// Configure the microphone input.
-//		let recordingFormat = inputNode.outputFormat(forBus: 0)
-//
-//// TODO: later we add speech recognition
-////		inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { (buffer: AVAudioPCMBuffer, when: AVAudioTime) in
-////			self.recognitionRequest?.append(buffer)
-////		}
-//
-//		audioEngine.prepare()
-//		try audioEngine.start()
-//	}
-//
-//	func resetAudioEngine() {
-//		if audioEngine.isRunning {
-//			audioEngine.stop()
-//		}
-//	}
-//
-//	func updateAudioEngine() {
-//		rtc.updateEngine()
-//	}
-
-//	@objc
-//	func handleInterruption(_ notification: Notification) {
-//		guard let userInfo = notification.userInfo,
-//			  let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
-//			  let type = AVAudioSession.InterruptionType(rawValue: typeValue) else { return }
-//
-//		switch type {
-//		case .began:
-//			// Interruption begins so you need to take appropriate actions.
-//			break
-//
-//		case .ended:
-//			do {
-//				try AVAudioSession.sharedInstance().setActive(true)
-//			} catch {
-//				print("Could not set the audio session to active: \(error)")
-//			}
-//
-//			if let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt {
-//				let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
-//				if options.contains(.shouldResume) {
-//					// Interruption ends. Resume playback.
-//				} else {
-//					// Interruption ends. Don't resume playback.
-//				}
-//			}
-//		@unknown default:
-//			fatalError("Unknown type: \(type)")
-//		}
-//	}
-//
-//	@objc
-//	func handleRouteChange(_ notification: Notification) {
-//		guard let userInfo = notification.userInfo,
-//			  let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
-//			  let reason = AVAudioSession.RouteChangeReason(rawValue: reasonValue),
-//			  let routeDescription = userInfo[AVAudioSessionRouteChangePreviousRouteKey] as? AVAudioSessionRouteDescription else { return }
-//		switch reason {
-//		case .newDeviceAvailable:
-//			print("newDeviceAvailable")
-//		case .oldDeviceUnavailable:
-//			print("oldDeviceUnavailable")
-//		case .categoryChange:
-//			print("categoryChange")
-//			print("New category: \(AVAudioSession.sharedInstance().category)")
-//		case .override:
-//			print("override")
-//		case .wakeFromSleep:
-//			print("wakeFromSleep")
-//		case .noSuitableRouteForCategory:
-//			print("noSuitableRouteForCategory")
-//		case .routeConfigurationChange:
-//			print("routeConfigurationChange")
-//		case .unknown:
-//			print("unknown")
-//		@unknown default:
-//			fatalError("Really unknown reason: \(reason)")
-//		}
-//
-//		print("Previous route:\n\(routeDescription)")
-//		print("Current route:\n\(AVAudioSession.sharedInstance().currentRoute)")
-//	}
-//
-//	@objc
-//	func handleMediaServicesWereReset(_ notification: Notification) {
-//		resetAudioEngine()
-//		try? setupAudioEngine()
-//	}

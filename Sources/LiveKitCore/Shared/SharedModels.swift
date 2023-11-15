@@ -133,6 +133,17 @@ public struct LiveKitStream: Sendable {
 			audioTracks: rtcMediaStream.audioTracks.map { MediaTrack($0) }
 		)
 	}
+	
+	mutating func update(with rtcMediaStream: RTCMediaStream) {
+		if rtcMediaStream.videoTracks.isEmpty == false {
+			videoTracks = rtcMediaStream.videoTracks.map { MediaTrack($0) }
+		}
+		
+		if rtcMediaStream.audioTracks.isEmpty == false {
+			audioTracks = rtcMediaStream.audioTracks.map { MediaTrack($0) }
+			
+		}
+	}
 }
 
 extension LiveKitStream: Equatable {
@@ -695,6 +706,24 @@ public struct LiveKitTrackInfo: Sendable {
 	}
 }
 
+extension LiveKitParticipant {
+	public var videoTracks: [LiveKitTrackInfo.LiveKitTrack] {
+		tracks.filter { $0.type == .video }
+	}
+	
+	public var audioTracks: [LiveKitTrackInfo.LiveKitTrack] {
+		tracks.filter { $0.type == .audio }
+	}
+	
+	public var mutedAudioTracks: [LiveKitTrackInfo.LiveKitTrack] {
+		audioTracks.filter { $0.muted == true }
+	}
+}
+
+extension LiveKitTrackInfo.LiveKitTrack: Identifiable {
+	public var id: String { sid }
+}
+
 @MainActor
 public final class Receiver: @unchecked Sendable, Identifiable {
 	
@@ -714,76 +743,6 @@ public final class Receiver: @unchecked Sendable, Identifiable {
 extension Receiver: Equatable {
 	public static func == (lhs: Receiver, rhs: Receiver) -> Bool {
 		lhs.id == rhs.id
-	}
-}
-
-public class VideoTransmitter: MediaTransmitter {
-	init(sender: RTCRtpSender, videoTrack: RTCVideoTrack, videoSource: RTCVideoSource) {
-		super.init(sender: sender, track: videoTrack, source: videoSource)
-	}
-}
-
-public class AudioTransmitter: MediaTransmitter {
-	init(sender: RTCRtpSender, audioTrack: RTCAudioTrack, audioSource: RTCAudioSource) {
-		super.init(sender: sender, track: audioTrack, source: audioSource)
-	}
-}
-
-@objcMembers
-public class MediaTransmitter: @unchecked Sendable, Identifiable {
-	let sender: RTCRtpSender
-	let track: RTCMediaStreamTrack
-	let source: RTCMediaSource
-	
-	public var muted: Bool {
-		get {
-			track.isEnabled == false
-		}
-		set {
-			track.isEnabled = !newValue
-		}
-	}
-	
-	public var enabled: Bool {
-		get {
-			track.isEnabled
-		}
-		set {
-			track.isEnabled = newValue
-		}
-	}
-	
-	public var trackId: String {
-		track.trackId
-	}
-	
-	@Publishing var trackEnabled: Bool
-	public var trackEnabledPublisher: some Publisher<Bool, Never> {
-		$trackEnabled.publisher
-	}
-	
-	public var trackMutedPublisher: some Publisher<Bool, Never> {
-		$trackEnabled.publisher.map { !$0 }
-	}
-	
-	private var observationToken: NSKeyValueObservation?
-	
-	nonisolated init(sender: RTCRtpSender, track: RTCMediaStreamTrack, source: RTCMediaSource) {
-		self.sender = sender
-		self.track = track
-		self.source = source
-		self._trackEnabled = Publishing<Bool>(wrappedValue: track.isEnabled)
-		
-		// first, we observe (remember kvo?) the objc property of track, this should not fire immediately
-		observationToken = track.observe(\.isEnabled, options: [.new]) { _, change in
-			print("DEBUG: KVO: track.isEnabled: \(change)")
-			guard let enabled = change.newValue, self.enabled != self.trackEnabled else { return }
-			self.trackEnabled = enabled
-		}
-	}
-	
-	deinit {
-		print("DEBUG: deinit <AudioTransmitter \(track)>")
 	}
 }
 
