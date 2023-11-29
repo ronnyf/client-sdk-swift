@@ -68,7 +68,7 @@ actor PeerConnection {
 	
 	private(set) var _pendingCandidates = [String]()
 	private(set) var _offerInProgress: Bool = false
-	private(set) var _offerTask: Task<Void, Error>?
+	private(set) var _offerTask: Task<RTCSignalingState, Error>?
 	
 	let peerConnectionIsPublisher: Bool
 	let coordinator: PeerConnection.Coordinator
@@ -196,7 +196,7 @@ actor PeerConnection {
 		_offerInProgress
 	}
 	
-	func update(offerTask: Task<Void, Error>) {
+	func update(offerTask: Task<RTCSignalingState, Error>) {
 		_offerTask = offerTask
 	}
 	

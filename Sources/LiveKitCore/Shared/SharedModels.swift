@@ -287,6 +287,12 @@ public struct LiveKitConnectionQuality: Sendable {
 	public let participantId: String
 	public let quality: LiveKitQuality
 	public let score: Float
+	
+	public init(participantId: String, quality: LiveKitQuality, score: Float) {
+		self.participantId = participantId
+		self.quality = quality
+		self.score = score
+	}
 }
 
 extension LiveKitConnectionQuality: Identifiable {
@@ -568,7 +574,7 @@ public struct LiveKitTrackInfo: Sendable {
 		public let codecs: [CodecInfo]
 		public let stereo: Bool
 		
-		init(sid: String, type: Kind, name: String, muted: Bool, width: UInt32, height: UInt32, simulcast: Bool, disableDtx: Bool, source: Source, layers: [VideoLayer], mimeType: String, mid: String, codecs: [CodecInfo], stereo: Bool) {
+		public init(sid: String, type: Kind, name: String, muted: Bool, width: UInt32, height: UInt32, simulcast: Bool, disableDtx: Bool, source: Source, layers: [VideoLayer], mimeType: String, mid: String, codecs: [CodecInfo], stereo: Bool) {
 			self.sid = sid
 			self.type = type
 			self.name = name

@@ -169,7 +169,9 @@ open class LiveKitSession: @unchecked Sendable {
 	}
 	
 	public func muteAudio(_ muted: Bool, trackId: String) throws {
-		try signalHub.enqueue(request: Livekit_SignalRequest(trackId: trackId, muted: muted))
+		guard trackId.isEmpty == false else { return }
+		let request = signalHub.makeMuteTrackRequest(trackId: trackId, muted: muted)
+		try signalHub.enqueue(request: request)
 	}
 }
 

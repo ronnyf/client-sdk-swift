@@ -8,13 +8,18 @@
 import Foundation
 import CoreMedia
 import Combine
+import OSLog
 @_implementationOnly import WebRTC
 
 extension SignalHub {
 	
-	//MARK: - livekit signals
+	// MARK: - livekit signals
 	
 	func sendMuteTrack(trackSid: String, muted: Bool) throws {
+		guard trackSid.isEmpty == false else {
+			Logger.plog(level: .error, oslog: signalHubLog, publicMessage: "attempting to mute a track without sid, this will not work! Please file a bug.")
+			return
+		}
 		let request = Livekit_SignalRequest.with {
 			$0.mute = Livekit_MuteTrackRequest.with {
 				$0.sid = trackSid
@@ -71,14 +76,13 @@ extension SignalHub {
 		}
 	}
 	
-	func sendAddTrackRequest(_ request: Livekit_AddTrackRequest, timeout: TimeInterval = 15) async throws -> LiveKitTrackInfo {
+	func sendAddTrackRequest(_ request: Livekit_AddTrackRequest, timeout: TimeInterval = SignalHub.defaultTimeOut) async throws -> LiveKitTrackInfo {
 		let signalRequest = Livekit_SignalRequest.with {
 			$0.addTrack = request
 		}
 		try enqueue(request: signalRequest)
 		
-		//TODO: validate timeout in seconds
-		Logger.plog(oslog: signalHubLog, publicMessage: "waiting for track published response for: \(request)")
+		Logger.plog(level: .debug, oslog: signalHubLog, publicMessage: "waiting for track published response for: \(request)")
 		
 		let trackPublisher: AnyPublisher<LiveKitTrackInfo, Never>
 		
@@ -96,7 +100,7 @@ extension SignalHub {
 		
 		do {
 			let response = try await trackPublisher.firstValue(timeout: timeout)
-			Logger.plog(oslog: signalHubLog, publicMessage: "received track published response: \(response)")
+			Logger.plog(level: .debug, oslog: signalHubLog, publicMessage: "received track published response: \(response)")
 			return response
 		} catch {
 			//TODO: sometimes this fails ... I want to find out why this happens sometimes ... 

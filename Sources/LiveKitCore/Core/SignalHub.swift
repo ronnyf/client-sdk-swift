@@ -21,12 +21,13 @@ public enum SignalHubError: Error {
 	case negotiationFailed
 }
 
-// should this be an actor instead ? so the PeerConnection types can be classes instead of actors?
 @available(iOS 15.0, macOS 12.0, *)
 open class SignalHub: @unchecked Sendable {
 	
-	//MARK: - WebSocket messages, in/out
-	//using this channel specifically for pong messages
+	static let defaultTimeOut: TimeInterval = 10
+	
+	// MARK: - WebSocket messages, in/out
+	
 	let outgoingDataRequestsChannel = AsyncChannel<Data>()
 	let outgoingDataRequests = PassthroughSubject<Data, Never>()
 	
@@ -36,7 +37,7 @@ open class SignalHub: @unchecked Sendable {
 	@Publishing public var localParticipant: LiveKitParticipant? = nil
 	@Publishing public var remoteParticipants: [String: LiveKitParticipant] = [:]
 	
-	//published tracks ... used for addTrackRequest <> Response during publishing
+	// published tracks ... used for addTrackRequest <> Response during publishing
 	@Publishing var audioTracks: [String: LiveKitTrackInfo] = [:]
 	@Publishing var videoTracks: [String: LiveKitTrackInfo] = [:]
 	@Publishing var dataTracks: [String: LiveKitTrackInfo] = [:]
@@ -53,11 +54,11 @@ open class SignalHub: @unchecked Sendable {
 	@Publishing public var activeSpeakers: [SpeakingParticipant] = []
 	
 	//MARK: - tokens
-	//TODO
+	// TODO
 	let tokenUpdatesSubject = PassthroughSubject<String, Never>()
 	
 	//MARK: - quality updates
-	//TODO
+	// TODO
 	@Publishing var subscriptionQualityUpdates: Livekit_SubscribedQualityUpdate?
 	
 	//MARK: - data channels
@@ -72,7 +73,7 @@ open class SignalHub: @unchecked Sendable {
 	
 	let signalHubLog = OSLog(subsystem: "SignalHub", category: "LiveKitCore")
 	
-	//MARK: - init/deinit
+	// MARK: - init/deinit
 	
 	let peerConnectionFactory: PeerConnectionFactory
 	init(peerConnectionFactory: PeerConnectionFactory) {
@@ -81,16 +82,15 @@ open class SignalHub: @unchecked Sendable {
 	
 	convenience public init() {
 		self.init(peerConnectionFactory: PeerConnectionFactory())
+		Logger.plog(level: .debug, oslog: signalHubLog, publicMessage: "init <SignalHub>")
 	}
 	
 	deinit {
-#if DEBUG
-		Logger.log(oslog: signalHubLog, message: "deinit <SignalHub>")
-#endif
+		Logger.plog(level: .debug, oslog: signalHubLog, publicMessage: "deinit <SignalHub>")
 	}
 	
 	func teardown() async throws {
-		//0: housekeeping
+		// 0: housekeeping
 		outgoingDataRequestsChannel.finish()
 		outgoingDataRequests.send(completion: .finished)
 		
@@ -122,10 +122,10 @@ open class SignalHub: @unchecked Sendable {
 		incomingDataPackets.send(completion: .finished)
 		outgoingDataPackets.send(completion: .finished)
 		
-//		_activeSpeakers.subject.send(completion: .finished)
+		// _activeSpeakers.subject.send(completion: .finished)
 		peerConnectionFactory.teardown()
 		
-		Logger.log(oslog: signalHubLog, message: "signalHub did teardown")
+		Logger.plog(oslog: signalHubLog, publicMessage: "signalHub did teardown")
 	}
 	
 	public func tokenUpdates() -> AnyPublisher<String, Never> {
@@ -136,7 +136,7 @@ open class SignalHub: @unchecked Sendable {
 		do {
 			let data = try request.serializedData()
 			outgoingDataRequests.send(data)
-			Logger.plog(oslog: signalHubLog, publicMessage: "enqueued request: \(String(describing: request.message))")
+			Logger.plog(level: .debug, oslog: signalHubLog, publicMessage: "enqueued request: \(String(describing: request.message))")
 		} catch {
 			Logger.plog(level: .error, oslog: signalHubLog, publicMessage: "MessageChannel: enqueue ERROR: \(error)")
 		}

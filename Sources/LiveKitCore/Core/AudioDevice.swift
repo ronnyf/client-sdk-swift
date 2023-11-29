@@ -7,9 +7,11 @@
 
 import AVFAudio
 import Combine
+import OSLog
 @_implementationOnly import WebRTC
 
 public class AudioDevice {
+	
 	public enum Errors: Error {
 		case noDeliveryFormat
 		case noOutputFormat
@@ -18,6 +20,7 @@ public class AudioDevice {
 		case getPlayoutDataResult
 	}
 	
+	let audioDeviceLog = OSLog(subsystem: "AudioDevice", category: "LiveKitCore")
 	let rtc: AudioDeviceProxy // RTCAudioDevice
 	
 	public var shouldPlay: some Publisher<Bool, Never> {
@@ -52,9 +55,7 @@ public class AudioDevice {
 			AudioConverterDispose(audioConverter)
 			self.audioConverter = nil
 		}
-		#if DEBUG
-		print("DEBUG: deinit <AudioDevice>")
-		#endif
+		Logger.plog(level: .debug, oslog: audioDeviceLog, publicMessage: "deinit <AudioDevice>")
 	}
 	
 	public func prepareDelivery(recordingFormat: AVAudioFormat) throws {
@@ -73,9 +74,9 @@ public class AudioDevice {
 		}
 		
 		//make a new audio converter, this one definitely matches the recording and delivery formats
-		print("DEBUG: attempting to make new audio converter from: \(String(describing: recordingFormat.debugDescription)) -> \(deliveryFormat.debugDescription)")
+		Logger.plog(level: .debug, oslog: audioDeviceLog, publicMessage: "attempting to make new audio converter from: \(String(describing: recordingFormat.debugDescription)) -> \(deliveryFormat.debugDescription)")
 		AudioConverterNew(recordingFormat.streamDescription, deliveryFormat.streamDescription, &audioConverter)
-		print("DEBUG: made new audio converter: \(String(describing: audioConverter))")
+		Logger.plog(level: .debug, oslog: audioDeviceLog, publicMessage: "made new audio converter: \(String(describing: audioConverter))")
 		
 		let isRecordingPublisher = rtc.$shouldRecord.publisher
 		isRecordingPublisher
@@ -91,7 +92,7 @@ public class AudioDevice {
 	}
 	
 	func startAudioBufferDelivery() {
-		print("DEBUG: starting audio delivery")
+		Logger.plog(oslog: audioDeviceLog, publicMessage: "starting audio delivery")
 		audioSinkNode = AVAudioSinkNode { [rtc, audioConverter] timestamp, framecount, audioBufferList in
 			let payload = AudioPayload(timestamp: timestamp, frameCount: framecount, audioBufferList: audioBufferList)
 			return rtc.deliver(payload, converter: audioConverter)
@@ -99,12 +100,12 @@ public class AudioDevice {
 	}
 	
 	public func stopAudioDelivery() {
-		print("DEBUG: stopping audio delivery")
+		Logger.plog(oslog: audioDeviceLog, publicMessage: "stopping audio delivery")
 		audioSinkNode = nil
 	}
 	
 	public func prepareAudioCapture(outputFormat: AVAudioFormat) throws {
-		print("DEBUG: preparing audio capture with format: \(outputFormat)")
+		Logger.plog(level: .debug, oslog: audioDeviceLog, publicMessage: "preparing audio capture with format: \(outputFormat)")
 		guard let rtcFormat = AVAudioFormat(commonFormat: .pcmFormatInt16,
 											sampleRate: outputFormat.sampleRate,
 											channels: outputFormat.channelCount,
@@ -124,7 +125,7 @@ public class AudioDevice {
 	}
 	
 	public func startAudioCapture(format: AVAudioFormat, inputBus: Int = 0) {
-		print("DEBUG: starting audio capture")
+		Logger.plog(oslog: audioDeviceLog, publicMessage: "starting audio capture")
 		
 		audioSourceNode = AVAudioSourceNode(format: format, renderBlock: { [rtc] (isSilence: UnsafeMutablePointer<ObjCBool>, timestamp: UnsafePointer<AudioTimeStamp>, frameCount: AVAudioFrameCount, audioBufferList: UnsafeMutablePointer<AudioBufferList>) in
 			// rtc delivers the payload directly to the audio source node ...
@@ -136,18 +137,20 @@ public class AudioDevice {
 	}
 	
 	public func stopAudioCapture() {
-		print("DEBUG: stopping audio capture")
+		Logger.plog(oslog: audioDeviceLog, publicMessage: "stopping audio capture")
 		audioSourceNode = nil
 	}
 	
 	func teardown() {
-		// TODO: need some inspration about how to do this cleanly
+		Logger.plog(oslog: audioDeviceLog, publicMessage: "teardown")
+		// TODO: need some inspration about how to do this more neatly...
 		stopAudioDelivery()
 		subscriptions.removeAll(keepingCapacity: true)
 	}
 }
 
 struct AudioPayload {
+	
 	let timestamp: UnsafePointer<AudioTimeStamp>
 	let frameCount: AVAudioFrameCount
 	let audioBufferList: UnsafePointer<AudioBufferList>
@@ -160,6 +163,9 @@ struct AudioPayload {
 }
 
 class AudioDeviceProxy: NSObject, RTCAudioDevice {
+	
+	let audioDeviceProxyLog = OSLog(subsystem: "RTCAudioDevice", category: "LiveKitCore")
+	
 	var deviceInputSampleRate: Double {
 		avAudioSession.sampleRate
 	}
@@ -209,17 +215,15 @@ class AudioDeviceProxy: NSObject, RTCAudioDevice {
 	
 	override init() {
 		super.init()
-		print("DEBUG: init \(self)")
+		Logger.plog(level: .debug, oslog: audioDeviceProxyLog, publicMessage: "init \(self)")
 	}
 	
-	#if DEBUG
 	deinit {
-		print("DEBUG: deinit \(self)")
+		Logger.plog(level: .debug, oslog: audioDeviceProxyLog, publicMessage: "deinit \(self)")
 	}
-	#endif
 	
 	func initialize(with delegate: RTCAudioDeviceDelegate) -> Bool {
-		print("DEBUG: initialize with delegate \(delegate)")
+		Logger.plog(level: .debug, oslog: audioDeviceProxyLog, publicMessage: "initialize with delegate \(delegate)")
 		guard self.audioDeviceDelegate == nil else { return false }
 		self.audioDeviceDelegate = delegate
 		return true
@@ -256,13 +260,13 @@ class AudioDeviceProxy: NSObject, RTCAudioDevice {
 	
 	func startPlayout() -> Bool {
 		shouldPlay = true
-		print("DEBUG: startPlayout()")
+		Logger.plog(oslog: audioDeviceProxyLog, publicMessage: "startPlayout()")
 		return true
 	}
 	
 	func stopPlayout() -> Bool {
-		print("DEBUG: stopPlayout()")
 		shouldPlay = false
+		Logger.plog(oslog: audioDeviceProxyLog, publicMessage: "stopPlayout()")
 		return true
 	}
 	
@@ -285,12 +289,14 @@ class AudioDeviceProxy: NSObject, RTCAudioDevice {
 	func startRecording() -> Bool {
 		guard shouldRecord == false else { return false }
 		shouldRecord = true
+		Logger.plog(oslog: audioDeviceProxyLog, publicMessage: "startRecording()")
 		return true
 	}
 	
 	func stopRecording() -> Bool {
 		guard shouldRecord == true else { return false }
 		shouldRecord = false
+		Logger.plog(oslog: audioDeviceProxyLog, publicMessage: "stopRecording()")
 		return true
 	}
 }

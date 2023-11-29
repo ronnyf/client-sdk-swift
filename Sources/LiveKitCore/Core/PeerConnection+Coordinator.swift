@@ -14,7 +14,7 @@ extension PeerConnection {
 	
 	final class Coordinator: NSObject, RTCPeerConnectionDelegate, @unchecked Sendable {
 		@Publishing var peerConnectionState: RTCPeerConnectionState = .new
-		@Publishing var signalingState: RTCSignalingState? = nil
+		@Publishing var signalingState: RTCSignalingState = .closed
 		@Publishing var iceConnectionState: RTCIceConnectionState = .new
 		@Publishing var iceGatheringState: RTCIceGatheringState = .new
 		

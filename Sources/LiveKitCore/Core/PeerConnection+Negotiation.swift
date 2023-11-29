@@ -11,22 +11,28 @@ import AsyncAlgorithms
 @_implementationOnly import WebRTC
 
 extension PeerConnection {
-	// TODO: really make sure this runs outside of our messageChannel, rtcSignals, etc sequences;
-	// 1: we run this on a child task that gets cleaned up after completion
-	// 2: we could also provide another parent task (messageChannelTask)
-	func offeringMachine(signalHub: SignalHub) {
-		guard peerConnectionIsPublisher == true, offerInProgress() == false else { return }
+	
+	func negotiate(signalHub: SignalHub) async throws -> RTCSignalingState {
+		guard peerConnectionIsPublisher == true, offerInProgress() == false else { return coordinator.signalingState }
 		update(offerInProgress: true)
 		defer {
 			update(offerInProgress: false)
 		}
 		
-		Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) offering machine >>> start")
+		let offerTask = startOfferTask(signalHub: signalHub)
+		return try await offerTask.value
+	}
+	
+	private func startOfferTask(signalHub: SignalHub) -> Task<RTCSignalingState, Error> {
 		
-		let offerTask = Task {
+		Task {
+			Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) offering machine >>> start")
+			defer {
+				Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) offering machine <<< end")
+			}
+			
 			let signalingStates = signalingState.stream()
 			
-			//clear the local description, we're going to set a new one anyways...
 			var firstOfferSent = false
 			
 			for await signalingState in signalingStates {
@@ -38,7 +44,7 @@ extension PeerConnection {
 				switch (signalingState, localDescription, remoteDescription) {
 				case (.stable, _, _) where firstOfferSent == false:
 					// fire off an offer, TODO: define other states where we allow this too...
-					let sdp = try await sendInitialOffer() //expecting .haveLocalOffer
+					let sdp = try await sendInitialOffer() // expecting .haveLocalOffer
 					let request = Livekit_SignalRequest(offer: sdp)
 					try signalHub.enqueue(request: request)
 					firstOfferSent = true
@@ -46,7 +52,7 @@ extension PeerConnection {
 					
 				case (.haveLocalOffer, _, _):
 					// wait for remote answer
-					Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) is waiting for an answer")
+					Logger.plog(level: .debug, oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) with signaling state \(signalingState.debugDescription) is waiting for an answer")
 					// trickle requests should be coming in
 					continue
 					
@@ -55,25 +61,41 @@ extension PeerConnection {
 					// let's wait for trickle to conclude ?
 					// or not
 					// once pcs reaches .connecting, .connected should be next (if everything goes well)
-					break
+					return signalingState
 					
 				default:
-					Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) received an unhandled (yet) signalingState: \(signalingState.debugDescription)")
+					Logger.plog(level: .debug, oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) received an unhandled (yet) signalingState: \(signalingState.debugDescription)")
 					continue
 				}
 				
-				break
+				return signalingState
 			}
-			Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) offering machine <<< end")
+			// if we land here then something is wrong, let's bubble this up...
+			throw Errors.makeOffer
 		}
-		update(offerTask: offerTask)
+	}
+	
+	func offeringMachine(signalHub: SignalHub) {
+		
+		guard peerConnectionIsPublisher == true, offerInProgress() == false else { return }
+		update(offerInProgress: true)
+		defer {
+			update(offerInProgress: false)
+		}
+		
+		_offerTask?.cancel()
+		update(offerTask: startOfferTask(signalHub: signalHub))
 	}
 	
 	func sendInitialOffer() async throws -> Livekit_SessionDescription {
-		Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) sending initial offer")
+		
 		let constraints = RTCMediaConstraints(mandatoryConstraints: nil, optionalConstraints: nil)
 		let offer = try await offerDescription(with: constraints)
+		
+		Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) sending initial offer: \(offer)")
+		
 		let sdp = try await update(localDescription: offer)
+		precondition(coordinator.signalingState == .haveLocalOffer)
 		return sdp
 	}
 }

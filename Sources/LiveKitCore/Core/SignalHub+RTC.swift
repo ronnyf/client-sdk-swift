@@ -17,11 +17,17 @@ extension SignalHub {
 		await peerConnectionFactory.publishingPeerConnection.offeringMachine(signalHub: self)
 	}
 	
-	func waitForConnectedState(_ timeout: TimeInterval = 10) async throws {
+	func negotiateAndWait(signalingState expected: RTCSignalingState) async throws {
+		// TODO: should this timeout?
+		let signalingState = try await peerConnectionFactory.publishingPeerConnection.negotiate(signalHub: self)
+		guard signalingState == expected else { throw SignalHubError.negotiationFailed }
+	}
+	
+	func waitForConnectedState(_ timeout: TimeInterval = SignalHub.defaultTimeOut) async throws {
 		_ = try await peerConnectionFactory.publishingPeerConnection.rtcPeerConnectionStatePublisher.firstValue(timeout: timeout) { $0 == .connected }
 	}
 	
-	//MARK: - handling of incoming/outgoing messages/requests
+	// MARK: - handling of incoming/outgoing messages/requests
 	
 	func removeTrack(_ trackId: String) async throws {
 		try await peerConnectionFactory.publishingPeerConnection.removeTrack(trackId: trackId)
@@ -31,7 +37,7 @@ extension SignalHub {
 		try await peerConnectionFactory.publishingPeerConnection.removeTransceiver(transceiver)
 	}
 	
-	//MARK: - transceiver updates (subscriber only)
+	// MARK: - transceiver updates (subscriber only)
 	func updateQuality(_ update: Livekit_SubscribedQualityUpdate, transceiver: RTCRtpTransceiver) {
 		//		let sender = transceiver.sender
 		//		guard mode == .publisher, sender.track?.trackId == update.trackSid else {

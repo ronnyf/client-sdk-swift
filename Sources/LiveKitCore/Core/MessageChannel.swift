@@ -50,7 +50,7 @@ class MessageChannel: @unchecked Sendable {
 	
 #if DEBUG
 	deinit {
-		Logger.plog(oslog: coordinator.messageChannelLog, publicMessage: "deinit MessageChannel")
+		Logger.plog(level: .debug, oslog: coordinator.messageChannelLog, publicMessage: "deinit MessageChannel")
 	}
 #endif
 	
@@ -73,7 +73,7 @@ class MessageChannel: @unchecked Sendable {
 	}
 }
 
-//MARK: - URLSessionWebSocketDelegate
+// MARK: - URLSessionWebSocketDelegate
 
 extension MessageChannel {
 	final class WebsocketTaskCoordinator: NSObject, URLSessionWebSocketDelegate, URLSessionDelegate, @unchecked Sendable {
@@ -88,17 +88,15 @@ extension MessageChannel {
 			Logger.plog(oslog: messageChannelLog, publicMessage: "WebsocketTaskCoordinator init")
 		}
 		
-#if DEBUG
 		deinit {
-			Logger.plog(oslog: messageChannelLog, publicMessage: "WebsocketTaskCoordinator deinit")
+			Logger.plog(level: .debug, oslog: messageChannelLog, publicMessage: "WebsocketTaskCoordinator deinit")
 		}
-#endif
 		
 		func openSocket(_ webSocketTask: URLSessionWebSocketTask) {
 			webSocketTask.resume()
 		}
 		
-		///Close the current (open) socket and wait for it to go through the system (openSocketSubject is nil)
+		// Close the current (open) socket and wait for it to go through the system (openSocketSubject is nil)
 		func teardown() {
 			Logger.plog(oslog: messageChannelLog, publicMessage: "tearddown WebsocketTaskCoordinator")
 			_webSocketTask.finish()
@@ -106,14 +104,14 @@ extension MessageChannel {
 			connectionState.send(completion: .finished)
 		}
 		
-		//Indicates that the WebSocket handshake was successful and the connection has been upgraded to webSockets.
+		// Indicates that the WebSocket handshake was successful and the connection has been upgraded to webSockets.
 		func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
 			self.webSocketTask = webSocketTask
 			self.connectionState.send(.connected)
 			Logger.plog(oslog: messageChannelLog, publicMessage: "socket opened \(webSocketTask)")
 		}
 		
-		//Indicates that the WebSocket has received a close frame from the server endpoint.
+		// Indicates that the WebSocket has received a close frame from the server endpoint.
 		func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
 			webSocketTask.cancel(with: closeCode, reason: reason)
 			Logger.plog(oslog: messageChannelLog, publicMessage: "socket did close \(webSocketTask)")

@@ -79,3 +79,9 @@ public class MediaTransmitter: @unchecked Sendable, Identifiable {
 		print("DEBUG: deinit <AudioTransmitter \(track)>")
 	}
 }
+
+extension MediaTransmitter: CustomStringConvertible {
+	public var description: String {
+		"<MediaTransmitter sender: \(sender), track: \(track), source: \(source), info: \(trackInfo)>"
+	}
+}

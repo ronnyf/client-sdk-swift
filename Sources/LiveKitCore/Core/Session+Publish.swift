@@ -14,33 +14,39 @@ import AVFoundation
 extension LiveKitSession {
 	
 	public func startMediaStream(_ videoSource: some Publisher<CMSampleBuffer, Never>, videoDimensions: CMVideoDimensions, videoRotation: some Publisher<CGFloat, Never>, audioEnabled: Bool = true) async throws {
-		Logger.log(oslog: sessionLog, message: "publishVideo: >>>")
+		Logger.plog(oslog: sessionLog, publicMessage: "publishVideo: >>>")
+		defer {
+			Logger.plog(oslog: sessionLog, publicMessage: "publishVideo: <<<")
+		}
 		
 		let videoPublication = Publication.videoPublication(dimensions: videoDimensions)
 		let audioPublication = Publication.audioPublication()
 		
-		// wait for transceiver to be created...
-		async let videoTransmitterTask = signalHub.createVideoTransmitter(videoPublication: videoPublication, enabled: true)
-		async let audioTransmitterTask = signalHub.createAudioTransmitter(audioPublication: audioPublication, enabled: audioEnabled)
-		
 		let addVideoTrackRequest = signalHub.makeAddTrackRequest(publication: videoPublication)
 		let addAudioTrackRequest = signalHub.makeAddTrackRequest(publication: audioPublication)
-		
-		// TODO: let's think about how to make those not just fake sendable but actually sendable
+
+		// wait for transceivers to be created and track requests to be sent
+		async let videoTransmitterTask = signalHub.createVideoTransmitter(videoPublication: videoPublication, enabled: true)
+		async let audioTransmitterTask = signalHub.createAudioTransmitter(audioPublication: audioPublication, enabled: audioEnabled)
 		async let videoTrackInfoResult = signalHub.sendAddTrackRequest(addVideoTrackRequest)
 		async let audioTrackInfoResult = signalHub.sendAddTrackRequest(addAudioTrackRequest)
 		
-		let (videoTransmitter, audioTransmitter, audioTrackInfo, videoTrackInfo) = try await (videoTransmitterTask, audioTransmitterTask, audioTrackInfoResult, videoTrackInfoResult)
+		let (audioTrackInfo, videoTrackInfo, videoTransmitter, audioTransmitter) = try await (audioTrackInfoResult, videoTrackInfoResult, videoTransmitterTask, audioTransmitterTask)
 		
-		audioTransmitter?.trackInfo = audioTrackInfo
-		videoTransmitter?.trackInfo = videoTrackInfo
+		Logger.plog(oslog: sessionLog, publicMessage: "got audio transmitter: \(String(describing: audioTransmitter))")
+		Logger.plog(oslog: sessionLog, publicMessage: "got video transmitter: \(String(describing: videoTransmitter))")
 		
 		signalHub.audioTransmitter = audioTransmitter
 		signalHub.videoTransmitter = videoTransmitter
 		
-		await signalHub.negotiate()
-		let connectionState = signalHub.peerConnectionFactory.publishingPeerConnection.rtcPeerConnectionStatePublisher
-		_ = try await connectionState.firstValue(timeout: 15, condition: { $0 == .connected })
+		audioTransmitter?.trackInfo = audioTrackInfo
+		videoTransmitter?.trackInfo = videoTrackInfo
+		
+		try await signalHub.negotiateAndWait(signalingState: .stable)
+		Logger.plog(level: .debug, oslog: sessionLog, publicMessage: "got .stable signaling state after negotiation")
+		
+		try await signalHub.waitForConnectedState()
+		Logger.plog(level: .debug, oslog: sessionLog, publicMessage: "got .connected connection state after negotiation")
 		
 		let videoTrackSids = [videoTrackInfo.trackSid]
 		try signalHub.sendTrackStats(

@@ -157,7 +157,7 @@ extension SignalHub {
 		
 		// handling (some cases of) response messages that arrive via livekit socket
 		switch responseMessage {
-			/// sent when participants in the room has changed
+		// sent when participants in the room has changed
 		case .update(let participantUpdate):
 			Logger.plog(oslog: signalHubLog, publicMessage: "participant update: \(participantUpdate)")
 			
