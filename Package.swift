@@ -67,9 +67,11 @@ let package = Package(
 			],
 			path: "Sources/LiveKitCore",
 			sources: [
+				"Core/AudioDevice.swift",
 				"Core/Convenience.swift",
 				"Core/LiveKit+Signals.swift",
 				"Core/Logging.swift",
+                "Core/MediaTransmitters.swift",
 				"Core/MessageChannel.swift",
 				"Core/MessageChannel+Connect.swift",
 				"Core/Models.swift",
@@ -88,7 +90,6 @@ let package = Package(
 				"Core/SignalHub+RTC.swift",
 				"Core/SignalHub+VideoPublishing.swift",
 				"Core/VideoView.swift",
-				"Core/AudioDevice.swift",
 				// the following sources are symlinks:
 				"Shared/ConnectivityListener-Core.swift",
 				"Shared/DimensionsProvider.swift",
