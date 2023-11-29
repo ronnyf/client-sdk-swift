@@ -26,14 +26,15 @@ let package = Package(
 		.package(url: "https://github.com/google/promises.git", .upToNextMajor(from: "2.0.0")),
 		.package(url: "https://github.com/apple/swift-log.git", .upToNextMajor(from: "1.5.3")),
 		.package(url: "https://github.com/apple/swift-async-algorithms.git", .upToNextMajor(from: "0.1.0")),
+		.package(url: "git@github.corp.ebay.com:eBayMobile/webrtc-ios-xcframework.git", branch: "alternative"),
 	],
 	targets: [
 		.systemLibrary(name: "CHeaders"),
-		.binaryTarget(
-			name: "WebRTC",
-			url: "https://github.com/stasel/WebRTC/releases/download/119.0.0/WebRTC-M119.xcframework.zip",
-			checksum: "60737020738e76f2200f3f2c12a32f260d116f858a2e1ff33c48973ddd3e1c97"
-		),
+//		.binaryTarget(
+//			name: "WebRTC",
+//			url: "https://github.com/stasel/WebRTC/releases/download/119.0.0/WebRTC-M119.xcframework.zip",
+//			checksum: "60737020738e76f2200f3f2c12a32f260d116f858a2e1ff33c48973ddd3e1c97"
+//		),
 		.target(
 			name: "LiveKit",
 			dependencies: [
