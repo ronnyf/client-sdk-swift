@@ -87,22 +87,24 @@ extension PeerConnection.Coordinator {
 	}
 	
 	func peerConnection(_ peerConnection: RTCPeerConnection, didOpen dataChannel: RTCDataChannel) {
+		Logger.plog(oslog: peerConnectionLog, publicMessage: "did open data channel: \(dataChannel), id: \(dataChannel.channelId), label: \(dataChannel.label), state: \(dataChannel.readyState._description)")
+		
+		guard rtcDataChannelReliable == nil, rtcDataChannelLossy == nil else { return }
 		//Engine.swift: 745
 		//store reliable/lossy channels in DataChannelPair (and potentially subscribe to their delegate updates)
 		let label = PeerConnection.DataChannelLabel(rawValue: dataChannel.label)
 		switch label {
 		case .reliable:
-			dataChannel.delegate = self
 			self.rtcDataChannelReliable = dataChannel
+			dataChannel.delegate = self
 			
 		case .lossy:
-			dataChannel.delegate = self
 			self.rtcDataChannelLossy = dataChannel
+			dataChannel.delegate = self
 			
 		case .undefined(let value):
 			Logger.plog(level: .error, oslog: peerConnectionLog, publicMessage: "data channel opened with undefined label: \(value)")
 		}
-		Logger.plog(oslog: peerConnectionLog, publicMessage: "did open data channel: \(dataChannel.label)")
 	}
 	
 	//MARK: - not implemented in livekit ios sdk

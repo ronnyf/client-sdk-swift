@@ -53,7 +53,7 @@ extension LiveKitSession {
 			messageChannelGroup.addTask { [signalHub] in
 				// setup incoming (from livekit) signals sequence
 				for try await message in messages  {
-					Logger.plog(oslog: messageChannel.coordinator.messageChannelLog, publicMessage: "incoming message: \(message)")
+					Logger.plog(level: .debug, oslog: messageChannel.coordinator.messageChannelLog, publicMessage: "incoming message: \(message)")
 					try await signalHub.handle(responseMessage: message)
 				}
 			}
@@ -61,12 +61,15 @@ extension LiveKitSession {
 			let outgoingDataPackets = signalHub.outgoingDataPackets.stream()
 			messageChannelGroup.addTask { [signalHub] in
 				for await dataPacket in outgoingDataPackets {
-					try? await publishingPeerConnection.negotiate {
-						let newState = $0 == .new
-						return (newState, signalHub)
+					do {
+						try await publishingPeerConnection.negotiateIfNotConnected(signalHub: signalHub)
+						Logger.plog(oslog: messageChannel.coordinator.messageChannelLog, publicMessage: "outgoing data packet: \(dataPacket)")
+						if try await publishingPeerConnection.send(dataPacket: dataPacket) == false {
+							signalHub.outgoingDataPackets.send(dataPacket)
+						}
+					} catch {
+						Logger.plog(level: .error, oslog: messageChannel.coordinator.messageChannelLog, publicMessage: "error for packet: \(dataPacket), \(error.localizedDescription)")
 					}
-					Logger.plog(oslog: messageChannel.coordinator.messageChannelLog, publicMessage: "outgoing data packet: \(dataPacket)")
-					try? await publishingPeerConnection.send(dataPacket: dataPacket, preferred: .lossy)
 				}
 			}
 			

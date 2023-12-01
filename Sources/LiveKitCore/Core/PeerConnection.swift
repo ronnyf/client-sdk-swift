@@ -118,19 +118,21 @@ actor PeerConnection {
 	func configureDataChannels() async throws {
 		guard peerConnectionIsPublisher == true, let rtcPeerConnection else { return }
 		
-		let reliable = rtcPeerConnection.dataChannel(
+		if let reliable = rtcPeerConnection.dataChannel(
 			forLabel: PeerConnection.DataChannelLabel.reliable.rawValue,
-			configuration: RTCDataChannelConfiguration.createDataChannelConfiguration(maxRetransmits: -1)
-		)
-		reliable?.delegate = coordinator
-		coordinator.rtcDataChannelReliable = reliable
+			configuration: RTCDataChannelConfiguration.createDataChannelConfiguration()
+		) {
+			reliable.delegate = coordinator
+			coordinator.rtcDataChannelReliable = reliable
+		}
 		
-		let lossy = rtcPeerConnection.dataChannel(
+		if let lossy = rtcPeerConnection.dataChannel(
 			forLabel: PeerConnection.DataChannelLabel.lossy.rawValue,
 			configuration: RTCDataChannelConfiguration.createDataChannelConfiguration(maxRetransmits: 0)
-		)
-		lossy?.delegate = coordinator
-		coordinator.rtcDataChannelLossy = lossy
+		) {
+			lossy.delegate = coordinator
+			coordinator.rtcDataChannelLossy = lossy
+		}
 	}
 	
 	struct VideoPublishItems {
@@ -233,15 +235,19 @@ actor PeerConnection {
 }
 
 extension PeerConnection {
-	
-	func negotiate(condition: @Sendable (PeerConnectionState) -> (Bool, SignalHub)) async throws {
-		let (shouldNegotiate, signalHub) = condition(connectionState)
-		if shouldNegotiate == true {
-			offeringMachine(signalHub: signalHub)
-			let _ = try await rtcPeerConnectionStatePublisher.map { PeerConnectionState($0) }.firstValue(timeout: 15, condition: { currentState in
-				PeerConnectionState.finalStates.contains(currentState)
-			})
+	func negotiateIfNotConnected(signalHub: SignalHub) async throws {
+		guard coordinator.peerConnectionState != .connected && coordinator.peerConnectionState != .connecting else {
+			Logger.plog(level: .debug, oslog: coordinator.peerConnectionLog, publicMessage: "not negotiating due to connection state being: \(coordinator.peerConnectionState)")
+			return
 		}
+		
+		Logger.plog(level: .debug, oslog: coordinator.peerConnectionLog, publicMessage: "negotiating due to connection state being: \(coordinator.peerConnectionState)")
+		let _ = try await negotiate(signalHub: signalHub)
+		
+		Logger.plog(level: .debug, oslog: coordinator.peerConnectionLog, publicMessage: "waiting for .connected state")
+		let _ = try await rtcPeerConnectionStatePublisher.map { PeerConnectionState($0) }.firstValue(timeout: SignalHub.defaultTimeOut, condition: { currentState in
+			currentState == .connected
+		})
 	}
 	
 	func closeDataChannels() {
@@ -254,38 +260,43 @@ extension PeerConnection {
 
 /// Data-Channel communication
 extension PeerConnection {
-	func send(speaker: Livekit_ActiveSpeakerUpdate, label: DataChannelLabel = .reliable) throws {
+	func send(speaker: Livekit_ActiveSpeakerUpdate, label: DataChannelLabel = .reliable) throws -> Bool {
 		let packet = Livekit_DataPacket.with {
 			$0.kind = label.dataPacketKind
 			$0.speaker = speaker
 		}
-		try send(dataPacket: packet, preferred: label)
+		return try send(dataPacket: packet, preferred: label)
 	}
 	
-	func send(user: Livekit_UserPacket, label: DataChannelLabel = .reliable) throws {
+	func send(user: Livekit_UserPacket, label: DataChannelLabel = .reliable) throws -> Bool {
 		let packet = Livekit_DataPacket.with {
 			$0.kind = label.dataPacketKind
 			$0.user = user
 		}
-		try send(dataPacket: packet, preferred: label)
+		return try send(dataPacket: packet, preferred: label)
 	}
 	
-	func send(dataPacket: Livekit_DataPacket, preferred label: DataChannelLabel) throws {
+	func send(dataPacket: Livekit_DataPacket, preferred label: DataChannelLabel = .reliable) throws -> Bool {
 		let serializedData = try dataPacket.serializedData()
-		try send(serializedData, preferred: label)
+		return try send(serializedData, preferred: label)
 	}
 	
-	func send(_ data: Data, preferred label: DataChannelLabel = .lossy) throws {
+	func send(_ data: Data, preferred label: DataChannelLabel = .reliable) throws -> Bool {
 		let buffer = RTCDataBuffer(data: data, isBinary: true)
 		precondition(coordinator.peerConnectionState == .connected)
+		
 		switch label {
 		case .lossy:
-			let channel = coordinator.rtcDataChannelLossy ?? coordinator.rtcDataChannelReliable
-			channel?.sendData(buffer)
+			guard let channel = coordinator.rtcDataChannelLossy ?? coordinator.rtcDataChannelReliable else {
+				throw Errors.noDataChannel
+			}
+			return channel.sendData(buffer)
 			
 		case .reliable:
-			let channel = coordinator.rtcDataChannelReliable ?? coordinator.rtcDataChannelLossy
-			channel?.sendData(buffer)
+			guard let channel = coordinator.rtcDataChannelReliable ?? coordinator.rtcDataChannelLossy else {
+				throw Errors.noDataChannel
+			}
+			return channel.sendData(buffer)
 			
 		case .undefined:
 			throw Errors.noDataChannel
