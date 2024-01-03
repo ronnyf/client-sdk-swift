@@ -8,8 +8,6 @@
 import Foundation
 import Network
 
-#if LKCORE
-
 open class MulticastDelegate<T>: NSObject {
 	init(label: String = "livekit.multicast", qos: DispatchQoS = .default) {
 		super.init()
@@ -38,5 +36,3 @@ public enum ConnectionStateObjC: Int {
 	case reconnecting
 	case connected
 }
-
-#endif

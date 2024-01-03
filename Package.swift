@@ -126,7 +126,6 @@ let package = Package(
 				"Shared/Types/VideoQuality.swift",
 			],
 			swiftSettings: [
-				.define("LKCORE"),
 //				.define("LKCORE_USE_LIVEKIT_WEBRTC"), // << use this for livekit webrtc fw
 //				.define("LKCORE_USE_EBAY_WEBRTC"), // << use this for ebay-live webrtc fw
 				.define("LKCORE_USE_ALTERNATIVE_WEBRTC"), //OK

@@ -61,6 +61,7 @@ typealias LKRTCMediaConstraints = RTCMediaConstraints
 typealias LKRTCRtpEncodingParameters = RTCRtpEncodingParameters
 typealias LKRTCSessionDescription = RTCSessionDescription
 #endif
+
 extension DispatchQueue {
 	struct liveKitWebRTC {
 		static func sync<Value>(value: () -> Value) -> Value {

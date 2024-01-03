@@ -10,12 +10,16 @@ import Foundation
 @_implementationOnly import WebRTC
 
 class DefaultVideoEncoderFactory: NSObject, RTCVideoEncoderFactory {
+	
 	func createEncoder(_ info: RTCVideoCodecInfo) -> RTCVideoEncoder? {
+		
 		switch info.name {
 		case kRTCVideoCodecH264Name:
 			return RTCVideoEncoderH264(codecInfo: info)
+			
 		case kRTCVideoCodecVp8Name:
 			return RTCVideoEncoderVP8.vp8Encoder()
+			
 		case kRTCVideoCodecVp9Name:
 			return RTCVideoEncoderVP9.vp9Encoder()
 			
@@ -35,12 +39,17 @@ class DefaultVideoEncoderFactory: NSObject, RTCVideoEncoderFactory {
 }
 
 class DefaultVideoDecoderFactory: NSObject, RTCVideoDecoderFactory {
+	
 	func createDecoder(_ info: RTCVideoCodecInfo) -> RTCVideoDecoder? {
+		
 		switch info.name {
 		case kRTCVideoCodecH264Name:
-			return RTCVideoDecoderH264()
+			return PassthroughVideoDecoder()
+//			return RTCVideoDecoderH264()
+			
 		case kRTCVideoCodecVp8Name:
 			return RTCVideoDecoderVP8.vp8Decoder()
+			
 		case kRTCVideoCodecVp9Name:
 			return RTCVideoDecoderVP9.vp9Decoder()
 			

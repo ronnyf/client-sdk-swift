@@ -16,8 +16,6 @@
 
 import Foundation
 
-#if LKCORE
-
 /// The open source platform for real-time communication.
 ///
 /// See [LiveKit's Online Docs](https://docs.livekit.io/) for more information.
@@ -28,11 +26,7 @@ import Foundation
 ///
 /// Download the [Multiplatform SwiftUI Example](https://github.com/livekit/multiplatform-swiftui-example)
 /// to try out the features.
-@objc
-public class LiveKit: NSObject {
-	
-	@objc(sdkVersion)
+
+public enum LiveKit {
 	public static let version = "2.0.0"
 }
-
-#endif

@@ -130,7 +130,7 @@ public class AudioDevice {
 		audioSourceNode = AVAudioSourceNode(format: format, renderBlock: { [rtc] (isSilence: UnsafeMutablePointer<ObjCBool>, timestamp: UnsafePointer<AudioTimeStamp>, frameCount: AVAudioFrameCount, audioBufferList: UnsafeMutablePointer<AudioBufferList>) in
 			// rtc delivers the payload directly to the audio source node ...
 			guard let getPlayoutData = rtc.audioDeviceDelegate?.getPlayoutData else { return -1 }
-			var flags: AudioUnitRenderActionFlags = []
+			var flags = AudioUnitRenderActionFlags(rawValue: kAudioUnitType_Output)
 			let playResult = getPlayoutData(&flags, timestamp, inputBus, frameCount, audioBufferList)
 			return playResult
 		})
@@ -211,7 +211,7 @@ class AudioDeviceProxy: NSObject, RTCAudioDevice {
 	@Publishing var shouldRecord: Bool = false
 	
 	@Publishing var audioDeviceDelegate: RTCAudioDeviceDelegate?
-	@Publishing var audioRenderActionFlags: AudioUnitRenderActionFlags = []
+	@Publishing var audioRenderActionFlags: AudioUnitRenderActionFlags = AudioUnitRenderActionFlags(rawValue: kAudioUnitType_Output)
 	
 	override init() {
 		super.init()
