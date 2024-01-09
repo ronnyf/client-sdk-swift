@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 LiveKit
+ * Copyright 2024 LiveKit
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,101 +15,79 @@
  */
 
 import Foundation
-import WebRTC
-import Promises
 
 #if canImport(ReplayKit)
-import ReplayKit
+    import ReplayKit
 #endif
+
+@_implementationOnly import WebRTC
 
 @available(macOS 11.0, iOS 11.0, *)
 public class InAppScreenCapturer: VideoCapturer {
-
     private let capturer = Engine.createVideoCapturer()
     private var options: ScreenShareCaptureOptions
 
-    init(delegate: RTCVideoCapturerDelegate, options: ScreenShareCaptureOptions) {
+    init(delegate: LKRTCVideoCapturerDelegate, options: ScreenShareCaptureOptions) {
         self.options = options
         super.init(delegate: delegate)
     }
 
-    public override func startCapture() -> Promise<Bool> {
+    override public func startCapture() async throws -> Bool {
+        let didStart = try await super.startCapture()
 
-        super.startCapture().then(on: queue) {didStart -> Promise<Bool> in
+        // Already started
+        guard didStart else { return false }
 
-            guard didStart else {
-                // already started
-                return Promise(false)
-            }
+        // TODO: force pixel format kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
+        try await RPScreenRecorder.shared().startCapture { sampleBuffer, type, _ in
 
-            return Promise<Bool>(on: self.queue) { resolve, fail in
+            // Only process .video
+            if type == .video {
+                self.delegate?.capturer(self.capturer, didCapture: sampleBuffer) { sourceDimensions in
 
-                // TODO: force pixel format kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
-                RPScreenRecorder.shared().startCapture { sampleBuffer, type, _ in
-                    if type == .video {
+                    let targetDimensions = sourceDimensions
+                        .aspectFit(size: self.options.dimensions.max)
+                        .toEncodeSafeDimensions()
 
-                        self.delegate?.capturer(self.capturer, didCapture: sampleBuffer) { sourceDimensions in
+                    defer { self.dimensions = targetDimensions }
 
-                            let targetDimensions = sourceDimensions
-                                .aspectFit(size: self.options.dimensions.max)
-                                .toEncodeSafeDimensions()
-
-                            defer { self.dimensions = targetDimensions }
-
-                            guard let videoSource = self.delegate as? RTCVideoSource else { return }
-                            // self.log("adaptOutputFormat to: \(targetDimensions) fps: \(self.options.fps)")
-                            videoSource.adaptOutputFormat(toWidth: targetDimensions.width,
-                                                          height: targetDimensions.height,
-                                                          fps: Int32(self.options.fps))
-                        }
-                    }
-                } completionHandler: { error in
-                    if let error = error {
-                        fail(error)
-                        return
-                    }
-                    resolve(true)
+                    guard let videoSource = self.delegate as? LKRTCVideoSource else { return }
+                    // self.log("adaptOutputFormat to: \(targetDimensions) fps: \(self.options.fps)")
+                    videoSource.adaptOutputFormat(toWidth: targetDimensions.width,
+                                                  height: targetDimensions.height,
+                                                  fps: Int32(self.options.fps))
                 }
             }
         }
+
+        return true
     }
 
-    public override func stopCapture() -> Promise<Bool> {
+    override public func stopCapture() async throws -> Bool {
+        let didStop = try await super.stopCapture()
 
-        super.stopCapture().then(on: queue) { didStop -> Promise<Bool> in
+        // Already stopped
+        guard didStop else { return false }
 
-            guard didStop else {
-                // already stopped
-                return Promise(false)
-            }
+        RPScreenRecorder.shared().stopCapture()
 
-            return Promise<Bool>(on: self.queue) { resolve, fail in
-
-                RPScreenRecorder.shared().stopCapture { error in
-                    if let error = error {
-                        fail(error)
-                        return
-                    }
-                    resolve(true)
-                }
-
-            }
-        }
+        return true
     }
 }
 
-extension LocalVideoTrack {
+public extension LocalVideoTrack {
     /// Creates a track that captures in-app screen only (due to limitation of ReplayKit)
     @available(macOS 11.0, iOS 11.0, *)
-    public static func createInAppScreenShareTrack(name: String = Track.screenShareVideoName,
-                                                   options: ScreenShareCaptureOptions = ScreenShareCaptureOptions()) -> LocalVideoTrack {
+    static func createInAppScreenShareTrack(name: String = Track.screenShareVideoName,
+                                            options: ScreenShareCaptureOptions = ScreenShareCaptureOptions(),
+                                            reportStatistics: Bool = false) -> LocalVideoTrack
+    {
         let videoSource = Engine.createVideoSource(forScreenShare: true)
         let capturer = InAppScreenCapturer(delegate: videoSource, options: options)
-        return LocalVideoTrack(
-            name: name,
-            source: .screenShareVideo,
-            capturer: capturer,
-            videoSource: videoSource
-        )
+        return LocalVideoTrack(name: name,
+                               source: .screenShareVideo,
+                               capturer: capturer,
+                               videoSource: videoSource,
+                               reportStatistics: reportStatistics)
     }
 }

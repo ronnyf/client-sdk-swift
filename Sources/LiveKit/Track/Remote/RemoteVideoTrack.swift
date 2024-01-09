@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 LiveKit
+ * Copyright 2024 LiveKit
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +15,30 @@
  */
 
 import Foundation
-import WebRTC
-import Promises
+
+@_implementationOnly import WebRTC
 
 @objc
 public class RemoteVideoTrack: Track, RemoteTrack, VideoTrack {
-
     init(name: String,
          source: Track.Source,
-         track: RTCMediaStreamTrack) {
-
+         track: LKRTCMediaStreamTrack,
+         reportStatistics: Bool)
+    {
         super.init(name: name,
                    kind: .video,
                    source: source,
-                   track: track)
+                   track: track,
+                   reportStatistics: reportStatistics)
     }
 }
 
-extension RemoteVideoTrack {
-
-    public func add(videoRenderer: VideoRenderer) {
+public extension RemoteVideoTrack {
+    func add(videoRenderer: VideoRenderer) {
         super._add(videoRenderer: videoRenderer)
     }
 
-    public func remove(videoRenderer: VideoRenderer) {
+    func remove(videoRenderer: VideoRenderer) {
         super._remove(videoRenderer: videoRenderer)
     }
 }

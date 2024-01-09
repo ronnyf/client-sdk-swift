@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 LiveKit
+ * Copyright 2024 LiveKit
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ import Foundation
 
 @objc
 public class RoomOptions: NSObject {
-
     // default options for capturing
     @objc
     public let defaultCameraCaptureOptions: CameraCaptureOptions
@@ -64,15 +63,28 @@ public class RoomOptions: NSObject {
     @objc
     public let suspendLocalVideoTracksInBackground: Bool
 
-    /// **Experimental**
-    /// Report ``TrackStats`` every second to ``TrackDelegate`` for each local and remote tracks.
-    /// This may consume slightly more CPU resources.
-    @objc
-    public let reportStats: Bool
-
     /// E2EE Options
     public let e2eeOptions: E2EEOptions?
 
+    @objc
+    public let reportRemoteTrackStatistics: Bool
+
+    override public init() {
+        defaultCameraCaptureOptions = CameraCaptureOptions()
+        defaultScreenShareCaptureOptions = ScreenShareCaptureOptions()
+        defaultAudioCaptureOptions = AudioCaptureOptions()
+        defaultVideoPublishOptions = VideoPublishOptions()
+        defaultAudioPublishOptions = AudioPublishOptions()
+        defaultDataPublishOptions = DataPublishOptions()
+        adaptiveStream = false
+        dynacast = false
+        stopLocalTrackOnUnpublish = true
+        suspendLocalVideoTracksInBackground = true
+        e2eeOptions = nil
+        reportRemoteTrackStatistics = false
+    }
+
+    @objc
     public init(defaultCameraCaptureOptions: CameraCaptureOptions = CameraCaptureOptions(),
                 defaultScreenShareCaptureOptions: ScreenShareCaptureOptions = ScreenShareCaptureOptions(),
                 defaultAudioCaptureOptions: AudioCaptureOptions = AudioCaptureOptions(),
@@ -83,9 +95,9 @@ public class RoomOptions: NSObject {
                 dynacast: Bool = false,
                 stopLocalTrackOnUnpublish: Bool = true,
                 suspendLocalVideoTracksInBackground: Bool = true,
-                reportStats: Bool = false,
-                e2eeOptions: E2EEOptions? = nil) {
-
+                e2eeOptions: E2EEOptions? = nil,
+                reportRemoteTrackStatistics: Bool = false)
+    {
         self.defaultCameraCaptureOptions = defaultCameraCaptureOptions
         self.defaultScreenShareCaptureOptions = defaultScreenShareCaptureOptions
         self.defaultAudioCaptureOptions = defaultAudioCaptureOptions
@@ -96,28 +108,28 @@ public class RoomOptions: NSObject {
         self.dynacast = dynacast
         self.stopLocalTrackOnUnpublish = stopLocalTrackOnUnpublish
         self.suspendLocalVideoTracksInBackground = suspendLocalVideoTracksInBackground
-        self.reportStats = reportStats
         self.e2eeOptions = e2eeOptions
+        self.reportRemoteTrackStatistics = reportRemoteTrackStatistics
     }
 
     // MARK: - Equal
 
-    public override func isEqual(_ object: Any?) -> Bool {
+    override public func isEqual(_ object: Any?) -> Bool {
         guard let other = object as? Self else { return false }
-        return self.defaultCameraCaptureOptions == other.defaultCameraCaptureOptions &&
-            self.defaultScreenShareCaptureOptions == other.defaultScreenShareCaptureOptions &&
-            self.defaultAudioCaptureOptions == other.defaultAudioCaptureOptions &&
-            self.defaultVideoPublishOptions == other.defaultVideoPublishOptions &&
-            self.defaultAudioPublishOptions == other.defaultAudioPublishOptions &&
-            self.defaultDataPublishOptions == other.defaultDataPublishOptions &&
-            self.adaptiveStream == other.adaptiveStream &&
-            self.dynacast == other.dynacast &&
-            self.stopLocalTrackOnUnpublish == other.stopLocalTrackOnUnpublish &&
-            self.suspendLocalVideoTracksInBackground == other.suspendLocalVideoTracksInBackground &&
-            self.reportStats == other.reportStats
+        return defaultCameraCaptureOptions == other.defaultCameraCaptureOptions &&
+            defaultScreenShareCaptureOptions == other.defaultScreenShareCaptureOptions &&
+            defaultAudioCaptureOptions == other.defaultAudioCaptureOptions &&
+            defaultVideoPublishOptions == other.defaultVideoPublishOptions &&
+            defaultAudioPublishOptions == other.defaultAudioPublishOptions &&
+            defaultDataPublishOptions == other.defaultDataPublishOptions &&
+            adaptiveStream == other.adaptiveStream &&
+            dynacast == other.dynacast &&
+            stopLocalTrackOnUnpublish == other.stopLocalTrackOnUnpublish &&
+            suspendLocalVideoTracksInBackground == other.suspendLocalVideoTracksInBackground &&
+            reportRemoteTrackStatistics == other.reportRemoteTrackStatistics
     }
 
-    public override var hash: Int {
+    override public var hash: Int {
         var hasher = Hasher()
         hasher.combine(defaultCameraCaptureOptions)
         hasher.combine(defaultScreenShareCaptureOptions)
@@ -129,7 +141,7 @@ public class RoomOptions: NSObject {
         hasher.combine(dynacast)
         hasher.combine(stopLocalTrackOnUnpublish)
         hasher.combine(suspendLocalVideoTracksInBackground)
-        hasher.combine(reportStats)
+        hasher.combine(reportRemoteTrackStatistics)
         return hasher.finalize()
     }
 }

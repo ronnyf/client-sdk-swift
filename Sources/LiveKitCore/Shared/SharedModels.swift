@@ -303,6 +303,7 @@ public enum LiveKitQuality : Sendable{
 	case poor
 	case good
 	case excellent
+	case lost
 	case value(Int)
 }
 
@@ -315,6 +316,8 @@ extension LiveKitQuality: CustomStringConvertible {
 			return "QUALITY_GOOD"
 		case .excellent:
 			return "QUALITY_EXCELLENT"
+		case .lost:
+			return "QUALITY_CONNECTION_LOST"
 		case .value(let value):
 			return "\(value)"
 		}
@@ -335,6 +338,9 @@ extension LiveKitQuality {
 			
 		case .UNRECOGNIZED(let value):
 			self = .value(value)
+			
+		case .lost:
+			self = .lost
 		}
 	}
 }

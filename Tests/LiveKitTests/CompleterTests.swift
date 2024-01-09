@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 LiveKit
+ * Copyright 2024 LiveKit
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,50 +18,95 @@
 import XCTest
 
 class CompleterTests: XCTestCase {
+    override func setUpWithError() throws {}
 
-    struct TestState: Equatable {
-        var completer = Completer<String>()
-    }
+    override func tearDown() async throws {}
 
-    let safeState = StateSync(TestState())
-    var unsafeState = TestState()
-
-    let group = DispatchGroup()
-    var concurrentQueues = DispatchQueue(label: "completer")
-    
-    override func setUpWithError() throws {
-
-    }
-
-    
-    override func tearDown() async throws {
-
-    }
-
-    func testCompleter1() async throws {
-        
-        // safeState.mutate { $0.completer.set(value: "resolved") }
-        
-        let promise = safeState.mutate { $0.completer.wait(on: concurrentQueues, 3, throw: { EngineError.timedOut(message: "") } ) }
-        
-        concurrentQueues.async {
-            // Thread.sleep(forTimeInterval: 10)
-            self.safeState.mutate {
-                var completer = $0.completer
-                completer.set(value: "done")
-            }
+    func testCompleterReuse() async throws {
+        let completer = AsyncCompleter<Void>(label: "Test01", defaultTimeOut: .seconds(1))
+        do {
+            try await completer.wait()
+        } catch let error as LiveKitError where error.type == .timedOut {
+            print("Timed out 1")
         }
+        // Re-use
+        do {
+            try await completer.wait()
+        } catch let error as LiveKitError where error.type == .timedOut {
+            print("Timed out 2")
+        }
+    }
 
-        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            // continuation.resume()
-            print("promise waiting...")
-            promise.then(on: concurrentQueues) { value in
-                print("promise completed value: \(value)")
-                continuation.resume()
-            }.catch { error in
-                print("promise error: \(error)")
-                continuation.resume()
+    func testCompleterCancel() async throws {
+        let completer = AsyncCompleter<Void>(label: "cancel-test", defaultTimeOut: .never)
+        do {
+            // Run Tasks in parallel
+            try await withThrowingTaskGroup(of: Void.self) { group in
+
+                group.addTask {
+                    print("Task 1: Waiting...")
+                    try await completer.wait()
+                }
+
+                group.addTask {
+                    print("Timer task: Started...")
+                    // Cancel after 3 seconds
+                    try await Task.sleep(until: .now + .seconds(3), clock: .continuous)
+                    print("Timer task: Cancelling...")
+                    completer.reset()
+                }
+
+                try await group.waitForAll()
             }
+        } catch let error as LiveKitError where error.type == .timedOut {
+            print("Completer timed out")
+        } catch let error as LiveKitError where error.type == .cancelled {
+            print("Completer cancelled")
+        } catch {
+            print("Unknown error: \(error)")
+        }
+    }
+
+    func testCompleterConcurrentWait() async throws {
+        let completer = AsyncCompleter<Void>(label: "cancel-test", defaultTimeOut: .never)
+        do {
+            // Run Tasks in parallel
+            try await withThrowingTaskGroup(of: Void.self) { group in
+
+                group.addTask {
+                    print("Task 1: Waiting...")
+                    try await completer.wait()
+                    print("Task 1: Completed")
+                }
+
+                group.addTask {
+                    print("Task 2: Waiting...")
+                    try await completer.wait()
+                    print("Task 2: Completed")
+                }
+
+                group.addTask {
+                    print("Task 3: Waiting...")
+                    try await completer.wait()
+                    print("Task 3: Completed")
+                }
+
+                group.addTask {
+                    print("Timer task: Started...")
+                    // Cancel after 3 seconds
+                    try await Task.sleep(until: .now + .seconds(3), clock: .continuous)
+                    print("Timer task: Completing...")
+                    completer.resume(returning: ())
+                }
+
+                try await group.waitForAll()
+            }
+        } catch let error as LiveKitError where error.type == .timedOut {
+            print("Completer timed out")
+        } catch let error as LiveKitError where error.type == .cancelled {
+            print("Completer cancelled")
+        } catch {
+            print("Unknown error: \(error)")
         }
     }
 }

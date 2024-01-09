@@ -1,0 +1,1 @@
+../../../LiveKit/Types/ScalabilityMode.swift

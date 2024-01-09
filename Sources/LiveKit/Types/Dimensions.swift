@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 LiveKit
+ * Copyright 2024 LiveKit
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import Foundation
 import CoreMedia
+import Foundation
+
 @_implementationOnly import WebRTC
 
 @objc
 public class Dimensions: NSObject {
-
     @objc
     public let width: Int32
 
@@ -34,35 +34,35 @@ public class Dimensions: NSObject {
     }
 
     public init(from dimensions: CMVideoDimensions) {
-        self.width = dimensions.width
-        self.height = dimensions.height
+        width = dimensions.width
+        height = dimensions.height
     }
 
     // MARK: - Equal
 
-    public override func isEqual(_ object: Any?) -> Bool {
+    override public func isEqual(_ object: Any?) -> Bool {
         guard let other = object as? Self else { return false }
-        return self.width == other.width && self.height == other.height
+        return width == other.width && height == other.height
     }
 
-    public override var hash: Int {
+    override public var hash: Int {
         var hasher = Hasher()
         hasher.combine(width)
         hasher.combine(height)
         return hasher.finalize()
     }
 
-    public override var description: String {
+    override public var description: String {
         "Dimensions(\(width)x\(height))"
     }
 }
 
 // MARK: - Static constants
 
-extension Dimensions {
-    public static let aspectRatio169 = 16.0 / 9.0
-    public static let aspectRatio43 = 4.0 / 3.0
-    public static let zero = Dimensions(width: 0, height: 0)
+public extension Dimensions {
+    static let aspectRatio169 = 16.0 / 9.0
+    static let aspectRatio43 = 4.0 / 3.0
+    static let zero = Dimensions(width: 0, height: 0)
 
     internal static let renderSafeSize: Int32 = 8
     internal static let encodeSafeSize: Int32 = 16
@@ -78,7 +78,6 @@ extension Dimensions {
 // }
 
 extension Dimensions {
-
     var aspectRatio: Double {
         let w = Double(width)
         let h = Double(height)
@@ -87,10 +86,6 @@ extension Dimensions {
 
     var max: Int32 {
         Swift.max(width, height)
-    }
-
-    var sum: Int32 {
-        width + height
     }
 
     // TODO: Find better name
@@ -137,10 +132,10 @@ extension Dimensions {
         return result
     }
 
-    func encodings(from presets: [VideoParameters?]) -> [RTCRtpEncodingParameters] {
-        var result: [RTCRtpEncodingParameters] = []
+    func encodings(from presets: [VideoParameters?]) -> [LKRTCRtpEncodingParameters] {
+        var result: [LKRTCRtpEncodingParameters] = []
         for (index, preset) in presets.compactMap({ $0 }).enumerated() {
-            guard let rid = VideoQuality.rids[safe: index] else {
+            guard let rid = VideoQuality.RIDs[safe: index] else {
                 continue
             }
 
@@ -153,28 +148,31 @@ extension Dimensions {
             result.append(parameters)
         }
 
-        return VideoQuality.rids.compactMap { rid in result.first(where: { $0.rid == rid }) }
+        return VideoQuality.RIDs.compactMap { rid in result.first(where: { $0.rid == rid }) }
     }
 
-    func computeSuggestedPresetIndex(in presets: [VideoParameters]) -> Int {
-        assert(!presets.isEmpty)
-        var result = 0
-        for preset in presets {
-            if width >= preset.dimensions.width, height >= preset.dimensions.height {
-                result += 1
+    func videoLayers(for encodings: [LKRTCRtpEncodingParameters]) -> [Livekit_VideoLayer] {
+        if let firstEncoding = encodings.first,
+           let scalabilityMode = ScalabilityMode.fromString(firstEncoding.scalabilityMode)
+        {
+            return (0 ... (scalabilityMode.spatial - 1)).map { idx in
+                Livekit_VideoLayer.with {
+                    $0.width = UInt32((Double(width) / pow(2, Double(idx))).rounded(.down))
+                    $0.height = UInt32((Double(height) / pow(2, Double(idx))).rounded(.down))
+                    $0.quality = Livekit_VideoQuality(rawValue: scalabilityMode.spatial - idx - 1) ?? .off
+                    $0.bitrate = UInt32((Double(truncating: firstEncoding.maxBitrateBps ?? 0) / pow(3, Double(idx))).rounded(.up))
+                }
             }
-        }
-        return result
-    }
 
-    internal func videoLayers(for encodings: [RTCRtpEncodingParameters]) -> [Livekit_VideoLayer] {
-        encodings.filter { $0.isActive }.map { encoding in
-            let scaleDownBy = encoding.scaleResolutionDownBy?.doubleValue ?? 1.0
-            return Livekit_VideoLayer.with {
-                $0.width = UInt32((Double(self.width) / scaleDownBy).rounded(.up))
-                $0.height = UInt32((Double(self.height) / scaleDownBy).rounded(.up))
-                $0.quality = Livekit_VideoQuality.from(rid: encoding.rid)
-                $0.bitrate = encoding.maxBitrateBps?.uint32Value ?? 0
+        } else {
+            return encodings.filter(\.isActive).map { encoding in
+                let scaleDownBy = encoding.scaleResolutionDownBy?.doubleValue ?? 1.0
+                return Livekit_VideoLayer.with {
+                    $0.width = UInt32((Double(width) / scaleDownBy).rounded(.down))
+                    $0.height = UInt32((Double(height) / scaleDownBy).rounded(.down))
+                    $0.quality = Livekit_VideoQuality.from(rid: encoding.rid) ?? .high
+                    $0.bitrate = encoding.maxBitrateBps?.uint32Value ?? 0
+                }
             }
         }
     }
@@ -183,14 +181,8 @@ extension Dimensions {
 // MARK: - Convert
 
 extension Dimensions {
-
-    func toCGSize() -> CGSize {
-        CGSize(width: Int(width), height: Int(height))
-    }
-
     func apply(rotation: RTCVideoRotation) -> Dimensions {
-
-        if ._90 == rotation || ._270 == rotation {
+        if rotation == ._90 || rotation == ._270 {
             return swapped()
         }
 
@@ -202,7 +194,6 @@ extension Dimensions {
 
 @objc
 public extension Dimensions {
-
     // 16:9 aspect ratio presets
     static let h90_169 = Dimensions(width: 160, height: 90)
 
@@ -214,13 +205,13 @@ public extension Dimensions {
 
     static let h540_169 = Dimensions(width: 960, height: 540)
 
-    static let h720_169 = Dimensions(width: 1_280, height: 720)
+    static let h720_169 = Dimensions(width: 1280, height: 720)
 
-    static let h1080_169 = Dimensions(width: 1_920, height: 1_080)
+    static let h1080_169 = Dimensions(width: 1920, height: 1080)
 
-    static let h1440_169 = Dimensions(width: 2_560, height: 1_440)
+    static let h1440_169 = Dimensions(width: 2560, height: 1440)
 
-    static let h2160_169 = Dimensions(width: 3_840, height: 2_160)
+    static let h2160_169 = Dimensions(width: 3840, height: 2160)
 
     // 4:3 aspect ratio presets
     static let h120_43 = Dimensions(width: 160, height: 120)
@@ -237,7 +228,7 @@ public extension Dimensions {
 
     static let h720_43 = Dimensions(width: 960, height: 720)
 
-    static let h1080_43 = Dimensions(width: 1_440, height: 1_080)
+    static let h1080_43 = Dimensions(width: 1440, height: 1080)
 
-    static let h1440_43 = Dimensions(width: 1_920, height: 1_440)
+    static let h1440_43 = Dimensions(width: 1920, height: 1440)
 }

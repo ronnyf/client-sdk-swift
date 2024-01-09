@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 LiveKit
+ * Copyright 2024 LiveKit
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,11 @@
  */
 
 import Foundation
+
 @_implementationOnly import WebRTC
-import Promises
 
 public typealias Sid = String
-
-// A tuple of Promises.
-// listen: resolves when started listening
-// wait: resolves when wait is complete or rejects when timeout
-internal typealias WaitPromises<T> = (listen: Promise<Void>, wait: () -> Promise<T>)
+public typealias Identity = String
 
 @objc
 public enum Reliability: Int {
@@ -31,8 +27,7 @@ public enum Reliability: Int {
     case lossy
 }
 
-internal extension Reliability {
-
+extension Reliability {
     func toPBType() -> Livekit_DataPacket.Kind {
         if self == .lossy { return .lossy }
         return .reliable

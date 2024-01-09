@@ -22,8 +22,7 @@ let package = Package(
 		)
 	],
 	dependencies: [
-		.package(url: "https://github.com/apple/swift-protobuf.git", .upToNextMajor(from: "1.22.1")),
-		.package(url: "https://github.com/google/promises.git", .upToNextMajor(from: "2.0.0")),
+		.package(url: "https://github.com/apple/swift-protobuf.git", .upToNextMajor(from: "1.25.2")),
 		.package(url: "https://github.com/apple/swift-log.git", .upToNextMajor(from: "1.5.3")),
 		.package(url: "https://github.com/apple/swift-async-algorithms.git", .upToNextMajor(from: "0.1.0")),
 		.package(url: "git@github.corp.ebay.com:eBayMobile/webrtc-ios-xcframework.git", branch: "alternative"),
@@ -41,26 +40,17 @@ let package = Package(
 				.target(name: "CHeaders"),
 				.product(name: "WebRTC", package: "webrtc-ios-xcframework"),
 				.product(name: "SwiftProtobuf", package: "swift-protobuf"),
-				.product(name: "Promises", package: "Promises"),
-				.product(name: "FBLPromises", package: "Promises"),
 				.product(name: "Logging", package: "swift-log"),
 			],
-			path: "Sources",
-			sources: [
-				"LiveKit",
-			]
+			path: "Sources"
 		),
 		.testTarget(
 			name: "LiveKitTests",
 			dependencies: ["LiveKit"]
 		),
-		.systemLibrary(name: "FakePromises", path: "Sources/FakePromises"),
-		.systemLibrary(name: "FakeFBLPromises", path: "Sources/FakeFBLPromises"),
 		.target(
 			name: "LiveKitCore",
 			dependencies: [
-				.target(name: "FakePromises"),
-				.target(name: "FakeFBLPromises"),
 				.product(name: "WebRTC", package: "webrtc-ios-xcframework"),
 				.product(name: "SwiftProtobuf", package: "swift-protobuf"),
 				.product(name: "AsyncAlgorithms", package: "swift-async-algorithms"),
@@ -94,6 +84,7 @@ let package = Package(
 				"Shared/ConnectivityListener-Core.swift",
 				"Shared/DimensionsProvider.swift",
 				"Shared/Engine-Core.swift",
+				"Shared/LiveKitCompatibility.swift",
 				"Shared/Extensions/Engine+WebRTC.swift",
 				"Shared/Extensions/Primitives.swift",
 				"Shared/Extensions/RTCConfiguration.swift",
@@ -114,7 +105,6 @@ let package = Package(
 				"Shared/Types/ConnectOptions.swift",
 				"Shared/Types/ConnectionState.swift",
 				"Shared/Types/Dimensions.swift",
-				"Shared/Types/DisconnectReason.swift",
 				"Shared/Types/Errors.swift",
 				"Shared/Types/IceCandidate.swift",
 				"Shared/Types/Other.swift",

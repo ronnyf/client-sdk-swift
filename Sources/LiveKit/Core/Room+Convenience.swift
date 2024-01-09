@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 LiveKit
+ * Copyright 2024 LiveKit
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,13 @@
 
 import Foundation
 
-extension Room {
-
-    public var allParticipants: [Sid: Participant] {
-        var result: [Sid: Participant] = remoteParticipants
-
-        if let localParticipant = localParticipant {
-            result.updateValue(localParticipant, forKey: localParticipant.sid)
+public extension Room {
+    /// Returns a dictionary containing both local and remote participants.
+    var allParticipants: [Identity: Participant] {
+        var result: [Identity: Participant] = remoteParticipants
+        if !localParticipant.identity.isEmpty {
+            result.updateValue(localParticipant, forKey: localParticipant.identity)
         }
-
         return result
     }
 }

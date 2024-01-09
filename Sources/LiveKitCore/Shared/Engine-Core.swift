@@ -6,34 +6,26 @@
 //
 
 import Foundation
+
 @_implementationOnly import WebRTC
 
-#if LKCORE
+#if LKCORE && LKCORE_WEBRTC
 
 struct Engine {
-	static func _createSessionDescription(type: RTCSdpType, sdp: String) -> RTCSessionDescription {
+	static func createSessionDescription(type: RTCSdpType, sdp: String) -> RTCSessionDescription {
 		RTCSessionDescription(type: type, sdp: sdp)
 	}
 	
-	static func _createRtpEncodingParameters(rid: String? = nil,
-											 encoding: MediaEncoding? = nil,
-											 scaleDownBy: Double? = nil,
-											 active: Bool = true) -> RTCRtpEncodingParameters {
-		let result = RTCRtpEncodingParameters()
-		result.isActive = active
-		result.rid = rid
+	static func createRtpEncodingParameters(rid: String? = nil,
+											encoding: MediaEncoding? = nil,
+											scaleDownBy: Double? = nil,
+											active: Bool = true,
+											scalabilityMode: ScalabilityMode? = nil) -> RTCRtpEncodingParameters {
 		
-		if let scaleDownBy = scaleDownBy {
-			result.scaleResolutionDownBy = NSNumber(value: scaleDownBy)
-		}
+		let result = RTCRtpEncodingParameters(rid: rid, encoding: encoding, scaleDownBy: scaleDownBy, active: active)
 		
-		if let encoding = encoding {
-			result.maxBitrateBps = NSNumber(value: encoding.maxBitrate)
-			
-			// VideoEncoding specific
-			if let videoEncoding = encoding as? VideoEncoding {
-				result.maxFramerate = NSNumber(value: videoEncoding.maxFps)
-			}
+		if let scalabilityMode {
+			result.scalabilityMode = scalabilityMode.rawStringValue
 		}
 		
 		return result

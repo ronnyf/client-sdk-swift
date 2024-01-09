@@ -14,7 +14,7 @@ class PeerConnectionFactory: @unchecked Sendable {
 	let audioDevice: AudioDevice
 	
 	init(
-		rtcConfiguration: RTCConfiguration = .liveKitDefault,
+		rtcConfiguration: RTCConfiguration = .liveKitDefault(),
 		rtcMediaConstraints: RTCMediaConstraints = .defaultPCConstraints,
 		audioDevice: AudioDevice = AudioDevice()
 	) {
@@ -28,8 +28,8 @@ class PeerConnectionFactory: @unchecked Sendable {
 			let fieldTrials = [kRTCFieldTrialUseNWPathMonitor: kRTCFieldTrialEnabledValue]
 			RTCInitFieldTrialDictionary(fieldTrials)
 			
-			let encoderFactory = VideoEncoderFactory()
-			let decoderFactory = VideoDecoderFactory()
+			let encoderFactory = DefaultVideoEncoderFactory()
+			let decoderFactory = DefaultVideoDecoderFactory()
 			let pcf = RTCPeerConnectionFactory(encoderFactory: encoderFactory,
 											   decoderFactory: decoderFactory,
 											   audioDevice: audioDevice.rtc)

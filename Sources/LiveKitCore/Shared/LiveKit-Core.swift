@@ -32,21 +32,7 @@ import Foundation
 public class LiveKit: NSObject {
 	
 	@objc(sdkVersion)
-	public static let version = "1.1.2"
+	public static let version = "2.0.0"
 }
-
-extension DispatchQueue {
-	struct webRTC {
-		static func sync<Value>(value: () -> Value) -> Value {
-			return value()
-		}
-		
-		static func sync<Value>(value: () throws -> Value) rethrows -> Value {
-			return try value()
-		}
-	}
-}
-
-public class Promise<T> {}
 
 #endif

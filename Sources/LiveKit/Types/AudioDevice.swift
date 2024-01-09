@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 LiveKit
+ * Copyright 2024 LiveKit
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,22 @@
  */
 
 import Foundation
-import Promises
 
-@objc(ConnectionState)
-public enum ConnectionStateObjC: Int {
-    case disconnected
-    case connecting
-    case reconnecting
-    case connected
+@_implementationOnly import WebRTC
+
+@objc
+public class AudioDevice: NSObject, MediaDevice {
+    public var deviceId: String { _ioDevice.deviceId }
+    public var name: String { _ioDevice.name }
+    public var isDefault: Bool { _ioDevice.isDefault }
+
+    let _ioDevice: LKRTCIODevice
+
+    init(ioDevice: LKRTCIODevice) {
+        _ioDevice = ioDevice
+    }
+}
+
+extension AudioDevice: Identifiable {
+    public var id: String { deviceId }
 }

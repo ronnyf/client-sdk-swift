@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 LiveKit
+ * Copyright 2024 LiveKit
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,14 @@
  */
 
 import Foundation
-import WebRTC
 
-internal protocol TransportDelegate: AnyObject {
-    func transport(_ transport: Transport, didUpdate state: RTCPeerConnectionState)
-    func transport(_ transport: Transport, didGenerate iceCandidate: RTCIceCandidate)
-    func transport(_ transport: Transport, didOpen dataChannel: RTCDataChannel)
-    func transport(_ transport: Transport, didAddTrack: RTCMediaStreamTrack, rtpReceiver: RTCRtpReceiver, streams: [RTCMediaStream])
-    func transport(_ transport: Transport, didRemove track: RTCMediaStreamTrack)
+@_implementationOnly import WebRTC
+
+protocol TransportDelegate: AnyObject {
+    func transport(_ transport: Transport, didUpdateState state: RTCPeerConnectionState)
+    func transport(_ transport: Transport, didGenerateIceCandidate iceCandidate: LKRTCIceCandidate)
+    func transport(_ transport: Transport, didOpenDataChannel dataChannel: LKRTCDataChannel)
+    func transport(_ transport: Transport, didAddTrack track: LKRTCMediaStreamTrack, rtpReceiver: LKRTCRtpReceiver, streams: [LKRTCMediaStream])
+    func transport(_ transport: Transport, didRemoveTrack track: LKRTCMediaStreamTrack)
     func transportShouldNegotiate(_ transport: Transport)
-    func transport(_ transport: Transport, didGenerate stats: [TrackStats], target: Livekit_SignalTarget)
 }

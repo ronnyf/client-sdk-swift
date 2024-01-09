@@ -95,11 +95,10 @@ actor PeerConnection {
 	func configure(with joinResponse: Livekit_JoinResponse) async throws {
 		dispatchPrecondition(condition: .onQueue(dispatchQueue))
 		
-		let rtcConfiguration = RTCConfiguration(copy: configuration())
-		if rtcConfiguration.iceServers.isEmpty {
-			// Set iceServers provided by the server
-			rtcConfiguration.iceServers = joinResponse.iceServers.map { RTCIceServer($0) }
-		}
+		let rtcConfiguration = RTCConfiguration.liveKitDefault()
+		rtcConfiguration.iceServers = joinResponse.iceServers.map { RTCIceServer($0) }
+		
+		//TODO: add ice server override by 'ConnectOptions'
 		
 		if joinResponse.clientConfiguration.forceRelay == .enabled {
 			rtcConfiguration.iceTransportPolicy = .relay

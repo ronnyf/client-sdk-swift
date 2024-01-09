@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 LiveKit
+ * Copyright 2024 LiveKit
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 
 import Foundation
-import WebRTC
 
-extension RTCDataChannel {
+@_implementationOnly import WebRTC
 
-    struct labels {
+extension LKRTCDataChannel {
+    enum labels {
         static let reliable = "_reliable"
         static let lossy = "_lossy"
     }

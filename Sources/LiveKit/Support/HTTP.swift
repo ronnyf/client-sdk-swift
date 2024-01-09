@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 LiveKit
+ * Copyright 2024 LiveKit
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,40 +15,27 @@
  */
 
 import Foundation
-import Promises
 
-internal class HTTP: NSObject, URLSessionDelegate {
+class HTTP: NSObject {
+    private static let operationQueue = OperationQueue()
 
-    private let operationQueue = OperationQueue()
+    private static let session: URLSession = .init(configuration: .default,
+                                                   delegate: nil,
+                                                   delegateQueue: operationQueue)
 
-    private lazy var session: URLSession = {
-        URLSession(configuration: .default,
-                   delegate: self,
-                   delegateQueue: operationQueue)
-    }()
+    public static func requestData(from url: URL) async throws -> Data {
+        let request = URLRequest(url: url,
+                                 cachePolicy: .reloadIgnoringLocalAndRemoteCacheData,
+                                 timeoutInterval: .defaultHTTPConnect)
+        let (data, _) = try await session.data(for: request)
+        return data
+    }
 
-    func get(on: DispatchQueue, url: URL) -> Promise<Data> {
-
-        Promise<Data>(on: on) { resolve, fail in
-
-            let request = URLRequest(url: url,
-                                     cachePolicy: .reloadIgnoringLocalAndRemoteCacheData,
-                                     timeoutInterval: .defaultHTTPConnect)
-
-            let task = self.session.dataTask(with: request) { data, _, error in
-                if let error = error {
-                    fail(error)
-                    return
-                }
-
-                guard let data = data else {
-                    fail(NetworkError.response(message: "data is nil"))
-                    return
-                }
-
-                resolve(data)
-            }
-            task.resume()
+    public static func requestString(from url: URL) async throws -> String {
+        let data = try await requestData(from: url)
+        guard let string = String(data: data, encoding: .utf8) else {
+            throw LiveKitError(.failedToConvertData, message: "Failed to convert string")
         }
+        return string
     }
 }

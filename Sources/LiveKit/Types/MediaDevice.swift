@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 LiveKit
+ * Copyright 2024 LiveKit
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,9 @@
  */
 
 import Foundation
-import WebRTC
 
-extension RTCConfiguration {
-    open override var description: String {
-        "RTCConfiguration(iceServers: \(String(describing: iceServers)), " +
-            "iceTransportPolicy: \(String(describing: iceTransportPolicy)))"
-    }
+@objc
+public protocol MediaDevice: AnyObject {
+    var deviceId: String { get }
+    var name: String { get }
 }

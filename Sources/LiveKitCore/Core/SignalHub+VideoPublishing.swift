@@ -32,11 +32,7 @@ struct Publication: Sendable {
 			return [Engine.createRtpEncodingParameters(encoding: encoding)]
 			
 		case .video:
-			return Utils.computeEncodings(
-				dimensions: dimensions,
-				publishOptions: videoPublishOptions,
-				isScreenShare: source == .screenShare
-			)
+			return Utils.computeVideoEncodings(dimensions: Dimensions(from: dimensions), publishOptions: videoPublishOptions)
 			
 		default:
 			return []
@@ -45,7 +41,7 @@ struct Publication: Sendable {
 	
 	var layers: [Livekit_VideoLayer] {
 		guard type == .video else { return [] }
-		return dimensions.videoLayers(for: encodings)
+		return Dimensions(from: dimensions).videoLayers(for: encodings)
 	}
 	
 	static func videoPublication(dimensions: CMVideoDimensions, options: VideoPublishOptions? = nil) -> Publication {

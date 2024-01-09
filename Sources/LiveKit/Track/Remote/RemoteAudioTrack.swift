@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 LiveKit
+ * Copyright 2024 LiveKit
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,59 +15,52 @@
  */
 
 import Foundation
-import WebRTC
-import Promises
+
+@_implementationOnly import WebRTC
 
 @objc
 public class RemoteAudioTrack: Track, RemoteTrack, AudioTrack {
-
     /// Volume with range 0.0 - 1.0
     public var volume: Double {
         get {
-            guard let audioTrack = mediaTrack as? RTCAudioTrack else { return 0 }
+            guard let audioTrack = mediaTrack as? LKRTCAudioTrack else { return 0 }
             return audioTrack.source.volume / 10
         }
         set {
-            guard let audioTrack = mediaTrack as? RTCAudioTrack else { return }
+            guard let audioTrack = mediaTrack as? LKRTCAudioTrack else { return }
             audioTrack.source.volume = newValue * 10
         }
     }
 
     init(name: String,
          source: Track.Source,
-         track: RTCMediaStreamTrack) {
-
+         track: LKRTCMediaStreamTrack,
+         reportStatistics: Bool)
+    {
         super.init(name: name,
                    kind: .audio,
                    source: source,
-                   track: track)
+                   track: track,
+                   reportStatistics: reportStatistics)
     }
 
-    override public func start() -> Promise<Bool> {
-        super.start().then(on: queue) { didStart -> Bool in
-            if didStart {
-                AudioManager.shared.trackDidStart(.remote)
-            }
-            return didStart
-        }
+    public func add(audioRenderer: AudioRenderer) {
+        guard let audioTrack = mediaTrack as? LKRTCAudioTrack else { return }
+        audioTrack.add(AudioRendererAdapter(target: audioRenderer))
     }
 
-    override public func stop() -> Promise<Bool> {
-        super.stop().then(on: queue) { didStop -> Bool in
-            if didStop {
-                AudioManager.shared.trackDidStop(.remote)
-            }
-            return didStop
-        }
+    public func remove(audioRenderer: AudioRenderer) {
+        guard let audioTrack = mediaTrack as? LKRTCAudioTrack else { return }
+        audioTrack.remove(AudioRendererAdapter(target: audioRenderer))
     }
 
-    public func add(audioRenderer: RTCAudioRenderer) {
-        guard let audioTrack = mediaTrack as? RTCAudioTrack else { return  }
-        audioTrack.add(audioRenderer)
+    // MARK: - Internal
+
+    override func startCapture() async throws {
+        AudioManager.shared.trackDidStart(.remote)
     }
 
-    public func remove(audioRenderer: RTCAudioRenderer) {
-        guard let audioTrack = mediaTrack as? RTCAudioTrack else { return }
-        audioTrack.remove(audioRenderer)
+    override func stopCapture() async throws {
+        AudioManager.shared.trackDidStop(.remote)
     }
 }

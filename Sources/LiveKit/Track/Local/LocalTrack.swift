@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 LiveKit
+ * Copyright 2024 LiveKit
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,18 @@
  */
 
 import Foundation
-import Promises
 
 @objc
 public protocol LocalTrack where Self: Track {
-
-    @objc(publishOptions)
+    @objc
     var publishOptions: PublishOptions? { get }
 
-    @objc(publishState)
+    @objc
     var publishState: PublishState { get }
 
-    @objc(mute)
-    @discardableResult
-    func mute() -> Promise<Void>.ObjCPromise<NSNull>
+    @objc
+    func mute() async throws
 
-    @objc(unmute)
-    @discardableResult
-    func unmute() -> Promise<Void>.ObjCPromise<NSNull>
+    @objc
+    func unmute() async throws
 }

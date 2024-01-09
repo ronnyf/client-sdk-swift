@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 LiveKit
+ * Copyright 2024 LiveKit
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,35 +15,51 @@
  */
 
 import Foundation
-import WebRTC
-import Promises
+
+@_implementationOnly import WebRTC
 
 extension Room: EngineDelegate {
-
-    func engine(_ engine: Engine, didMutate state: Engine.State, oldState: Engine.State) {
-
+    func engine(_: Engine, didMutateState state: Engine.State, oldState: Engine.State) {
         if state.connectionState != oldState.connectionState {
             // connectionState did update
 
             // only if quick-reconnect
             if case .connected = state.connectionState, case .quick = state.reconnectMode {
-
                 resetTrackSettings()
             }
 
-            // re-send track permissions
-            if case .connected = state.connectionState, let localParticipant = localParticipant {
-                localParticipant.sendTrackSubscriptionPermissions().catch(on: queue) { error in
-                    self.log("Failed to send track subscription permissions, error: \(error)", .error)
+            // Re-send track permissions
+            if case .connected = state.connectionState {
+                Task {
+                    do {
+                        try await localParticipant.sendTrackSubscriptionPermissions()
+                    } catch {
+                        log("Failed to send track subscription permissions, error: \(error)", .error)
+                    }
                 }
             }
 
             delegates.notify(label: { "room.didUpdate connectionState: \(state.connectionState) oldValue: \(oldState.connectionState)" }) {
-                // Objective-C support
-                $0.room?(self, didUpdate: state.connectionState.toObjCType(), oldValue: oldState.connectionState.toObjCType())
-                // Swift only
-                if let delegateSwift = $0 as? RoomDelegate {
-                    delegateSwift.room(self, didUpdate: state.connectionState, oldValue: oldState.connectionState)
+                $0.room?(self, didUpdateConnectionState: state.connectionState, from: oldState.connectionState)
+            }
+
+            // Individual connectionState delegates
+            if case .connected = state.connectionState {
+                // Connected
+                if case .reconnecting = oldState.connectionState {
+                    delegates.notify { $0.roomDidReconnect?(self) }
+                } else {
+                    delegates.notify { $0.roomDidConnect?(self) }
+                }
+            } else if case .reconnecting = state.connectionState {
+                // Re-connecting
+                delegates.notify { $0.roomIsReconnecting?(self) }
+            } else if case .disconnected = state.connectionState {
+                // Disconnected
+                if case .connecting = oldState.connectionState {
+                    delegates.notify { $0.room?(self, didFailToConnectWithError: oldState.disconnectError) }
+                } else {
+                    delegates.notify { $0.room?(self, didDisconnectWithError: state.disconnectError) }
                 }
             }
 
@@ -61,9 +77,11 @@ extension Room: EngineDelegate {
             }
         }
 
-        if state.connectionState.isReconnecting && state.reconnectMode == .full && oldState.reconnectMode != .full {
-            // started full reconnect
-            cleanUpParticipants(notify: true)
+        if state.connectionState == .reconnecting, state.reconnectMode == .full, oldState.reconnectMode != .full {
+            Task {
+                // Started full reconnect
+                await cleanUpParticipants(notify: true)
+            }
         }
 
         // Notify change when engine's state mutates
@@ -72,41 +90,21 @@ extension Room: EngineDelegate {
         }
     }
 
-    func engine(_ engine: Engine, didGenerate trackStats: [TrackStats], target: Livekit_SignalTarget) {
-
-        let allParticipants = ([[localParticipant],
-                                _state.remoteParticipants.map { $0.value }] as [[Participant?]])
-            .joined()
-            .compactMap { $0 }
-
-        let allTracks = allParticipants.map { $0._state.tracks.values.map { $0.track } }.joined()
-            .compactMap { $0 }
-
-        // this relies on the last stat entry being the latest
-        for track in allTracks {
-            if let stats = trackStats.last(where: { $0.trackId == track.mediaTrack.trackId }) {
-                track.set(stats: stats)
-            }
-        }
-    }
-
-    func engine(_ engine: Engine, didUpdate speakers: [Livekit_SpeakerInfo]) {
-
+    func engine(_ engine: Engine, didUpdateSpeakers speakers: [Livekit_SpeakerInfo]) {
         let activeSpeakers = _state.mutate { state -> [Participant] in
 
             var activeSpeakers: [Participant] = []
             var seenSids = [String: Bool]()
             for speaker in speakers {
                 seenSids[speaker.sid] = true
-                if let localParticipant = state.localParticipant,
-                   speaker.sid == localParticipant.sid {
+                if speaker.sid == localParticipant.sid {
                     localParticipant._state.mutate {
                         $0.audioLevel = speaker.level
                         $0.isSpeaking = true
                     }
                     activeSpeakers.append(localParticipant)
                 } else {
-                    if let participant = state.remoteParticipants[speaker.sid] {
+                    if let participant = state.remoteParticipant(sid: speaker.sid) {
                         participant._state.mutate {
                             $0.audioLevel = speaker.level
                             $0.isSpeaking = true
@@ -116,7 +114,7 @@ extension Room: EngineDelegate {
                 }
             }
 
-            if let localParticipant = state.localParticipant, seenSids[localParticipant.sid] == nil {
+            if seenSids[localParticipant.sid] == nil {
                 localParticipant._state.mutate {
                     $0.audioLevel = 0.0
                     $0.isSpeaking = false
@@ -136,69 +134,58 @@ extension Room: EngineDelegate {
         }
 
         engine.executeIfConnected { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
 
             self.delegates.notify(label: { "room.didUpdate speakers: \(activeSpeakers)" }) {
-                $0.room?(self, didUpdate: activeSpeakers)
+                $0.room?(self, didUpdateSpeakingParticipants: activeSpeakers)
             }
         }
     }
 
-    func engine(_ engine: Engine, didAddTrack track: RTCMediaStreamTrack, rtpReceiver: RTCRtpReceiver, streams: [RTCMediaStream]) {
+    func engine(_: Engine, didAddTrack track: LKRTCMediaStreamTrack, rtpReceiver: LKRTCRtpReceiver, stream: LKRTCMediaStream) {
+        let parts = stream.streamId.unpack()
 
-        guard !streams.isEmpty else {
-            log("Received onTrack with no streams!", .warning)
+        let participant = _state.read {
+            $0.remoteParticipants.values.first { $0.sid == parts.participantSid }
+        }
+
+        guard let participant else {
+            log("RemoteParticipant not found for sid: \(parts.participantSid), remoteParticipants: \(remoteParticipants)", .warning)
             return
         }
 
-        let unpacked = streams[0].streamId.unpack()
-        let participantSid = unpacked.sid
-        var trackSid = unpacked.trackId
-        if trackSid == "" {
-            trackSid = track.trackId
+        let task = Task.retrying(retryDelay: 0.2) { _, _ in
+            // TODO: Only retry for TrackError.state = error
+            try await participant.addSubscribedMediaTrack(rtcTrack: track, rtpReceiver: rtpReceiver, sid: track.trackId)
         }
 
-        let participant = _state.mutate { $0.getOrCreateRemoteParticipant(sid: participantSid, room: self) }
-
-        log("added media track from: \(participantSid), sid: \(trackSid)")
-
-        _ = retry(attempts: 10, delay: 0.2) { _, error in
-            // if error is invalidTrackState, retry
-            guard case TrackError.state = error else { return false }
-            return true
-        } _: {
-            participant.addSubscribedMediaTrack(rtcTrack: track, rtpReceiver: rtpReceiver, sid: trackSid)
+        Task {
+            try await task.value
         }
     }
 
-    func engine(_ engine: Engine, didRemove track: RTCMediaStreamTrack) {
+    func engine(_: Engine, didRemoveTrack track: LKRTCMediaStreamTrack) {
         // find the publication
-        guard let publication = _state.remoteParticipants.values.map({ $0._state.tracks.values }).joined()
-                .first(where: { $0.sid == track.trackId }) else { return }
+        guard let publication = _state.remoteParticipants.values.map(\._state.trackPublications.values).joined()
+            .first(where: { $0.sid == track.trackId }) else { return }
         publication.set(track: nil)
     }
 
-    func engine(_ engine: Engine, didReceive userPacket: Livekit_UserPacket) {
+    func engine(_ engine: Engine, didReceiveUserPacket packet: Livekit_UserPacket) {
         // participant could be null if data broadcasted from server
-        let participant = _state.remoteParticipants[userPacket.participantSid]
+        let participant = _state.remoteParticipants[packet.participantIdentity]
 
         engine.executeIfConnected { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
 
-            self.delegates.notify(label: { "room.didReceive data: \(userPacket.payload)" }) {
-                // deprecated
-                $0.room?(self, participant: participant, didReceive: userPacket.payload)
-                // new method with topic param
-                $0.room?(self, participant: participant, didReceiveData: userPacket.payload, topic: userPacket.topic)
+            self.delegates.notify(label: { "room.didReceive data: \(packet.payload)" }) {
+                $0.room?(self, participant: participant, didReceiveData: packet.payload, forTopic: packet.topic)
             }
 
-            if let participant = participant {
-                participant.delegates.notify(label: { "participant.didReceive data: \(userPacket.payload)" }) { [weak participant] (delegate) -> Void in
-                    guard let participant = participant else { return }
-                    // deprecated
-                    delegate.participant?(participant, didReceive: userPacket.payload)
-                    // new method with topic param
-                    delegate.participant?(participant, didReceiveData: userPacket.payload, topic: userPacket.topic)
+            if let participant {
+                participant.delegates.notify(label: { "participant.didReceive data: \(packet.payload)" }) { [weak participant] delegate in
+                    guard let participant else { return }
+                    delegate.participant?(participant, didReceiveData: packet.payload, forTopic: packet.topic)
                 }
             }
         }
