@@ -225,7 +225,7 @@ public struct LiveKitParticipant: Sendable {
 	
 	init(_ participantInfo: Livekit_ParticipantInfo) {
 		self.id = participantInfo.sid
-		self.name = participantInfo.identity
+		self.name = participantInfo.name
 		self.state = State(participantInfoState: participantInfo.state)
 		self.joinedAt = participantInfo.joinedAt
 		self.canPublish = participantInfo.permission.canPublish
