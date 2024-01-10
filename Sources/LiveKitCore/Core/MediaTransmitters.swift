@@ -82,6 +82,6 @@ public class MediaTransmitter: @unchecked Sendable, Identifiable {
 
 extension MediaTransmitter: CustomStringConvertible {
 	public var description: String {
-		"<MediaTransmitter sender: \(sender), track: \(track), source: \(source), info: \(trackInfo)>"
+		"<MediaTransmitter sender: \(sender), track: \(track), source: \(source), info: \(String(describing: trackInfo))>"
 	}
 }

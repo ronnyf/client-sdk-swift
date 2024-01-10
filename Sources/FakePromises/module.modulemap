@@ -1,4 +1,0 @@
-module Promises {
-  header "Header.h"
-  export *
-}

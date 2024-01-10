@@ -61,7 +61,11 @@ class DefaultVideoDecoderFactory: NSObject, RTCVideoDecoderFactory {
 
 extension RTCVideoCodecInfo {
 	static var defaultSupportedCodecInfo: [RTCVideoCodecInfo] {
+		#if LKCORE_USE_ALTERNATIVE_WEBRTC || LKCORE_USE_LIVEKIT_WEBRTC
+		guard let profileLevelId = RTCH264ProfileLevelId(profile: .constrainedBaseline, level: .level5) else { return [] }
+		#else
 		let profileLevelId = RTCH264ProfileLevelId(profile: .constrainedBaseline, level: .level5)
+		#endif
 		let baselineCodecInfo = RTCVideoCodecInfo(name: kRTCVideoCodecH264Name,
 												  parameters: ["profile-level-id": profileLevelId.hexString,
 															   "level-asymmetry-allowed": "1",

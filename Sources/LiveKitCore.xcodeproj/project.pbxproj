@@ -299,12 +299,14 @@
 		60888F6D29F97EC900AE5111 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				607EA56F2AFD3A29001B0C45 /* AudioDevice.swift */,
 				60888F7729F97EC900AE5111 /* Convenience.swift */,
+				605246B72ACD151100ECA167 /* LiveKit+Signals.swift */,
 				603F70482AA9448B004C8D99 /* Logging.swift */,
+				601C71442B054359005DD0A0 /* MediaTransmitters.swift */,
 				60888F7629F97EC900AE5111 /* MessageChannel.swift */,
 				605246AE2ACD103600ECA167 /* MessageChannel+Connect.swift */,
 				60888F7429F97EC900AE5111 /* Models.swift */,
-				605246B72ACD151100ECA167 /* LiveKit+Signals.swift */,
 				6023F5362A18440800005548 /* PeerConnection.swift */,
 				605246B12ACD11B000ECA167 /* PeerConnection+Coordinator.swift */,
 				605246B42ACD120F00ECA167 /* PeerConnection+Negotiation.swift */,
@@ -320,8 +322,6 @@
 				6069A1822A05C20700842647 /* SignalHub+RTC.swift */,
 				60888F7829F97EC900AE5111 /* SignalHub+VideoPublishing.swift */,
 				60BFB45B2ACDE0010081807F /* VideoView.swift */,
-				607EA56F2AFD3A29001B0C45 /* AudioDevice.swift */,
-				601C71442B054359005DD0A0 /* MediaTransmitters.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -332,15 +332,15 @@
 				6025C3642A14815F00DC21DF /* ConnectivityListener-Core.swift */,
 				6025C3382A147D3F00DC21DF /* DimensionsProvider.swift */,
 				6025C3452A147DDB00DC21DF /* Engine-Core.swift */,
-				60888FA329F97F0300AE5111 /* LiveKit-Core.swift */,
-				603D8E932B4C9459009EF38F /* VideoCoding-Core.swift */,
-				6025C3302A147C1800DC21DF /* SharedModels.swift */,
 				608FEB192A14B8C700924614 /* Extensions */,
+				60888FA329F97F0300AE5111 /* LiveKit-Core.swift */,
+				603D8E8C2B4C6976009EF38F /* LiveKitCompatibility.swift */,
 				608FEB222A14B8C700924614 /* Protocols */,
 				608FEB242A14B8C700924614 /* Protos */,
+				6025C3302A147C1800DC21DF /* SharedModels.swift */,
 				608FEB1F2A14B8C700924614 /* Support */,
 				608FEB072A14B8C700924614 /* Types */,
-				603D8E8C2B4C6976009EF38F /* LiveKitCompatibility.swift */,
+				603D8E932B4C9459009EF38F /* VideoCoding-Core.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -802,6 +802,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				KEEP_PRIVATE_EXTERNS = NO;
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -847,6 +848,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ebay.LiveKitCore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				STRIP_STYLE = "non-global";
 				SUPPORTED_PLATFORMS = "macosx iphonesimulator iphoneos";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
@@ -857,6 +859,7 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TVOS_DEPLOYMENT_TARGET = 15.0;
+				VERSIONING_SYSTEM = "apple-generic";
 				WATCHOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Debug;
@@ -880,6 +883,7 @@
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				KEEP_PRIVATE_EXTERNS = NO;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -894,6 +898,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ebay.LiveKitCore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				STRIP_STYLE = "non-global";
 				SUPPORTED_PLATFORMS = "macosx iphonesimulator iphoneos";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
@@ -905,6 +910,7 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TVOS_DEPLOYMENT_TARGET = 15.0;
+				VERSIONING_SYSTEM = "apple-generic";
 				WATCHOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Release;
@@ -952,6 +958,7 @@
 				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = QYHMMGCMJR;
 				ENABLE_MODULE_VERIFIER = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LIBRARY_SEARCH_PATHS = "";
@@ -962,6 +969,7 @@
 				PRODUCT_MODULE_NAME = "$(PRODUCT_NAME:c99extidentifier)";
 				PRODUCT_NAME = LiveKitCore;
 				SKIP_INSTALL = YES;
+				STRIP_STYLE = "non-global";
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
 				SWIFT_INCLUDE_PATHS = "";
@@ -981,8 +989,10 @@
 				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = QYHMMGCMJR;
 				ENABLE_MODULE_VERIFIER = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				KEEP_PRIVATE_EXTERNS = YES;
 				LIBRARY_SEARCH_PATHS = "";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
@@ -991,6 +1001,7 @@
 				PRODUCT_MODULE_NAME = "$(PRODUCT_NAME:c99extidentifier)";
 				PRODUCT_NAME = LiveKitCore;
 				SKIP_INSTALL = YES;
+				STRIP_STYLE = "non-global";
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
 				SWIFT_INCLUDE_PATHS = "";

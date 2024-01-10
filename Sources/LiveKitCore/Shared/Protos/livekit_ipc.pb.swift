@@ -1,1 +1,0 @@
-../../../LiveKit/Protos/livekit_ipc.pb.swift

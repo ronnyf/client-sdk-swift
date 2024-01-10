@@ -9,8 +9,6 @@ import Foundation
 
 @_implementationOnly import WebRTC
 
-#if LKCORE && LKCORE_WEBRTC
-
 struct Engine {
 	static func createSessionDescription(type: RTCSdpType, sdp: String) -> RTCSessionDescription {
 		RTCSessionDescription(type: type, sdp: sdp)
@@ -24,12 +22,11 @@ struct Engine {
 		
 		let result = RTCRtpEncodingParameters(rid: rid, encoding: encoding, scaleDownBy: scaleDownBy, active: active)
 		
+		#if LKCORE_USE_LIVEKIT_WEBRTC
 		if let scalabilityMode {
 			result.scalabilityMode = scalabilityMode.rawStringValue
 		}
-		
+		#endif
 		return result
 	}
 }
-
-#endif

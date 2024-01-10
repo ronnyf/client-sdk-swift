@@ -25,24 +25,28 @@ let package = Package(
 		.package(url: "https://github.com/apple/swift-protobuf.git", .upToNextMajor(from: "1.25.2")),
 		.package(url: "https://github.com/apple/swift-log.git", .upToNextMajor(from: "1.5.3")),
 		.package(url: "https://github.com/apple/swift-async-algorithms.git", .upToNextMajor(from: "0.1.0")),
-		.package(url: "git@github.corp.ebay.com:eBayMobile/webrtc-ios-xcframework.git", branch: "alternative"),
+		// LK-Prefixed Dynamic WebRTC XCFramework ---v
+		.package(url: "https://github.com/livekit/webrtc-xcframework.git", exact: "114.5735.10"),
 	],
 	targets: [
 		.systemLibrary(name: "CHeaders"),
-//		.binaryTarget(
-//			name: "WebRTC",
-//			url: "https://github.com/stasel/WebRTC/releases/download/119.0.0/WebRTC-M119.xcframework.zip",
-//			checksum: "60737020738e76f2200f3f2c12a32f260d116f858a2e1ff33c48973ddd3e1c97"
-//		),
+		.binaryTarget(
+			name: "AltWebRTC",
+			url: "https://github.com/stasel/WebRTC/releases/download/119.0.0/WebRTC-M119.xcframework.zip",
+			checksum: "60737020738e76f2200f3f2c12a32f260d116f858a2e1ff33c48973ddd3e1c97"
+		),
 		.target(
 			name: "LiveKit",
 			dependencies: [
 				.target(name: "CHeaders"),
-				.product(name: "WebRTC", package: "webrtc-ios-xcframework"),
+				.product(name: "WebRTC", package: "webrtc-xcframework"),
 				.product(name: "SwiftProtobuf", package: "swift-protobuf"),
 				.product(name: "Logging", package: "swift-log"),
 			],
-			path: "Sources"
+			path: "Sources",
+			exclude: [
+				"LiveKitCore",
+			]
 		),
 		.testTarget(
 			name: "LiveKitTests",
@@ -51,7 +55,8 @@ let package = Package(
 		.target(
 			name: "LiveKitCore",
 			dependencies: [
-				.product(name: "WebRTC", package: "webrtc-ios-xcframework"),
+				.byNameItem(name: "AltWebRTC", condition: nil), // Alt.WebRTC
+//				.product(name: "WebRTC", package: "webrtc-xcframework"),  // LiveKit WebRTC
 				.product(name: "SwiftProtobuf", package: "swift-protobuf"),
 				.product(name: "AsyncAlgorithms", package: "swift-async-algorithms"),
 			],
@@ -59,6 +64,7 @@ let package = Package(
 			sources: [
 				"Core/AudioDevice.swift",
 				"Core/Convenience.swift",
+				"Core/LiveKitCompatibility.swift",
 				"Core/LiveKit+Signals.swift",
 				"Core/Logging.swift",
                 "Core/MediaTransmitters.swift",
@@ -84,15 +90,13 @@ let package = Package(
 				"Shared/ConnectivityListener-Core.swift",
 				"Shared/DimensionsProvider.swift",
 				"Shared/Engine-Core.swift",
-				"Shared/LiveKitCompatibility.swift",
-				"Shared/Extensions/Engine+WebRTC.swift",
+				"Shared/VideoCoding-Core.swift",
 				"Shared/Extensions/Primitives.swift",
 				"Shared/Extensions/RTCConfiguration.swift",
 				"Shared/Extensions/RTCMediaConstraints.swift",
 				"Shared/Extensions/TimeInterval.swift",
 				"Shared/LiveKit-Core.swift",
 				"Shared/Protocols/MediaEncoding.swift",
-				"Shared/Protos/livekit_ipc.pb.swift",
 				"Shared/Protos/livekit_models.pb.swift",
 				"Shared/Protos/livekit_rtc.pb.swift",
 				"Shared/SharedModels.swift",
@@ -107,10 +111,13 @@ let package = Package(
 				"Shared/Types/Dimensions.swift",
 				"Shared/Types/Errors.swift",
 				"Shared/Types/IceCandidate.swift",
+				"Shared/Types/IceServer.swift",
 				"Shared/Types/Other.swift",
 				"Shared/Types/ProtocolVersion.swift",
 				"Shared/Types/PublishOptions.swift",
+				"Shared/Types/ScalabilityMode.swift",
 				"Shared/Types/SessionDescription.swift",
+				"Shared/Types/VideoCodec.swift",
 				"Shared/Types/VideoEncoding+Comparable.swift",
 				"Shared/Types/VideoEncoding.swift",
 				"Shared/Types/VideoParameters+Comparable.swift",
@@ -120,13 +127,14 @@ let package = Package(
 			],
 			swiftSettings: [
 				.define("LKCORE"),
-				.define("LK_USE_ALTERNATIVE_WEBRTC_BUILD"),
+//				.define("LKCORE_USE_LIVEKIT_WEBRTC"), // << use this for livekit webrtc fw
+//				.define("LKCORE_USE_EBAY_WEBRTC"), // << use this for ebay-live webrtc fw
+				.define("LKCORE_USE_ALTERNATIVE_WEBRTC"), //OK
 			]
 		),
 		.testTarget(
 			name: "LiveKitCoreTests",
-			dependencies: ["LiveKitCore"],
-			path: "Sources/LiveKitCoreTests"
+			dependencies: ["LiveKitCore"]
 		)
 	]
 )
