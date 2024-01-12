@@ -148,7 +148,7 @@ class PassthroughVideoDecoder: NSObject, RTCVideoDecoder {
 		
 		videoFrameBuffer.sampleBuffer = sampleBuffer
 		guard let presentationTimeStamp = sampleTimings.last?.presentationTimeStamp else { return WEBRTC_VIDEO_CODEC_ERROR }
-		videoFrame.timeStamp = imageTimeStamp
+		videoFrame.timeStamp = RTCIntegerType(imageTimeStamp)
 		self.callback?(videoFrame)
 		
 		return WEBRTC_VIDEO_CODEC_OK

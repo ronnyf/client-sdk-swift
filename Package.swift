@@ -25,21 +25,15 @@ let package = Package(
 		.package(url: "https://github.com/apple/swift-protobuf.git", .upToNextMajor(from: "1.25.2")),
 		.package(url: "https://github.com/apple/swift-log.git", .upToNextMajor(from: "1.5.3")),
 		.package(url: "https://github.com/apple/swift-async-algorithms.git", .upToNextMajor(from: "0.1.0")),
-		// LK-Prefixed Dynamic WebRTC XCFramework ---v
-		.package(url: "https://github.com/livekit/webrtc-xcframework.git", exact: "114.5735.10"),
+		.package(url: "git@github.corp.ebay.com:eBayMobile/webrtc-ios-xcframework.git", .upToNextMinor(from: "1.0.0")),
 	],
 	targets: [
 		.systemLibrary(name: "CHeaders"),
-		.binaryTarget(
-			name: "AltWebRTC",
-			url: "https://github.com/stasel/WebRTC/releases/download/119.0.0/WebRTC-M119.xcframework.zip",
-			checksum: "60737020738e76f2200f3f2c12a32f260d116f858a2e1ff33c48973ddd3e1c97"
-		),
 		.target(
 			name: "LiveKit",
 			dependencies: [
 				.target(name: "CHeaders"),
-				.product(name: "WebRTC", package: "webrtc-xcframework"),
+				.product(name: "LKWebRTC", package: "webrtc-ios-xcframework"),
 				.product(name: "SwiftProtobuf", package: "swift-protobuf"),
 				.product(name: "Logging", package: "swift-log"),
 			],
@@ -55,8 +49,7 @@ let package = Package(
 		.target(
 			name: "LiveKitCore",
 			dependencies: [
-				.byNameItem(name: "AltWebRTC", condition: nil), // Alt.WebRTC
-//				.product(name: "WebRTC", package: "webrtc-xcframework"),  // LiveKit WebRTC
+				.product(name: "AltWebRTC", package: "webrtc-ios-xcframework"),
 				.product(name: "SwiftProtobuf", package: "swift-protobuf"),
 				.product(name: "AsyncAlgorithms", package: "swift-async-algorithms"),
 			],
@@ -64,13 +57,16 @@ let package = Package(
 			sources: [
 				"Core/AudioDevice.swift",
 				"Core/Convenience.swift",
-				"Core/LiveKitCompatibility.swift",
 				"Core/LiveKit+Signals.swift",
+				"Core/LiveKitCompatibility.swift",
 				"Core/Logging.swift",
-                "Core/MediaTransmitters.swift",
+				"Core/MediaTransmitters.swift",
 				"Core/MessageChannel.swift",
 				"Core/MessageChannel+Connect.swift",
 				"Core/Models.swift",
+				"Core/Nalu.swift",
+				"Core/Nalu+Sequence.swift",
+				"Core/PassthroughVideoDecoder.swift",
 				"Core/PeerConnection.swift",
 				"Core/PeerConnection+Coordinator.swift",
 				"Core/PeerConnection+Negotiation.swift",
