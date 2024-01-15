@@ -17,13 +17,15 @@ public struct LiveKitVideoView: View {
 	
 	let mediaTrack: MediaStreamTrack
 	@State private var isVisible: Bool = false
+	@Binding private var videoGravity: AVLayerVideoGravity
 	
-	public init(mediatrack: @autoclosure () -> MediaStreamTrack) {
+	public init(videoGravity: Binding<AVLayerVideoGravity>, mediatrack: @autoclosure () -> MediaStreamTrack) {
+		_videoGravity = videoGravity
 		self.mediaTrack = mediatrack()
 	}
 	
 	public var body: some View {
-		RemoteVideoView(isVisible: $isVisible, mediaTrack: mediaTrack.rtcMediaStreamTrack)
+		RemoteVideoView(isVisible: $isVisible, videoGravity: $videoGravity, mediaTrack: mediaTrack.rtcMediaStreamTrack)
 			.onAppear {
 				isVisible = true
 			}
@@ -147,10 +149,12 @@ struct RemoteVideoView: UIViewRepresentable {
 	typealias UIViewType = RemoteVideoRenderView
 	
 	@Binding var isVisible: Bool
+	@Binding var videoGravity: AVLayerVideoGravity
 	let mediaTrack: RTCMediaStreamTrack
 	
-	init(isVisible: Binding<Bool>, mediaTrack: @autoclosure () -> RTCMediaStreamTrack) {
+	init(isVisible: Binding<Bool>, videoGravity: Binding<AVLayerVideoGravity>, mediaTrack: @autoclosure () -> RTCMediaStreamTrack) {
 		self._isVisible = isVisible
+		self._videoGravity = videoGravity
 		self.mediaTrack = mediaTrack()
 	}
 	
@@ -160,12 +164,14 @@ struct RemoteVideoView: UIViewRepresentable {
 	
 	func makeUIView(context: Context) -> UIViewType {
 		let view = UIViewType()
-		view.sampleBufferDisplayLayer.videoGravity = .resizeAspectFill
+		view.sampleBufferDisplayLayer.videoGravity = videoGravity
 		context.coordinator.configurePip(for: view.sampleBufferDisplayLayer)
 		return view
 	}
 	
 	func updateUIView(_ uiView: UIViewType, context: Context) {
+		uiView.sampleBufferDisplayLayer.videoGravity = videoGravity
+		
 		if let videoTrack = mediaTrack as? RTCVideoTrack {
 			Logger.plog(oslog: RemoteVideoRenderView.log, publicMessage: "uiview: \(uiView)")
 			if isVisible == true {
