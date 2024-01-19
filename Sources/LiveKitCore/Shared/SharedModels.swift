@@ -753,7 +753,7 @@ public final class Receiver: @unchecked Sendable, Identifiable {
 }
 
 extension Receiver: Equatable {
-	public static func == (lhs: Receiver, rhs: Receiver) -> Bool {
+	nonisolated public static func == (lhs: Receiver, rhs: Receiver) -> Bool {
 		lhs.id == rhs.id
 	}
 }

@@ -68,9 +68,12 @@ class PassthroughVideoDecoder: NSObject, RTCVideoDecoder {
 		let sampleBlockBuffer = makeEmptyBlockBuffer(capacity: UInt32(encodedImage.buffer.count))
 		var sampleTimings: [CMSampleTimingInfo] = []
 		
-		precondition(sampleBlockBuffer != nil)
-		
 		var result = WEBRTC_VIDEO_CODEC_OK
+		
+		guard sampleBlockBuffer != nil, callback != nil else {
+			Logger.plog(level: .debug, oslog: Self.log, publicMessage: "ignoring frame")
+			return result
+		}
 		
 		for nalu in NaluSequence(base: encodedImage.buffer) {
 			switch nalu.kind {
@@ -102,7 +105,7 @@ class PassthroughVideoDecoder: NSObject, RTCVideoDecoder {
 					
 					let result = updateBlockBuffer(blockBuffer, from: nalu.avccBuffer)
 					guard result == noErr else {
-						Logger.plog(level: .error, oslog: Self.log, publicMessage: "failed to make block buffer from nalu: \(nalu)")
+						Logger.plog(level: .error, oslog: Self.log, publicMessage: "failed to update block buffer from nalu: \(nalu)")
 						return WEBRTC_VIDEO_CODEC_ERROR
 					}
 					
@@ -118,7 +121,7 @@ class PassthroughVideoDecoder: NSObject, RTCVideoDecoder {
 					// CMSampleBuffer's blockBuffer timing info (pt 3)
 					sampleTimings.append(timingInfo)
 				} catch {
-					print("DEBUG: ERROR: \(error)")
+					Logger.plog(level: .error, oslog: Self.log, publicMessage: error.localizedDescription)
 					return WEBRTC_VIDEO_CODEC_ERROR
 				}
 			}
@@ -144,14 +147,11 @@ class PassthroughVideoDecoder: NSObject, RTCVideoDecoder {
 			return WEBRTC_VIDEO_CODEC_ERROR
 		}
 
-		precondition(self.callback != nil)
-		
 		videoFrameBuffer.sampleBuffer = sampleBuffer
-		guard let presentationTimeStamp = sampleTimings.last?.presentationTimeStamp else { return WEBRTC_VIDEO_CODEC_ERROR }
-		videoFrame.timeStamp = RTCIntegerType(imageTimeStamp)
+		videoFrame.timeStamp = RTCTimestampIntegerType(imageTimeStamp)
 		self.callback?(videoFrame)
 		
-		return WEBRTC_VIDEO_CODEC_OK
+		return sampleTimings.last?.presentationTimeStamp != nil ? WEBRTC_VIDEO_CODEC_OK : WEBRTC_VIDEO_CODEC_ERROR
 	}
 	
 	func makeFormatDescription(parameterSets: [UnsafePointer<UInt8>], parameterSizes: [Int]) -> CMFormatDescription? {
@@ -311,7 +311,11 @@ extension RTCFrameType {
 
 #if LKCORE_USE_EBAY_WEBRTC
 typealias RTCIntegerType = Int
+typealias RTCTimestampIntegerType = Int
 #else
+// this WebRTC framework defines:
+typealias RTCTimestampIntegerType = Int32
+// v----width, height in RTCVideoFrame/VideoFrameBuffer as (int) / Int32 types
 typealias RTCIntegerType = Int32
 #endif
 

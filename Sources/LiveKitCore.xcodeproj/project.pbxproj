@@ -18,6 +18,7 @@
 		6025C3392A147D3F00DC21DF /* DimensionsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6025C3382A147D3F00DC21DF /* DimensionsProvider.swift */; };
 		6025C3462A147DDB00DC21DF /* Engine-Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6025C3452A147DDB00DC21DF /* Engine-Core.swift */; };
 		6025C3652A14815F00DC21DF /* ConnectivityListener-Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6025C3642A14815F00DC21DF /* ConnectivityListener-Core.swift */; };
+		602A8E962B5B0170008FC41F /* AltWebRTC in Frameworks */ = {isa = PBXBuildFile; productRef = 602A8E952B5B0170008FC41F /* AltWebRTC */; };
 		602B03DF2A9069C000642B1C /* LiveKitCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60888F5329F97E9F00AE5111 /* LiveKitCore.framework */; };
 		603D8E942B4C9459009EF38F /* VideoCoding-Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 603D8E932B4C9459009EF38F /* VideoCoding-Core.swift */; };
 		603D8E952B4C9459009EF38F /* VideoCoding-Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 603D8E932B4C9459009EF38F /* VideoCoding-Core.swift */; };
@@ -25,7 +26,6 @@
 		603D8E982B4C9D9F009EF38F /* VideoCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 603D8E962B4C9D9F009EF38F /* VideoCodec.swift */; };
 		603D8EA32B4CD1C5009EF38F /* ScalabilityMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 603D8EA22B4CD1C5009EF38F /* ScalabilityMode.swift */; };
 		603D8EA42B4CD1C5009EF38F /* ScalabilityMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 603D8EA22B4CD1C5009EF38F /* ScalabilityMode.swift */; };
-		603D8EAD2B4CD623009EF38F /* WebRTC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 603D8EAC2B4CD623009EF38F /* WebRTC.framework */; };
 		603F70492AA9448B004C8D99 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 603F70482AA9448B004C8D99 /* Logging.swift */; };
 		603F704A2AA9448B004C8D99 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 603F70482AA9448B004C8D99 /* Logging.swift */; };
 		605246AF2ACD103600ECA167 /* MessageChannel+Connect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605246AE2ACD103600ECA167 /* MessageChannel+Connect.swift */; };
@@ -172,6 +172,7 @@
 		603D8E992B4CA253009EF38F /* IceServer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IceServer.swift; path = LiveKit/Types/IceServer.swift; sourceTree = SOURCE_ROOT; };
 		603D8EA22B4CD1C5009EF38F /* ScalabilityMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ScalabilityMode.swift; path = LiveKit/Types/ScalabilityMode.swift; sourceTree = SOURCE_ROOT; };
 		603D8EAC2B4CD623009EF38F /* WebRTC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = WebRTC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		603E2F112B58BA3E00DECF30 /* WebRTC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = WebRTC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		603F70482AA9448B004C8D99 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		605246AE2ACD103600ECA167 /* MessageChannel+Connect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MessageChannel+Connect.swift"; sourceTree = "<group>"; };
 		605246B12ACD11B000ECA167 /* PeerConnection+Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PeerConnection+Coordinator.swift"; sourceTree = "<group>"; };
@@ -222,7 +223,7 @@
 		60A0DF592A9298B80038C808 /* TimeInterval.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TimeInterval.swift; path = LiveKit/Extensions/TimeInterval.swift; sourceTree = SOURCE_ROOT; };
 		60A0DF5A2A9298B90038C808 /* RTCMediaConstraints.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RTCMediaConstraints.swift; path = LiveKit/Extensions/RTCMediaConstraints.swift; sourceTree = SOURCE_ROOT; };
 		60A0DF5B2A9298B90038C808 /* RTCConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RTCConfiguration.swift; path = LiveKit/Extensions/RTCConfiguration.swift; sourceTree = SOURCE_ROOT; };
-		60BFB45B2ACDE0010081807F /* VideoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoView.swift; sourceTree = "<group>"; };
+		60BFB45B2ACDE0010081807F /* VideoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoView.swift; sourceTree = "<group>"; wrapsLines = 1; };
 		60C507002B1980ED00240CF6 /* PassthroughVideoDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassthroughVideoDecoder.swift; sourceTree = "<group>"; };
 		60CE7B152B4F1CB7003DA0BA /* LiveKitCompatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LiveKitCompatibility.swift; sourceTree = "<group>"; };
 		60D269D32B2122EC002CD72E /* Nalu+Sequence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Nalu+Sequence.swift"; sourceTree = "<group>"; };
@@ -240,9 +241,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				602A8E962B5B0170008FC41F /* AltWebRTC in Frameworks */,
 				601BCA7F2AA80F7700F9AE30 /* AsyncAlgorithms in Frameworks */,
 				601BCA822AA80FA900F9AE30 /* SwiftProtobuf in Frameworks */,
-				603D8EAD2B4CD623009EF38F /* WebRTC.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -269,6 +270,7 @@
 		600B8ECE2A1C78B40038A6C6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				603E2F112B58BA3E00DECF30 /* WebRTC.framework */,
 				603D8EAC2B4CD623009EF38F /* WebRTC.framework */,
 			);
 			name = Frameworks;
@@ -470,6 +472,7 @@
 			packageProductDependencies = (
 				601BCA7E2AA80F7700F9AE30 /* AsyncAlgorithms */,
 				601BCA812AA80FA900F9AE30 /* SwiftProtobuf */,
+				602A8E952B5B0170008FC41F /* AltWebRTC */,
 			);
 			productName = LiveKitCore;
 			productReference = 60888F5329F97E9F00AE5111 /* LiveKitCore.framework */;
@@ -505,6 +508,8 @@
 			buildRules = (
 			);
 			dependencies = (
+				603E2F412B58E83E00DECF30 /* PBXTargetDependency */,
+				603E2F432B58E83E00DECF30 /* PBXTargetDependency */,
 			);
 			name = libLiveKitCore;
 			packageProductDependencies = (
@@ -548,6 +553,7 @@
 			packageReferences = (
 				601BCA7D2AA80F7700F9AE30 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */,
 				601BCA802AA80FA900F9AE30 /* XCRemoteSwiftPackageReference "swift-protobuf" */,
+				602A8E922B5B0124008FC41F /* XCRemoteSwiftPackageReference "webrtc-ios-xcframework" */,
 			);
 			productRefGroup = 60888F5429F97E9F00AE5111 /* Products */;
 			projectDirPath = "";
@@ -735,6 +741,14 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		603E2F412B58E83E00DECF30 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 603E2F402B58E83E00DECF30 /* AsyncAlgorithms */;
+		};
+		603E2F432B58E83E00DECF30 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 603E2F422B58E83E00DECF30 /* SwiftProtobuf */;
+		};
 		60888F6029F97E9F00AE5111 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 60888F5229F97E9F00AE5111 /* LiveKitCore */;
@@ -801,7 +815,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG LKCORE_USE_EBAY_WEBRTC NOLKCORE_USE_ALTERNATIVE_WEBRTC";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG NOLKCORE_USE_EBAY_WEBRTC LKCORE_USE_ALTERNATIVE_WEBRTC";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -855,7 +869,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				KEEP_PRIVATE_EXTERNS = NO;
+				KEEP_PRIVATE_EXTERNS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -1006,19 +1020,20 @@
 		60E39AF02A61A91400FBE675 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
 				CLANG_ENABLE_MODULE_DEBUGGING = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = QYHMMGCMJR;
 				ENABLE_MODULE_VERIFIER = YES;
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LIBRARY_SEARCH_PATHS = "";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
-				OTHER_LDFLAGS = "";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				OTHER_LDFLAGS = "-ObjC";
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_MODULE_NAME = "$(PRODUCT_NAME:c99extidentifier)";
 				PRODUCT_NAME = LiveKitCore;
@@ -1026,7 +1041,9 @@
 				STRIP_STYLE = "non-global";
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_INCLUDE_PATHS = "";
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TVOS_DEPLOYMENT_TARGET = 15.0;
@@ -1037,20 +1054,21 @@
 		60E39AF12A61A91400FBE675 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
 				CLANG_ENABLE_MODULE_DEBUGGING = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = QYHMMGCMJR;
 				ENABLE_MODULE_VERIFIER = YES;
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				KEEP_PRIVATE_EXTERNS = YES;
+				KEEP_PRIVATE_EXTERNS = NO;
 				LIBRARY_SEARCH_PATHS = "";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
-				OTHER_LDFLAGS = "";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				OTHER_LDFLAGS = "-ObjC";
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_MODULE_NAME = "$(PRODUCT_NAME:c99extidentifier)";
 				PRODUCT_NAME = LiveKitCore;
@@ -1058,7 +1076,9 @@
 				STRIP_STYLE = "non-global";
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_INCLUDE_PATHS = "";
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TVOS_DEPLOYMENT_TARGET = 15.0;
@@ -1124,6 +1144,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		602A8E922B5B0124008FC41F /* XCRemoteSwiftPackageReference "webrtc-ios-xcframework" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.corp.ebay.com:eBayMobile/webrtc-ios-xcframework.git";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1133,6 +1161,21 @@
 			productName = AsyncAlgorithms;
 		};
 		601BCA812AA80FA900F9AE30 /* SwiftProtobuf */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 601BCA802AA80FA900F9AE30 /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = SwiftProtobuf;
+		};
+		602A8E952B5B0170008FC41F /* AltWebRTC */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 602A8E922B5B0124008FC41F /* XCRemoteSwiftPackageReference "webrtc-ios-xcframework" */;
+			productName = AltWebRTC;
+		};
+		603E2F402B58E83E00DECF30 /* AsyncAlgorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 601BCA7D2AA80F7700F9AE30 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */;
+			productName = AsyncAlgorithms;
+		};
+		603E2F422B58E83E00DECF30 /* SwiftProtobuf */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 601BCA802AA80FA900F9AE30 /* XCRemoteSwiftPackageReference "swift-protobuf" */;
 			productName = SwiftProtobuf;

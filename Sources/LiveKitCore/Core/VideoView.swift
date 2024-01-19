@@ -101,21 +101,16 @@ class RemoteVideoRenderView: UIView {
 				return
 			}
 			
-			if #available(iOS 17.0, *) {
 #if swift(>=5.9)
+			if #available(iOS 17.0, *) {
 				sampleBufferDisplayLayer?.sampleBufferRenderer.enqueue(sampleBuffer)
-#else
-				DispatchQueue.main.async {
-					self.sampleBufferDisplayLayer?.enqueue(sampleBuffer)
-				}
-#endif
 			} else {
 				DispatchQueue.main.async {
 					self.sampleBufferDisplayLayer?.enqueue(sampleBuffer)
 				}
 			}
+#endif
 		}
-		
 		private func makeSampleBuffer(from pixelBuffer: CVPixelBuffer, timestamp: Int64) -> CMSampleBuffer? {
 			// Get the video format description
 			var formatDescription: CMFormatDescription?
@@ -243,68 +238,6 @@ struct RemoteVideoView: UIViewRepresentable {
 		
 		func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, skipByInterval skipInterval: CMTime) async {
 			print("DEBUG: skipByInterval: \(skipInterval)")
-		}
-	}
-}
-
-// The RTCMediaStreamTrack type is internal only, we don't want to expose this to the outside world.
-struct RTCMTLVideoViewWrapper: UIViewRepresentable {
-	
-	typealias UIViewType = RTCMTLVideoView
-	
-	@Binding var isVisible: Bool
-	let mediaTrack: RTCMediaStreamTrack
-	
-	init(isVisible: Binding<Bool>, mediaTrack: @autoclosure () -> RTCMediaStreamTrack) {
-		self._isVisible = isVisible
-		self.mediaTrack = mediaTrack()
-	}
-	
-	func makeUIView(context: Context) -> UIViewType {
-		let view = UIViewType()
-		view.videoContentMode = .scaleAspectFit
-		return view
-	}
-	
-	func updateUIView(_ uiView: UIViewType, context: Context) {
-		if let videoTrack = mediaTrack as? RTCVideoTrack {
-			if isVisible == true {
-				videoTrack.add(uiView)
-			} else {
-				videoTrack.remove(uiView)
-			}
-		}
-	}
-}
-#endif
-
-#if os(macOS)
-struct RTCMTLVideoViewWrapper: NSViewRepresentable {
-	
-	typealias NSViewType = RTCMTLVideoView
-	
-	@Binding var isVisible: Bool
-	let mediaTrack: RTCMediaStreamTrack
-	
-	init(isVisible: Binding<Bool>, mediaTrack: @autoclosure () -> RTCMediaStreamTrack) {
-		self._isVisible = isVisible
-		self.mediaTrack = mediaTrack()
-	}
-	
-	func makeNSView(context: Context) -> NSViewType {
-		let view = NSViewType()
-// FIXME: on macOS this seems to work differently. Let's look at this when the time is right.
-//		view.videoContentMode = .scaleAspectFit
-		return view
-	}
-	
-	func updateNSView(_ uiView: NSViewType, context: Context) {
-		if let videoTrack = mediaTrack as? RTCVideoTrack {
-			if isVisible == true {
-				videoTrack.add(uiView)
-			} else {
-				videoTrack.remove(uiView)
-			}
 		}
 	}
 }
