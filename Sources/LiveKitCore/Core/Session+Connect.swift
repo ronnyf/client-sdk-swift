@@ -13,7 +13,7 @@ extension LiveKitSession {
 	public func connect(
 		urlString: String,
 		token: String,
-		urlSessionConfiguration: URLSessionConfiguration = .liveKitDefault
+		urlSessionConfiguration: URLSessionConfiguration = .liveKitDefault()
 	) async throws {
 		guard let url = Utils.buildUrl(urlString, token, adaptiveStream: true) else {
 			throw Errors.url
@@ -76,6 +76,7 @@ extension LiveKitSession {
 			try await messageChannelGroup.cancelOnFirstCompletion()
 		}
 		Logger.plog(oslog: sessionLog, publicMessage: "session is disconnecting")
+		try signalHub.sendLeaveRequest();
 		try await signalHub.teardown()
 	}
 }

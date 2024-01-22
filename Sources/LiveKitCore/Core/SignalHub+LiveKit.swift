@@ -138,4 +138,14 @@ extension SignalHub {
 		let request = makeSubscriptionPermissionsRequest(allowAll: allowAll, trackPermissions: trackPermissions)
 		try enqueue(request: request)
 	}
+	
+	func sendLeaveRequest() throws {
+		Logger.plog(level: .debug, oslog: signalHubLog, publicMessage: "sending leave request")
+		let request = Livekit_SignalRequest.with {
+			$0.leave = Livekit_LeaveRequest.with {
+				$0.reason = .clientInitiated
+			}
+		}
+		try enqueue(request: request)
+	}
 }

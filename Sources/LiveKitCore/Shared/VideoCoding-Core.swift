@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import OSLog
 @_implementationOnly import WebRTC
 
 class DefaultVideoEncoderFactory: NSObject, RTCVideoEncoderFactory {
@@ -40,12 +40,17 @@ class DefaultVideoEncoderFactory: NSObject, RTCVideoEncoderFactory {
 
 class DefaultVideoDecoderFactory: NSObject, RTCVideoDecoderFactory {
 	
+	fileprivate static let log = OSLog(subsystem: "VideoDecoderFactory", category: "LiveKitCore")
+	
 	func createDecoder(_ info: RTCVideoCodecInfo) -> RTCVideoDecoder? {
 		
 		switch info.name {
 		case kRTCVideoCodecH264Name:
+			#if LKCORE_PASSTHROUGH_DECODER
 			return PassthroughVideoDecoder()
-//			return RTCVideoDecoderH264()
+			#else
+			return RTCVideoDecoderH264()
+			#endif
 			
 		case kRTCVideoCodecVp8Name:
 			return RTCVideoDecoderVP8.vp8Decoder()
@@ -70,25 +75,38 @@ class DefaultVideoDecoderFactory: NSObject, RTCVideoDecoderFactory {
 
 extension RTCVideoCodecInfo {
 	static var defaultSupportedCodecInfo: [RTCVideoCodecInfo] {
-		#if LKCORE_USE_ALTERNATIVE_WEBRTC || LKCORE_USE_LIVEKIT_WEBRTC
-		guard let profileLevelId = RTCH264ProfileLevelId(profile: .constrainedBaseline, level: .level5) else { return [] }
-		#else
-		let profileLevelId = RTCH264ProfileLevelId(profile: .constrainedBaseline, level: .level5)
-		#endif
-		let baselineCodecInfo = RTCVideoCodecInfo(name: kRTCVideoCodecH264Name,
-												  parameters: ["profile-level-id": profileLevelId.hexString,
-															   "level-asymmetry-allowed": "1",
-															   "packetization-mode": "1"])
+		let levels: [RTCH264Level] =  [.level3, .level3_2, .level4, .level4_2, .level5, .level5_2]
+		let codecs: [RTCH264Profile: [RTCH264Level]] = [
+			.constrainedHigh: levels,
+			.constrainedBaseline: levels,
+		]
 		
-		let maxCodecInfo = RTCVideoCodecInfo(
-			name: kRTCVideoCodecH264Name,
-			parameters: [
-				"profile-level-id": kRTCMaxSupportedH264ProfileLevelConstrainedBaseline,
-				"level-asymmetry-allowed": "1",
-				"packetization-mode": "1"
-			]
-		)
+		let profileLevelIdKey = "profile-level-id"
+		let h264Params = [profileLevelIdKey: "", "level-asymmetry-allowed": "1", "packetization-mode": "1"]
 		
-		return [baselineCodecInfo, maxCodecInfo]
+		let codecInfo: [RTCVideoCodecInfo] = codecs.reduce(into: [RTCVideoCodecInfo]()) { infos, element in
+			let profile = element.key
+			let levels = element.value
+			let info = levels.compactMap { level -> RTCVideoCodecInfo? in
+				#if LKCORE_USE_EBAY_WEBRTC
+				let profileLevelId = RTCH264ProfileLevelId(profile: profile, level: level)
+				#else
+				guard let profileLevelId = RTCH264ProfileLevelId(profile: profile, level: level) else { return nil }
+				#endif
+				var levelParams = h264Params
+				levelParams[profileLevelIdKey] = profileLevelId.hexString
+				return RTCVideoCodecInfo(name: kRTCVideoCodecH264Name, parameters: levelParams)
+			}
+			infos.append(contentsOf: info)
+		}
+		
+		Logger.plog(level: .debug, oslog: DefaultVideoDecoderFactory.log, publicMessage: "supported video codecs: \(codecInfo.map { $0.internalDescription })")
+		return codecInfo
+	}
+}
+
+extension RTCVideoCodecInfo {
+	var internalDescription: String {
+		return "\(super.description): \(self.name) -> \(self.parameters)"
 	}
 }

@@ -43,7 +43,10 @@ class MessageChannel: @unchecked Sendable {
 	let urlSession: URLSession
 	let coordinator: WebsocketTaskCoordinator
 	
-	init(urlSessionConfiguration: URLSessionConfiguration = .liveKitDefault, coordinator: WebsocketTaskCoordinator = WebsocketTaskCoordinator()) {
+	init(
+		urlSessionConfiguration: URLSessionConfiguration = .liveKitDefault(),
+		coordinator: WebsocketTaskCoordinator = WebsocketTaskCoordinator()
+	) {
 		self.urlSession = URLSession(configuration: urlSessionConfiguration, delegate: coordinator, delegateQueue: nil)
 		self.coordinator = coordinator
 	}

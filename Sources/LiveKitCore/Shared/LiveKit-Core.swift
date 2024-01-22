@@ -28,5 +28,5 @@ import Foundation
 /// to try out the features.
 
 public enum LiveKit {
-	public static let version = "2.0.0"
+	public static let version = "1.1.5"
 }

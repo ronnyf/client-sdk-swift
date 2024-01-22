@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -13,12 +13,13 @@
 		601BCA822AA80FA900F9AE30 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = 601BCA812AA80FA900F9AE30 /* SwiftProtobuf */; };
 		601C71452B054359005DD0A0 /* MediaTransmitters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 601C71442B054359005DD0A0 /* MediaTransmitters.swift */; };
 		601C71462B054359005DD0A0 /* MediaTransmitters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 601C71442B054359005DD0A0 /* MediaTransmitters.swift */; };
+		601D17502B5B5A66007A3031 /* testimage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 60F54B272B2A493E00A39E22 /* testimage.jpg */; };
 		6023F5372A18440800005548 /* PeerConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6023F5362A18440800005548 /* PeerConnection.swift */; };
 		6025C3312A147C1800DC21DF /* SharedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6025C3302A147C1800DC21DF /* SharedModels.swift */; };
 		6025C3392A147D3F00DC21DF /* DimensionsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6025C3382A147D3F00DC21DF /* DimensionsProvider.swift */; };
 		6025C3462A147DDB00DC21DF /* Engine-Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6025C3452A147DDB00DC21DF /* Engine-Core.swift */; };
 		6025C3652A14815F00DC21DF /* ConnectivityListener-Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6025C3642A14815F00DC21DF /* ConnectivityListener-Core.swift */; };
-		602A8E962B5B0170008FC41F /* AltWebRTC in Frameworks */ = {isa = PBXBuildFile; productRef = 602A8E952B5B0170008FC41F /* AltWebRTC */; };
+		6029ADB82B6071E800CB452F /* EWebRTC in Frameworks */ = {isa = PBXBuildFile; productRef = 6029ADB72B6071E800CB452F /* EWebRTC */; };
 		602B03DF2A9069C000642B1C /* LiveKitCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60888F5329F97E9F00AE5111 /* LiveKitCore.framework */; };
 		603D8E942B4C9459009EF38F /* VideoCoding-Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 603D8E932B4C9459009EF38F /* VideoCoding-Core.swift */; };
 		603D8E952B4C9459009EF38F /* VideoCoding-Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 603D8E932B4C9459009EF38F /* VideoCoding-Core.swift */; };
@@ -145,7 +146,6 @@
 		60F2E77C2B1EA8F200C70930 /* encodedImage.bin in Resources */ = {isa = PBXBuildFile; fileRef = 60F2E77B2B1EA8F200C70930 /* encodedImage.bin */; };
 		60F319A52B1E2EAE00B108FC /* Nalu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60F319A42B1E2EAE00B108FC /* Nalu.swift */; };
 		60F319A62B1E2EAE00B108FC /* Nalu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60F319A42B1E2EAE00B108FC /* Nalu.swift */; };
-		60F54B282B2A493E00A39E22 /* testimage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 60F54B272B2A493E00A39E22 /* testimage.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -171,8 +171,6 @@
 		603D8E962B4C9D9F009EF38F /* VideoCodec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = VideoCodec.swift; path = LiveKit/Types/VideoCodec.swift; sourceTree = SOURCE_ROOT; };
 		603D8E992B4CA253009EF38F /* IceServer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IceServer.swift; path = LiveKit/Types/IceServer.swift; sourceTree = SOURCE_ROOT; };
 		603D8EA22B4CD1C5009EF38F /* ScalabilityMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ScalabilityMode.swift; path = LiveKit/Types/ScalabilityMode.swift; sourceTree = SOURCE_ROOT; };
-		603D8EAC2B4CD623009EF38F /* WebRTC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = WebRTC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		603E2F112B58BA3E00DECF30 /* WebRTC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = WebRTC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		603F70482AA9448B004C8D99 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		605246AE2ACD103600ECA167 /* MessageChannel+Connect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MessageChannel+Connect.swift"; sourceTree = "<group>"; };
 		605246B12ACD11B000ECA167 /* PeerConnection+Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PeerConnection+Coordinator.swift"; sourceTree = "<group>"; };
@@ -241,7 +239,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				602A8E962B5B0170008FC41F /* AltWebRTC in Frameworks */,
+				6029ADB82B6071E800CB452F /* EWebRTC in Frameworks */,
 				601BCA7F2AA80F7700F9AE30 /* AsyncAlgorithms in Frameworks */,
 				601BCA822AA80FA900F9AE30 /* SwiftProtobuf in Frameworks */,
 			);
@@ -270,8 +268,6 @@
 		600B8ECE2A1C78B40038A6C6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				603E2F112B58BA3E00DECF30 /* WebRTC.framework */,
-				603D8EAC2B4CD623009EF38F /* WebRTC.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -472,7 +468,7 @@
 			packageProductDependencies = (
 				601BCA7E2AA80F7700F9AE30 /* AsyncAlgorithms */,
 				601BCA812AA80FA900F9AE30 /* SwiftProtobuf */,
-				602A8E952B5B0170008FC41F /* AltWebRTC */,
+				6029ADB72B6071E800CB452F /* EWebRTC */,
 			);
 			productName = LiveKitCore;
 			productReference = 60888F5329F97E9F00AE5111 /* LiveKitCore.framework */;
@@ -553,7 +549,7 @@
 			packageReferences = (
 				601BCA7D2AA80F7700F9AE30 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */,
 				601BCA802AA80FA900F9AE30 /* XCRemoteSwiftPackageReference "swift-protobuf" */,
-				602A8E922B5B0124008FC41F /* XCRemoteSwiftPackageReference "webrtc-ios-xcframework" */,
+				6029ADB62B6071E800CB452F /* XCLocalSwiftPackageReference "../../webrtc-ios-xcframework" */,
 			);
 			productRefGroup = 60888F5429F97E9F00AE5111 /* Products */;
 			projectDirPath = "";
@@ -571,7 +567,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				60F54B282B2A493E00A39E22 /* testimage.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -580,6 +575,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				60F2E77C2B1EA8F200C70930 /* encodedImage.bin in Resources */,
+				601D17502B5B5A66007A3031 /* testimage.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -815,10 +811,15 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG NOLKCORE_USE_EBAY_WEBRTC LKCORE_USE_ALTERNATIVE_WEBRTC";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG LKCORE_USE_EBAY_WEBRTC NOLKCORE_USE_ALTERNATIVE_WEBRTC";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 15.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Debug;
 		};
@@ -877,9 +878,14 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) LKCORE_USE_EBAY_WEBRTC NOLKCORE_USE_ALTERNATIVE_WEBRTC";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 15.0;
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Release;
 		};
@@ -901,6 +907,7 @@
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -950,6 +957,7 @@
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				KEEP_PRIVATE_EXTERNS = NO;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1064,7 +1072,7 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				KEEP_PRIVATE_EXTERNS = NO;
+				KEEP_PRIVATE_EXTERNS = YES;
 				LIBRARY_SEARCH_PATHS = "";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
@@ -1127,6 +1135,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		6029ADB62B6071E800CB452F /* XCLocalSwiftPackageReference "../../webrtc-ios-xcframework" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../webrtc-ios-xcframework";
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		601BCA7D2AA80F7700F9AE30 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -1144,14 +1159,6 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		602A8E922B5B0124008FC41F /* XCRemoteSwiftPackageReference "webrtc-ios-xcframework" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.corp.ebay.com:eBayMobile/webrtc-ios-xcframework.git";
-			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1165,10 +1172,9 @@
 			package = 601BCA802AA80FA900F9AE30 /* XCRemoteSwiftPackageReference "swift-protobuf" */;
 			productName = SwiftProtobuf;
 		};
-		602A8E952B5B0170008FC41F /* AltWebRTC */ = {
+		6029ADB72B6071E800CB452F /* EWebRTC */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 602A8E922B5B0124008FC41F /* XCRemoteSwiftPackageReference "webrtc-ios-xcframework" */;
-			productName = AltWebRTC;
+			productName = EWebRTC;
 		};
 		603E2F402B58E83E00DECF30 /* AsyncAlgorithms */ = {
 			isa = XCSwiftPackageProductDependency;

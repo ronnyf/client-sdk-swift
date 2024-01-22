@@ -202,23 +202,11 @@ extension TaskGroup {
 	}
 }
 
-extension Subject where Output == Data {
-	func enqueue(_ request: Livekit_SignalRequest) throws {
-		send(try request.serializedData())
-	}
-	
-	public var publisher: some Publisher<Output, Failure> {
-		self.compactMap { $0 }
-	}
-	
-	public func stream() -> AsyncStream<Output> where Failure == Never {
-		self.publisher.stream()
-	}
-	
-	public func throwingStream() -> AsyncThrowingStream<Output, Failure> where Failure == Error {
-		publisher.throwingStream()
-	}
-}
+//extension Subject where Output == Data {
+//	func enqueue(_ request: Livekit_SignalRequest) throws {
+//		send(try request.serializedData())
+//	}
+//}
 
 extension CurrentValueSubject where Output : SetAlgebra {
 	func insert<Element>(_ element: Element) where Element == Output.Element {

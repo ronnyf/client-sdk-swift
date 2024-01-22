@@ -39,7 +39,7 @@ open class LiveKitSession: @unchecked Sendable {
 	
 	public let id: String
 	public let signalHub: SignalHub
-	let sessionLog = OSLog(subsystem: "LiveKitSession", category: "LiveKitCore")
+	public let sessionLog = OSLog(subsystem: "LiveKitSession", category: "LiveKitCore")
 	
 	public init(
 		id: String = UUID().uuidString,
@@ -59,12 +59,12 @@ open class LiveKitSession: @unchecked Sendable {
 		connectionStatePublisher.assign(to: &_liveKitConnectionState)
 	}
 	
-	public var localParticipantPublisher: some Publisher<LiveKitParticipant, Never> {
+	public var localParticipant: some Publisher<LiveKitParticipant, Never> {
 		signalHub.$localParticipant.publisher.compactMap{ $0 }
 	}
 	
 	public var remoteParticipants: some Publisher<[String: LiveKitParticipant], Never> {
-		signalHub.$remoteParticipants.publisher
+		signalHub.$remoteParticipants.publisher.print("DEBUG: remote participants")
 	}
 	
 	public var mediaStreams: some Publisher<[String: LiveKitStream], Never> {
@@ -176,13 +176,16 @@ open class LiveKitSession: @unchecked Sendable {
 }
 
 extension URLSessionConfiguration {
-	public class var liveKitDefault: URLSessionConfiguration {
+	public class func liveKitDefault() -> URLSessionConfiguration {
 		let config = URLSessionConfiguration.default
 		// explicitly set timeout intervals
 		config.timeoutIntervalForRequest = TimeInterval(60)
 		config.timeoutIntervalForResource = TimeInterval(604_800)
-		//        log("URLSessionConfiguration.timeoutIntervalForRequest: \(config.timeoutIntervalForRequest)")
-		//        log("URLSessionConfiguration.timeoutIntervalForResource: \(config.timeoutIntervalForResource)")
+		config.shouldUseExtendedBackgroundIdleMode = true
+		config.networkServiceType = .callSignaling
+#if os(iOS)
+		config.multipathServiceType = .handover
+#endif
 		return config
 	}
 }

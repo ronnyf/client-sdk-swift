@@ -101,7 +101,7 @@ class RemoteVideoRenderView: UIView {
 				return
 			}
 			
-#if swift(>=5.9)
+			#if swift(>=5.9)
 			if #available(iOS 17.0, *) {
 				sampleBufferDisplayLayer?.sampleBufferRenderer.enqueue(sampleBuffer)
 			} else {
@@ -109,7 +109,11 @@ class RemoteVideoRenderView: UIView {
 					self.sampleBufferDisplayLayer?.enqueue(sampleBuffer)
 				}
 			}
-#endif
+			#else
+			DispatchQueue.main.async {
+				self.sampleBufferDisplayLayer?.enqueue(sampleBuffer)
+			}
+			#endif
 		}
 		private func makeSampleBuffer(from pixelBuffer: CVPixelBuffer, timestamp: Int64) -> CMSampleBuffer? {
 			// Get the video format description

@@ -96,6 +96,7 @@ extension PeerConnection {
 			
 			signalHub.localParticipant = LiveKitParticipant(joinResponse.participant)
 			// ---v this should use same grouping as in LiveKit+Signals.swift
+			Logger.plog(level: .debug, oslog: coordinator.peerConnectionLog, publicMessage: "remote participants: \(joinResponse.otherParticipants)")
 			signalHub.remoteParticipants = joinResponse.otherParticipants.grouped(by: \.id) { LiveKitParticipant($0) }
 			return false // we want the subscribing peer connection to call configure() as well...
 			
@@ -104,12 +105,12 @@ extension PeerConnection {
 			return true
 			
 		case .trickle(let response) where response.target == .publisher && peerConnectionIsPublisher == true:
-			//            Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) publicher received trickle: \(response)")
+			// Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) publicher received trickle: \(response)")
 			try await add(candidateInit: response.candidateInit)
 			return true
 			
 		case .trickle(let response) where response.target == .subscriber && peerConnectionIsPublisher == false:
-			//            Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) subscriber received trickle: \(response)")
+			// Logger.plog(oslog: coordinator.peerConnectionLog, publicMessage: "\(self.description) subscriber received trickle: \(response)")
 			try await add(candidateInit: response.candidateInit)
 			return true
 			
@@ -172,7 +173,6 @@ extension SignalHub {
 						// merge all active participants (with or without tracks) into our dictionary of remote participants
 						.mergingGrouped(by: \.id, into: &remoteParticipants) { LiveKitParticipant($0) }
 					
-					Logger.plog(oslog: signalHubLog, publicMessage: "after participant update: \(remoteParticipants)")
 					
 				default:
 					// remove all partipants that were updated to non-active state from our dictionary of remote participants
@@ -181,6 +181,8 @@ extension SignalHub {
 					}
 				}
 			}
+			
+			Logger.plog(oslog: signalHubLog, publicMessage: "remote participants after update: \(remoteParticipants)")
 			return true
 			
 		case .trackPublished(let update) where update.track.type == .audio :

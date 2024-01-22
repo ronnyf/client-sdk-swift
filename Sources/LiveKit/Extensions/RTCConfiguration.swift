@@ -15,11 +15,11 @@
  */
 
 import Foundation
-import WebRTC
+@_implementationOnly import WebRTC
 
 extension RTCConfiguration {
 
-    public static func liveKitDefault() -> RTCConfiguration {
+    static func liveKitDefault() -> RTCConfiguration {
 
         let result = DispatchQueue.liveKitWebRTC.sync { RTCConfiguration() }
         result.sdpSemantics = .unifiedPlan
@@ -31,7 +31,7 @@ extension RTCConfiguration {
         return result
     }
 
-    public convenience init(copy configuration: RTCConfiguration) {
+    convenience init(copy configuration: RTCConfiguration) {
         self.init()
         self.enableDscp = configuration.enableDscp
         self.iceServers = configuration.iceServers
@@ -57,7 +57,9 @@ extension RTCConfiguration {
         self.iceCheckMinInterval = configuration.iceCheckMinInterval
         self.sdpSemantics = configuration.sdpSemantics
         self.activeResetSrtpParams = configuration.activeResetSrtpParams
+		#if LKCORE_USE_LIVEKIT_WEBRTC
         self.allowCodecSwitching = configuration.allowCodecSwitching
+		#endif
         self.cryptoOptions = configuration.cryptoOptions
         self.turnLoggingId = configuration.turnLoggingId
         self.rtcpAudioReportIntervalMs = configuration.rtcpAudioReportIntervalMs

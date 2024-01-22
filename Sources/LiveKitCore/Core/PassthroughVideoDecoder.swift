@@ -151,7 +151,8 @@ class PassthroughVideoDecoder: NSObject, RTCVideoDecoder {
 		videoFrame.timeStamp = RTCTimestampIntegerType(imageTimeStamp)
 		self.callback?(videoFrame)
 		
-		return sampleTimings.last?.presentationTimeStamp != nil ? WEBRTC_VIDEO_CODEC_OK : WEBRTC_VIDEO_CODEC_ERROR
+		let result = sampleTimings.isEmpty == false ? WEBRTC_VIDEO_CODEC_OK : WEBRTC_VIDEO_CODEC_ERROR
+		return result
 	}
 	
 	func makeFormatDescription(parameterSets: [UnsafePointer<UInt8>], parameterSizes: [Int]) -> CMFormatDescription? {
@@ -311,7 +312,11 @@ extension RTCFrameType {
 
 #if LKCORE_USE_EBAY_WEBRTC
 typealias RTCIntegerType = Int
-typealias RTCTimestampIntegerType = Int
+typealias RTCTimestampIntegerType = UInt32
+#elseif LKCORE_USE_ALTERNATIVE_WEBRTC
+typealias RTCTimestampIntegerType = Int32
+// v----width, height in RTCVideoFrame/VideoFrameBuffer as (int) / Int32 types
+typealias RTCIntegerType = Int32
 #else
 // this WebRTC framework defines:
 typealias RTCTimestampIntegerType = Int32

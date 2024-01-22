@@ -27,11 +27,8 @@ class PeerConnectionFactory: @unchecked Sendable {
 			
 			let fieldTrials = [kRTCFieldTrialUseNWPathMonitor: kRTCFieldTrialEnabledValue]
 			RTCInitFieldTrialDictionary(fieldTrials)
-			
-			let encoderFactory = DefaultVideoEncoderFactory()
-			let decoderFactory = DefaultVideoDecoderFactory()
-			let pcf = RTCPeerConnectionFactory(encoderFactory: encoderFactory,
-											   decoderFactory: decoderFactory,
+			let pcf = RTCPeerConnectionFactory(encoderFactory: DefaultVideoEncoderFactory(),
+											   decoderFactory: DefaultVideoDecoderFactory(),
 											   audioDevice: audioDevice.rtc)
 			return pcf
 		}()

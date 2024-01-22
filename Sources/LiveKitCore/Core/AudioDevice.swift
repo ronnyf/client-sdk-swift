@@ -51,10 +51,7 @@ public class AudioDevice {
 	}
 	
 	deinit {
-		if let audioConverter {
-			AudioConverterDispose(audioConverter)
-			self.audioConverter = nil
-		}
+		teardownAudioConverter()
 		Logger.plog(level: .debug, oslog: audioDeviceLog, publicMessage: "deinit <AudioDevice>")
 	}
 	
@@ -68,10 +65,7 @@ public class AudioDevice {
 		else { throw Errors.noDeliveryFormat }
 
 		// if there's an old audio converter, get rid of it
-		if let audioConverter {
-			AudioConverterDispose(audioConverter)
-			self.audioConverter = nil
-		}
+		teardownAudioConverter()
 		
 		//make a new audio converter, this one definitely matches the recording and delivery formats
 		Logger.plog(level: .debug, oslog: audioDeviceLog, publicMessage: "attempting to make new audio converter from: \(String(describing: recordingFormat.debugDescription)) -> \(deliveryFormat.debugDescription)")
@@ -97,11 +91,6 @@ public class AudioDevice {
 			let payload = AudioPayload(timestamp: timestamp, frameCount: framecount, audioBufferList: audioBufferList)
 			return rtc.deliver(payload, converter: audioConverter)
 		}
-	}
-	
-	public func stopAudioDelivery() {
-		Logger.plog(oslog: audioDeviceLog, publicMessage: "stopping audio delivery")
-		audioSinkNode = nil
 	}
 	
 	public func prepareAudioCapture(outputFormat: AVAudioFormat) throws {
@@ -139,13 +128,33 @@ public class AudioDevice {
 	public func stopAudioCapture() {
 		Logger.plog(oslog: audioDeviceLog, publicMessage: "stopping audio capture")
 		audioSourceNode = nil
+		_audioSourceNode.finish()
+	}
+	
+	public func stopAudioDelivery() {
+		Logger.plog(oslog: audioDeviceLog, publicMessage: "stopping audio delivery")
+		audioSinkNode = nil
+		_audioSinkNode.finish()
+	}
+	
+	func teardownAudioConverter() {
+		if let audioConverter {
+			AudioConverterDispose(audioConverter)
+			self.audioConverter = nil
+		}
 	}
 	
 	func teardown() {
-		Logger.plog(oslog: audioDeviceLog, publicMessage: "teardown")
+		Logger.plog(oslog: audioDeviceLog, publicMessage: "teardown AudioDevice")
 		// TODO: need some inspration about how to do this more neatly...
-		stopAudioDelivery()
 		subscriptions.removeAll(keepingCapacity: true)
+		stopAudioDelivery()
+		teardownAudioConverter()
+		
+		_conversionStatus.finish()
+		_deliveryStatus.finish()
+		
+		rtc.terminateDevice()
 	}
 }
 
@@ -231,14 +240,18 @@ class AudioDeviceProxy: NSObject, RTCAudioDevice {
 	
 	@discardableResult
 	func terminateDevice() -> Bool {
+		Logger.plog(oslog: audioDeviceProxyLog, publicMessage: "teardown AudioDeviceProxy (RTCAudioDevice)")
+		
+		audioDeviceDelegate = nil
+
 		shouldPlay = false
 		shouldRecord = false
 		
-		_shouldPlay.subject.send(completion: .finished)
-		_shouldRecord.subject.send(completion: .finished)
+		_shouldPlay.finish()
+		_shouldRecord.finish()
+		_audioDeviceDelegate.finish()
+		_audioRenderActionFlags.finish()
 		
-		audioDeviceDelegate = nil
-		_audioDeviceDelegate.subject.send(completion: .finished)
 		return true
 	}
 	

@@ -49,7 +49,7 @@ let package = Package(
 		.target(
 			name: "LiveKitCore",
 			dependencies: [
-				.product(name: "AltWebRTC", package: "webrtc-ios-xcframework"),
+				.product(name: "EWebRTC", package: "webrtc-ios-xcframework"),
 				.product(name: "SwiftProtobuf", package: "swift-protobuf"),
 				.product(name: "AsyncAlgorithms", package: "swift-async-algorithms"),
 			],
@@ -122,9 +122,7 @@ let package = Package(
 				"Shared/Types/VideoQuality.swift",
 			],
 			swiftSettings: [
-//				.define("LKCORE_USE_LIVEKIT_WEBRTC"), // << use this for livekit webrtc fw
-//				.define("LKCORE_USE_EBAY_WEBRTC"), // << use this for ebay-live webrtc fw
-				.define("LKCORE_USE_ALTERNATIVE_WEBRTC"), //OK
+				.define("LKCORE_USE_EBAY_WEBRTC"),
 			]
 		),
 		.testTarget(

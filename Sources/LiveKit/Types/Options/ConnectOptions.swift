@@ -49,7 +49,7 @@ public class ConnectOptions: NSObject {
     @objc
     public override init() {
         self.autoSubscribe = true
-        self.configuration = LiveKitConfiguration(.liveKitDefault)
+        self.configuration = LiveKitConfiguration(.liveKitDefault())
         self.publishOnlyMode = nil
         self.reconnectAttempts = 3
         self.reconnectAttemptDelay = .defaultReconnectAttemptDelay
@@ -65,7 +65,7 @@ public class ConnectOptions: NSObject {
                 protocolVersion: ProtocolVersion = .v9) {
 
         self.autoSubscribe = autoSubscribe
-		self.configuration = configuration ?? LiveKitConfiguration(.liveKitDefault)
+		self.configuration = configuration ?? LiveKitConfiguration(.liveKitDefault())
         self.publishOnlyMode = publishOnlyMode
         self.reconnectAttempts = reconnectAttempts
         self.reconnectAttemptDelay = reconnectAttemptDelay
